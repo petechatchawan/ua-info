@@ -1,0 +1,21 @@
+# Ignore everything by default
+*
+
+# Include necessary files
+!package.json
+!README.md
+!LICENSE
+!dist/
+!src/
+!lib/
+
+# Exclude development files
+node_modules/
+src/**
+tests/
+*.log
+*.tmp
+.DS_Store
+.git
+.gitignore
+.npmignore

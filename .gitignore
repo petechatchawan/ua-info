@@ -1,0 +1,34 @@
+# Node modules
+node_modules/
+
+# Build output
+dist/lib
+lib/
+
+# Logs
+logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
+.env.local
+
+# IDE and editor settings
+.idea/                 # JetBrains IDEs (e.g., WebStorm)
+.vscode/               # Visual Studio Code settings
+*.sublime-project      # Sublime Text project files
+*.sublime-workspace    # Sublime Text workspace files
+
+# npm package lock file (optional)
+package-lock.json
+
+# Miscellaneous
+*.tgz
