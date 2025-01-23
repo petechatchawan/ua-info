@@ -1,1 +1,1 @@
-export { UAInfo } from "./main/useragent-info";
+export { UAInfo, OSName, BrowserName, BrowserInfo, OSInfo, DeviceInfo } from "./main/useragent-info";
