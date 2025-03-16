@@ -324,7 +324,10 @@ const BrowserMappings = [
         },
     },
     {
-        regex: [/version\/([\w\.\,]+) .*mobile(?:\/\w+ | ?)safari/i, /iphone .*mobile(?:\/\w+ | ?)safari/i],
+        regex: [
+            /version\/([\w\.\,]+) .*mobile(?:\/\w+ | ?)safari/i,
+            /iphone .*mobile(?:\/\w+ | ?)safari/i,
+        ],
         properties: {
             version: { value: (match) => match },
             name: 'Safari Mobile',
@@ -597,7 +600,9 @@ const DeviceMappings = [
      *
      */
     {
-        regex: [/(?:\b|asus_)(transfo[prime ]{4,10} \w+|eeepc|slider \w+|nexus 7|padfone|p00[cj])/i],
+        regex: [
+            /(?:\b|asus_)(transfo[prime ]{4,10} \w+|eeepc|slider \w+|nexus 7|padfone|p00[cj])/i,
+        ],
         properties: {
             type: 'tablet',
             vendor: 'Asus',
@@ -644,7 +649,10 @@ const DeviceMappings = [
      *
      */
     {
-        regex: [/(ideatab[-\w ]+)/i, /lenovo ?(s[56]000[-\w]+|tab(?:[\w ]+)|yt[-\d\w]{6}|tb[-\d\w]{6})/i],
+        regex: [
+            /(ideatab[-\w ]+)/i,
+            /lenovo ?(s[56]000[-\w]+|tab(?:[\w ]+)|yt[-\d\w]{6}|tb[-\d\w]{6})/i,
+        ],
         properties: {
             type: 'tablet',
             vendor: 'Lenovo',
@@ -847,17 +855,21 @@ class UAInfo {
         return browserNames.includes(this.uaInfo.os.name);
     }
     isDevice(types) {
+        var _a;
         const deviceTypes = Array.isArray(types) ? types : [types];
-        return deviceTypes.includes(this.uaInfo.device.type);
+        return deviceTypes.includes((_a = this.uaInfo.device) === null || _a === void 0 ? void 0 : _a.type);
     }
     isMobile() {
-        return this.uaInfo.device.type === 'mobile';
+        var _a;
+        return ((_a = this.uaInfo.device) === null || _a === void 0 ? void 0 : _a.type) === 'mobile';
     }
     isDesktop() {
-        return this.uaInfo.device.type === 'desktop';
+        var _a;
+        return ((_a = this.uaInfo.device) === null || _a === void 0 ? void 0 : _a.type) === 'desktop';
     }
     isTablet() {
-        return this.uaInfo.device.type === 'tablet';
+        var _a;
+        return ((_a = this.uaInfo.device) === null || _a === void 0 ? void 0 : _a.type) === 'tablet';
     }
     isBrowserVersionAtLeast(version) {
         return this.compareVersions(this.uaInfo.browser.version, version) >= 0;
@@ -907,4 +919,4 @@ function mapDeviceModel(userAgent) {
     }
     return undefined;
 }
-export { UAInfo };
+export { UAInfo, };

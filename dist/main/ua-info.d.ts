@@ -68,4 +68,4 @@ declare class UAInfo {
     isOSVersionAtLeast(version: string): boolean;
     private compareVersions;
 }
-export { UAInfo, type MappingEntry, type PropertyDefinition, type PropertyValue, type UserAgentResult };
+export { UAInfo, type MappingEntry, type PropertyDefinition, type PropertyValue, type UserAgentResult, };
