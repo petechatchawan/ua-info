@@ -974,7 +974,12 @@ class UAInfo {
     public isIPad(): boolean {
         const isStandalone =
             'standalone' in window.navigator && !!(window.navigator as any)['standalone'];
-        return this.uaInfo.os.name === 'MacOS' && isStandalone && navigator.maxTouchPoints > 0;
+        return !!(
+            this.uaInfo.os.name === 'MacOS' &&
+            isStandalone &&
+            navigator.maxTouchPoints > 1 &&
+            navigator.maxTouchPoints
+        );
     }
 
     public isBrowser(names: BrowserName | BrowserName[]): boolean {

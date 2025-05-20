@@ -841,7 +841,10 @@ class UAInfo {
     }
     isIPad() {
         const isStandalone = 'standalone' in window.navigator && !!window.navigator['standalone'];
-        return this.uaInfo.os.name === 'MacOS' && isStandalone && navigator.maxTouchPoints > 0;
+        return !!(this.uaInfo.os.name === 'MacOS' &&
+            isStandalone &&
+            navigator.maxTouchPoints > 1 &&
+            navigator.maxTouchPoints);
     }
     isBrowser(names) {
         const browserNames = Array.isArray(names) ? names : [names];
