@@ -853,7 +853,7 @@ class UAInfo {
     private userAgent: string = '';
     private uaInfo!: UserAgentInfo;
 
-    constructor() {}
+    constructor() { }
 
     public setUserAgent(userAgent: string): this {
         this.userAgent = userAgent;
@@ -972,13 +972,9 @@ class UAInfo {
     }
 
     public isIPad(): boolean {
-        const isStandalone =
-            'standalone' in window.navigator && !!(window.navigator as any)['standalone'];
-        return !!(
-            this.uaInfo.os.name === 'MacOS' &&
-            isStandalone &&
-            navigator.maxTouchPoints > 1 &&
-            navigator.maxTouchPoints
+        return (
+            navigator.userAgent.includes('iPad') ||
+            ((navigator.userAgent.includes('Macintosh') || (this.uaInfo.os.name === 'MacOS')) && navigator.maxTouchPoints > 1)
         );
     }
 

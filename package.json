@@ -1,6 +1,6 @@
 {
   "name": "ua-info",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Split user agent string into browser, os, device type and device model",
   "author": "Chatchawan Koedsawas",
   "license": "MIT",
