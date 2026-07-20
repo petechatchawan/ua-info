@@ -1,6 +1,6 @@
 {
   "name": "ua-info",
-  "version": "1.0.7",
+  "version": "1.1.0",
   "description": "Split user agent string into browser, os, device type and device model",
   "author": "Chatchawan Koedsawas",
   "license": "MIT",
@@ -9,12 +9,12 @@
   "types": "dist/index.d.ts",
   "sideEffects": false,
   "scripts": {
-    "lint": "eslint ./src/**.ts",
+    "lint": "eslint './src/**/*.ts'",
     "clean": "rm -rf dist",
-    "build": "npm run clean && tsc --project tsconfig.json"
+    "build": "npm run clean && tsc --project tsconfig.json",
+    "test": "jest --verbose"
   },
   "files": [
-    "lib",
     "dist"
   ],
   "keywords": [
@@ -23,11 +23,13 @@
     "utilities"
   ],
   "devDependencies": {
-    "@types/jest": "^29.5.13",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^18.19.130",
     "@typescript-eslint/eslint-plugin": "^8.7.0",
     "@typescript-eslint/parser": "^8.7.0",
-    "rxjs": "^7.8.1",
     "eslint": "^8.25.0",
+    "jest": "^30.4.2",
+    "ts-jest": "^29.4.11",
     "typescript": "^4.9.5"
   }
 }

@@ -1,5 +1,2 @@
-// 1. Export UA Info
-export { UAInfo, OSName, BrowserName, BrowserInfo, OSInfo, DeviceInfo } from './main/ua-info';
-
-// 2. Export Types
-// export * from "./types/types";
+export { UAInfo } from './main/ua-info';
+export type { BrowserName, OSName, BrowserInfo, OSInfo, DeviceInfo, UserAgentInfo } from './types';
