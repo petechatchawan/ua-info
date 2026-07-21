@@ -1,121 +1,240 @@
 import { BrowserFamily, BrowserId } from '../constants';
-import type { BrowserInfo } from '../types';
+import type { BrowserInfo, BrowserMode } from '../types';
 import { parseVersion } from '../version';
 
-export type BrowserEngineHint = 'blink' | 'gecko' | 'webkit';
+export type BrowserEngineHint = 'blink' | 'gecko' | 'trident' | 'webkit';
 
 export interface BrowserDetection {
     readonly browser: BrowserInfo;
     readonly engineHint: BrowserEngineHint;
 }
 
-const CHROMIUM_DERIVATIVE_TOKEN =
-    /\b(?:Arc|Brave|Edg(?:A|iOS)?|HuaweiBrowser|MiuiBrowser|OPR|OPT|SamsungBrowser|UCBrowser|Vivaldi|YaBrowser)\//i;
+interface BrowserPattern {
+    readonly regex: RegExp;
+    readonly id: string;
+    readonly name: string;
+    readonly family: string;
+    readonly engine: BrowserEngineHint;
+    readonly mode?: BrowserMode;
+}
 
-function createDetection(
-    id: string,
-    name: string,
-    family: string,
-    versionRaw: string,
-    engineHint: BrowserEngineHint,
-): BrowserDetection {
+function createDetection(pattern: BrowserPattern, versionRaw: string, mode?: BrowserMode): BrowserDetection {
     return {
         browser: {
-            id,
-            name,
+            id: pattern.id,
+            name: pattern.name,
             version: parseVersion(versionRaw),
-            family,
-            mode: 'browser',
+            family: pattern.family,
+            mode: mode ?? pattern.mode ?? 'browser',
         },
-        engineHint,
+        engineHint: pattern.engine,
     };
 }
 
-/**
- * Detects only the browsers implemented by the v2 core parser.
- * Ordering is deliberate: derivative tokens are resolved before their shared
- * compatibility tokens so Edge never falls through to Chrome and iOS browsers
- * retain their product identity while using WebKit.
- */
+function findPattern(userAgent: string, patterns: readonly BrowserPattern[]): BrowserDetection | null {
+    for (const pattern of patterns) {
+        const match = pattern.regex.exec(userAgent);
+        if (match?.[1]) {
+            return createDetection(pattern, match[1]);
+        }
+    }
+
+    return null;
+}
+
+function isAndroidWebView(userAgent: string): boolean {
+    return /(?:;\s*wv\)|\bVersion\/4\.0\b.*\bChrome\/)/i.test(userAgent);
+}
+
+const DERIVATIVE_PATTERNS: readonly BrowserPattern[] = [
+    {
+        regex: /\bEdgiOS\/([0-9]+(?:\.[0-9]+)*)/i,
+        id: BrowserId.Edge,
+        name: 'Edge',
+        family: BrowserFamily.Chromium,
+        engine: 'webkit',
+    },
+    {
+        regex: /\bEdgA?\/([0-9]+(?:\.[0-9]+)*)/i,
+        id: BrowserId.Edge,
+        name: 'Edge',
+        family: BrowserFamily.Chromium,
+        engine: 'blink',
+    },
+    {
+        regex: /\b(?:OPiOS|OPT)\/([0-9]+(?:\.[0-9]+)*)/i,
+        id: BrowserId.Opera,
+        name: 'Opera',
+        family: BrowserFamily.Chromium,
+        engine: 'webkit',
+    },
+    {
+        regex: /\b(?:OPR|Opera Mini)\/([0-9]+(?:\.[0-9]+)*)/i,
+        id: BrowserId.Opera,
+        name: 'Opera',
+        family: BrowserFamily.Chromium,
+        engine: 'blink',
+    },
+    {
+        regex: /\bSamsungBrowser\/([0-9]+(?:\.[0-9]+)*)/i,
+        id: BrowserId.SamsungInternet,
+        name: 'Samsung Internet',
+        family: BrowserFamily.Chromium,
+        engine: 'blink',
+    },
+    {
+        regex: /\bVivaldi\/([0-9]+(?:\.[0-9]+)*)/i,
+        id: BrowserId.Vivaldi,
+        name: 'Vivaldi',
+        family: BrowserFamily.Chromium,
+        engine: 'blink',
+    },
+    {
+        regex: /\bYaBrowser\/([0-9]+(?:\.[0-9]+)*)/i,
+        id: BrowserId.Yandex,
+        name: 'Yandex Browser',
+        family: BrowserFamily.Chromium,
+        engine: 'blink',
+    },
+    {
+        regex: /\bUCBrowser\/([0-9]+(?:\.[0-9]+)*)/i,
+        id: BrowserId.UCBrowser,
+        name: 'UC Browser',
+        family: BrowserFamily.Chromium,
+        engine: 'blink',
+    },
+    {
+        regex: /\bHuaweiBrowser\/([0-9]+(?:\.[0-9]+)*)/i,
+        id: BrowserId.Huawei,
+        name: 'Huawei Browser',
+        family: BrowserFamily.Chromium,
+        engine: 'blink',
+    },
+    {
+        regex: /\b(?:XiaoMi\/MiuiBrowser|MiuiBrowser)\/([0-9]+(?:\.[0-9]+)*)/i,
+        id: BrowserId.Xiaomi,
+        name: 'Xiaomi Browser',
+        family: BrowserFamily.Chromium,
+        engine: 'blink',
+    },
+    {
+        regex: /\bArc\/([0-9]+(?:\.[0-9]+)*)/i,
+        id: BrowserId.Arc,
+        name: 'Arc',
+        family: BrowserFamily.Chromium,
+        engine: 'blink',
+    },
+    {
+        regex: /\bBrave(?: Chrome)?\/([0-9]+(?:\.[0-9]+)*)/i,
+        id: BrowserId.Brave,
+        name: 'Brave',
+        family: BrowserFamily.Chromium,
+        engine: 'blink',
+    },
+];
+
+/** Detects browser product identity without reading runtime globals. */
 export function detectBrowser(userAgent: string): BrowserDetection | null {
-    const edgeIOS = /\bEdgiOS\/([0-9]+(?:\.[0-9]+)*)/i.exec(userAgent);
-    if (edgeIOS) {
+    const headless = /\bHeadlessChrome\/([0-9]+(?:\.[0-9]+)*)/i.exec(userAgent);
+    if (headless?.[1]) {
         return createDetection(
-            BrowserId.Edge,
-            'Edge',
-            BrowserFamily.Chromium,
-            edgeIOS[1],
-            'webkit',
+            {
+                regex: /$^/,
+                id: BrowserId.Chrome,
+                name: 'Chrome',
+                family: BrowserFamily.Chromium,
+                engine: 'blink',
+            },
+            headless[1],
+            'headless',
         );
     }
 
-    const edge = /\bEdgA?\/([0-9]+(?:\.[0-9]+)*)/i.exec(userAgent);
-    if (edge) {
-        return createDetection(
-            BrowserId.Edge,
-            'Edge',
-            BrowserFamily.Chromium,
-            edge[1],
-            'blink',
-        );
-    }
+    const derivative = findPattern(userAgent, DERIVATIVE_PATTERNS);
+    if (derivative) return derivative;
 
     const firefoxIOS = /\bFxiOS\/([0-9]+(?:\.[0-9]+)*)/i.exec(userAgent);
-    if (firefoxIOS) {
+    if (firefoxIOS?.[1]) {
         return createDetection(
-            BrowserId.Firefox,
-            'Firefox',
-            BrowserFamily.Firefox,
+            {
+                regex: /$^/,
+                id: BrowserId.Firefox,
+                name: 'Firefox',
+                family: BrowserFamily.Firefox,
+                engine: 'webkit',
+            },
             firefoxIOS[1],
-            'webkit',
         );
     }
 
     const firefox = /\bFirefox\/([0-9]+(?:\.[0-9]+)*)/i.exec(userAgent);
-    if (firefox) {
+    if (firefox?.[1]) {
         return createDetection(
-            BrowserId.Firefox,
-            'Firefox',
-            BrowserFamily.Firefox,
+            {
+                regex: /$^/,
+                id: BrowserId.Firefox,
+                name: 'Firefox',
+                family: BrowserFamily.Firefox,
+                engine: 'gecko',
+            },
             firefox[1],
-            'gecko',
         );
     }
 
     const chromeIOS = /\bCriOS\/([0-9]+(?:\.[0-9]+)*)/i.exec(userAgent);
-    if (chromeIOS && !CHROMIUM_DERIVATIVE_TOKEN.test(userAgent)) {
+    if (chromeIOS?.[1]) {
         return createDetection(
-            BrowserId.Chrome,
-            'Chrome',
-            BrowserFamily.Chromium,
+            {
+                regex: /$^/,
+                id: BrowserId.Chrome,
+                name: 'Chrome',
+                family: BrowserFamily.Chromium,
+                engine: 'webkit',
+            },
             chromeIOS[1],
-            'webkit',
         );
     }
 
-    const chrome = /\bChrome\/([0-9]+(?:\.[0-9]+)*)/i.exec(userAgent);
-    if (chrome && !CHROMIUM_DERIVATIVE_TOKEN.test(userAgent)) {
+    const chrome = /\b(?:Chrome|Chromium)\/([0-9]+(?:\.[0-9]+)*)/i.exec(userAgent);
+    if (chrome?.[1]) {
         return createDetection(
-            BrowserId.Chrome,
-            'Chrome',
-            BrowserFamily.Chromium,
+            {
+                regex: /$^/,
+                id: BrowserId.Chrome,
+                name: 'Chrome',
+                family: BrowserFamily.Chromium,
+                engine: 'blink',
+            },
             chrome[1],
-            'blink',
+            isAndroidWebView(userAgent) ? 'webview' : 'browser',
         );
     }
 
     const safariVersion = /\bVersion\/([0-9]+(?:\.[0-9]+)*)/i.exec(userAgent);
-    const hasSafariToken = /\bSafari\/[0-9.]+/i.test(userAgent);
-    const hasCompetingBrowserToken =
-        /\b(?:Chrome|CriOS|Edg|EdgA|EdgiOS|Firefox|FxiOS|OPR|OPT)\//i.test(userAgent);
-
-    if (safariVersion && hasSafariToken && !hasCompetingBrowserToken) {
+    if (safariVersion?.[1] && /\bSafari\/[0-9.]+/i.test(userAgent)) {
         return createDetection(
-            BrowserId.Safari,
-            'Safari',
-            BrowserFamily.Safari,
+            {
+                regex: /$^/,
+                id: BrowserId.Safari,
+                name: 'Safari',
+                family: BrowserFamily.Safari,
+                engine: 'webkit',
+            },
             safariVersion[1],
-            'webkit',
+        );
+    }
+
+    const ie = /(?:MSIE\s|Trident\/.*?rv:)([0-9]+(?:\.[0-9]+)*)/i.exec(userAgent);
+    if (ie?.[1]) {
+        return createDetection(
+            {
+                regex: /$^/,
+                id: BrowserId.InternetExplorer,
+                name: 'Internet Explorer',
+                family: BrowserFamily.InternetExplorer,
+                engine: 'trident',
+            },
+            ie[1],
         );
     }
 
