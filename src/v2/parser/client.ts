@@ -34,7 +34,7 @@ const CLIENT_PATTERNS: readonly ClientPattern[] = [
 ];
 
 function genericBot(userAgent: string): ClientInfo | null {
-    const match = /\b([a-z0-9._-]*(?:bot|spider|crawler))[\/]?([0-9.]*)/i.exec(userAgent);
+    const match = /\b([a-z0-9._-]*(?:bot|spider|crawler))[/]?([0-9.]*)/i.exec(userAgent);
     if (!match?.[1]) return null;
 
     return {
