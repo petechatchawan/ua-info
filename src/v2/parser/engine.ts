@@ -19,38 +19,25 @@ function readGeckoVersion(userAgent: string): string | undefined {
     return /\brv:([0-9]+(?:\.[0-9]+)*)/i.exec(userAgent)?.[1];
 }
 
-/**
- * Resolves the rendering engine independently from browser product identity.
- * iOS browser products use WebKit even when their browser family is Chromium
- * or Firefox, while Chromium browsers outside iOS resolve to Blink.
- */
 export function detectEngine(
     userAgent: string,
     browserHint: BrowserEngineHint | null,
 ): EngineInfo | null {
-    if (browserHint === 'blink') {
-        return createEngine(EngineId.Blink, 'Blink');
-    }
-
-    if (browserHint === 'gecko') {
-        return createEngine(EngineId.Gecko, 'Gecko', readGeckoVersion(userAgent));
-    }
-
-    if (browserHint === 'webkit') {
-        return createEngine(EngineId.WebKit, 'WebKit', readWebKitVersion(userAgent));
+    if (browserHint === 'blink') return createEngine(EngineId.Blink, 'Blink');
+    if (browserHint === 'gecko') return createEngine(EngineId.Gecko, 'Gecko', readGeckoVersion(userAgent));
+    if (browserHint === 'webkit') return createEngine(EngineId.WebKit, 'WebKit', readWebKitVersion(userAgent));
+    if (browserHint === 'trident') {
+        const version = /\bTrident\/([0-9.]+)/i.exec(userAgent)?.[1];
+        return createEngine(EngineId.Trident, 'Trident', version);
     }
 
     const webKitVersion = readWebKitVersion(userAgent);
     if (webKitVersion) {
-        const hasChromiumRuntimeToken =
-            /\b(?:Chrome|Chromium|Edg|EdgA|OPR|SamsungBrowser)\//i.test(userAgent);
+        const hasChromiumToken = /\b(?:Chrome|Chromium|Edg|OPR|SamsungBrowser)\//i.test(userAgent);
         const isIOS = /\b(?:CPU (?:iPhone )?OS|iPad|iPhone|iPod)\b/i.test(userAgent);
-
-        if (hasChromiumRuntimeToken && !isIOS) {
-            return createEngine(EngineId.Blink, 'Blink');
-        }
-
-        return createEngine(EngineId.WebKit, 'WebKit', webKitVersion);
+        return hasChromiumToken && !isIOS
+            ? createEngine(EngineId.Blink, 'Blink')
+            : createEngine(EngineId.WebKit, 'WebKit', webKitVersion);
     }
 
     const geckoVersion = readGeckoVersion(userAgent);
