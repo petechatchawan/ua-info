@@ -2,6 +2,7 @@ export const BrowserId = {
     Arc: 'arc',
     Brave: 'brave',
     Chrome: 'chrome',
+    Chromium: 'chromium',
     Edge: 'edge',
     Firefox: 'firefox',
     Huawei: 'huawei-browser',
