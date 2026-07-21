@@ -23,18 +23,6 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: npm install
       - run: npm run lint
-      - name: Run tests
-        id: tests
-        continue-on-error: true
-        run: npm test -- --runInBand --json --outputFile=jest-report.json
-      - name: Upload Jest report
-        if: steps.tests.outcome == 'failure'
-        uses: actions/upload-artifact@v4
-        with:
-          name: jest-report-${{ matrix.node-version }}
-          path: jest-report.json
-      - name: Fail on test errors
-        if: steps.tests.outcome == 'failure'
-        run: exit 1
+      - run: npm test
       - run: npm run build
       - run: npm run pack:check
