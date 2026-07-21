@@ -4,17 +4,35 @@
   "description": "Split user agent string into browser, application, runtime browser, OS, device type and device model",
   "author": "Chatchawan Koedsawas",
   "license": "MIT",
-  "main": "dist/index.js",
-  "module": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/esm/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/esm/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js",
+      "default": "./dist/esm/index.js"
+    },
+    "./v2": {
+      "types": "./dist/esm/v2/index.d.ts",
+      "import": "./dist/esm/v2/index.js",
+      "require": "./dist/cjs/v2/index.js",
+      "default": "./dist/esm/v2/index.js"
+    },
+    "./package.json": "./package.json"
+  },
   "sideEffects": false,
   "scripts": {
     "lint": "eslint './src/**/*.ts'",
     "clean": "rm -rf dist",
-    "build": "npm run clean && tsc --project tsconfig.build.json",
+    "build:esm": "tsc --project tsconfig.build.json",
+    "build:cjs": "tsc --project tsconfig.build.cjs.json",
+    "build": "npm run clean && npm run build:esm && npm run build:cjs && node scripts/finalize-build.mjs",
     "test": "jest --verbose",
-    "check": "npm run lint && npm test && npm run build",
-    "pack:check": "node scripts/verify-package.mjs",
+    "consumer:check": "node scripts/verify-consumers.mjs",
+    "check": "npm run lint && npm test && npm run build && npm run pack:check",
+    "pack:check": "node scripts/verify-package.mjs && npm run consumer:check",
     "prepack": "npm run check"
   },
   "files": [
