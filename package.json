@@ -20,6 +20,30 @@
       "require": "./dist/cjs/v2/index.js",
       "default": "./dist/esm/v2/index.js"
     },
+    "./server": {
+      "types": "./dist/esm/v2/server.d.ts",
+      "import": "./dist/esm/v2/server.js",
+      "require": "./dist/cjs/v2/server.js",
+      "default": "./dist/esm/v2/server.js"
+    },
+    "./browser": {
+      "types": "./dist/esm/v2/browser.d.ts",
+      "import": "./dist/esm/v2/browser.js",
+      "require": "./dist/cjs/v2/browser.js",
+      "default": "./dist/esm/v2/browser.js"
+    },
+    "./v2/server": {
+      "types": "./dist/esm/v2/server.d.ts",
+      "import": "./dist/esm/v2/server.js",
+      "require": "./dist/cjs/v2/server.js",
+      "default": "./dist/esm/v2/server.js"
+    },
+    "./v2/browser": {
+      "types": "./dist/esm/v2/browser.d.ts",
+      "import": "./dist/esm/v2/browser.js",
+      "require": "./dist/cjs/v2/browser.js",
+      "default": "./dist/esm/v2/browser.js"
+    },
     "./package.json": "./package.json"
   },
   "sideEffects": false,
