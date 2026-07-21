@@ -22,19 +22,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: npm install
-      - name: Lint
-        run: |
-          set +e
-          npm run lint > lint.log 2>&1
-          status=$?
-          cat lint.log
-          exit $status
-      - name: Upload lint diagnostics
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: lint-log-node-${{ matrix.node-version }}
-          path: lint.log
+      - run: npm run lint
       - run: npm test
       - run: npm run build
       - run: npm run pack:check
