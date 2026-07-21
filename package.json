@@ -31,8 +31,8 @@
     "build": "npm run clean && npm run build:esm && npm run build:cjs && node scripts/finalize-build.mjs",
     "test": "jest --verbose",
     "consumer:check": "node scripts/verify-consumers.mjs",
-    "check": "npm run lint && npm test && npm run build && npm run consumer:check",
-    "pack:check": "node scripts/verify-package.mjs",
+    "check": "npm run lint && npm test && npm run build && npm run pack:check",
+    "pack:check": "node scripts/verify-package.mjs && npm run consumer:check",
     "prepack": "npm run check"
   },
   "files": [
