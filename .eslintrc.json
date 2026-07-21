@@ -11,5 +11,13 @@
   },
   "rules": {
     "no-magic-numbers": "off"
-  }
+  },
+  "overrides": [
+    {
+      "files": ["src/mappings/**/*.ts"],
+      "rules": {
+        "no-useless-escape": "off"
+      }
+    }
+  ]
 }
