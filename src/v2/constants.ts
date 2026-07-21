@@ -1,30 +1,45 @@
 export const BrowserId = {
+    Arc: 'arc',
+    Brave: 'brave',
     Chrome: 'chrome',
+    Chromium: 'chromium',
     Edge: 'edge',
     Firefox: 'firefox',
-    Safari: 'safari',
+    Huawei: 'huawei-browser',
+    InternetExplorer: 'internet-explorer',
     Opera: 'opera',
+    Safari: 'safari',
     SamsungInternet: 'samsung-internet',
+    UCBrowser: 'uc-browser',
+    Vivaldi: 'vivaldi',
+    Xiaomi: 'xiaomi-browser',
+    Yandex: 'yandex-browser',
 } as const;
 
 export const BrowserFamily = {
     Chromium: 'chromium',
     Firefox: 'firefox',
+    InternetExplorer: 'internet-explorer',
     Safari: 'safari',
 } as const;
 
 export const EngineId = {
     Blink: 'blink',
+    EdgeHTML: 'edgehtml',
     Gecko: 'gecko',
+    Trident: 'trident',
     WebKit: 'webkit',
 } as const;
 
 export const OSId = {
     Android: 'android',
     ChromeOS: 'chromeos',
+    HarmonyOS: 'harmonyos',
     IOS: 'ios',
+    KaiOS: 'kaios',
     Linux: 'linux',
     MacOS: 'macos',
+    Tizen: 'tizen',
     Windows: 'windows',
 } as const;
 

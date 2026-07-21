@@ -1,27 +1,37 @@
-import type { UAResult } from './types';
+import type { BrowserInfo, BrowserMode, UAResult } from './types';
 import { detectBrowser } from './parser/browser';
+import { detectClient } from './parser/client';
+import { detectContext } from './parser/context';
+import { detectCPU } from './parser/cpu';
+import { detectDevice } from './parser/device';
 import { detectEngine } from './parser/engine';
+import { detectOS } from './parser/os';
 
-/**
- * Parses a User-Agent string without reading browser globals or runtime state.
- * Platform, device, CPU, client, and context detection are added in later v2
- * phases; until then those dimensions return their canonical unknown values.
- */
+function applyContextMode(browser: BrowserInfo | null, mode: BrowserMode | null): BrowserInfo | null {
+    if (!browser || !mode || browser.mode === 'headless') return browser;
+    return { ...browser, mode };
+}
+
+/** Parses only the supplied User-Agent string and never reads runtime globals. */
 export function parse(userAgent: string): UAResult {
     const browserDetection = detectBrowser(userAgent);
+    const context = detectContext(userAgent);
+    const contextMode: BrowserMode | null = context
+        ? context.kind === 'embedded'
+            ? 'embedded'
+            : context.kind === 'in-app-browser' || context.kind === 'mini-app'
+              ? 'webview'
+              : null
+        : null;
 
     return {
         ua: userAgent,
-        browser: browserDetection?.browser ?? null,
+        browser: applyContextMode(browserDetection?.browser ?? null, contextMode),
         engine: detectEngine(userAgent, browserDetection?.engineHint ?? null),
-        os: null,
-        device: {
-            type: 'unknown',
-            vendor: null,
-            model: null,
-        },
-        cpu: null,
-        client: null,
-        context: null,
+        os: detectOS(userAgent),
+        device: detectDevice(userAgent),
+        cpu: detectCPU(userAgent),
+        client: detectClient(userAgent),
+        context,
     };
 }

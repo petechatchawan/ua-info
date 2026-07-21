@@ -1,7 +1,7 @@
 {
   "name": "ua-info",
-  "version": "1.2.0",
-  "description": "Split user agent string into browser, application, runtime browser, OS, device type and device model",
+  "version": "1.3.0",
+  "description": "General-purpose User-Agent and Client Hints parser with browser, platform, client, and execution-context detection",
   "author": "Chatchawan Koedsawas",
   "license": "MIT",
   "main": "./dist/cjs/index.js",
@@ -19,6 +19,30 @@
       "import": "./dist/esm/v2/index.js",
       "require": "./dist/cjs/v2/index.js",
       "default": "./dist/esm/v2/index.js"
+    },
+    "./server": {
+      "types": "./dist/esm/v2/server.d.ts",
+      "import": "./dist/esm/v2/server.js",
+      "require": "./dist/cjs/v2/server.js",
+      "default": "./dist/esm/v2/server.js"
+    },
+    "./browser": {
+      "types": "./dist/esm/v2/browser.d.ts",
+      "import": "./dist/esm/v2/browser.js",
+      "require": "./dist/cjs/v2/browser.js",
+      "default": "./dist/esm/v2/browser.js"
+    },
+    "./v2/server": {
+      "types": "./dist/esm/v2/server.d.ts",
+      "import": "./dist/esm/v2/server.js",
+      "require": "./dist/cjs/v2/server.js",
+      "default": "./dist/esm/v2/server.js"
+    },
+    "./v2/browser": {
+      "types": "./dist/esm/v2/browser.d.ts",
+      "import": "./dist/esm/v2/browser.js",
+      "require": "./dist/cjs/v2/browser.js",
+      "default": "./dist/esm/v2/browser.js"
     },
     "./package.json": "./package.json"
   },
@@ -39,9 +63,13 @@
     "dist"
   ],
   "keywords": [
-    "javascript",
-    "utils",
-    "utilities"
+    "user-agent",
+    "ua-parser",
+    "client-hints",
+    "browser",
+    "device",
+    "bot",
+    "webview"
   ],
   "devDependencies": {
     "@types/jest": "^29.5.14",
