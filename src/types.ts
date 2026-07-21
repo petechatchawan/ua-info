@@ -29,6 +29,10 @@ export type BrowserName =
     | 'Arc'
     | 'Other';
 
+export type ApplicationName = 'Facebook' | 'Line' | 'Instagram' | 'Twitter' | 'Tiktok' | 'Other';
+
+export type ApplicationContext = 'liff' | 'inapp';
+
 export type OSName =
     | 'Windows'
     | 'Android'
@@ -38,6 +42,8 @@ export type OSName =
     | 'Linux'
     | 'Other'
     | 'Chrome OS';
+
+export type MappingKind = 'application' | 'runtime-browser';
 
 export interface PropertyValue {
     value: BrowserName | Function | RegExp;
@@ -55,6 +61,7 @@ export interface PropertyDefinition {
 export interface MappingEntry {
     regex: RegExp[];
     properties: PropertyDefinition;
+    kind?: MappingKind;
 }
 
 export interface UserAgentResult {
@@ -64,6 +71,8 @@ export interface UserAgentResult {
 export interface UserAgentInfo {
     userAgentString: string;
     browser: BrowserInfo;
+    application?: ApplicationInfo;
+    runtimeBrowser?: BrowserInfo;
     os: OSInfo;
     device: DeviceInfo;
 }
@@ -72,6 +81,14 @@ export interface BrowserInfo {
     name: BrowserName;
     version: string;
     type?: string;
+    toString(): string;
+}
+
+export interface ApplicationInfo {
+    name: ApplicationName;
+    version: string;
+    type: 'inapp';
+    context: ApplicationContext;
     toString(): string;
 }
 

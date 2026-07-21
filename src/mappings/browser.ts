@@ -37,6 +37,7 @@ export const BrowserMappings: MappingEntry[] = [
         },
     },
     {
+        kind: 'application',
         regex: [/((?:fban\/fbios|fb_iab\/fb4a)(?!.+fbav)|;fbav\/([\w\.]+);)/i],
         properties: {
             name: 'Facebook',
@@ -45,10 +46,11 @@ export const BrowserMappings: MappingEntry[] = [
         },
     },
     {
+        kind: 'application',
         regex: [
             /safari (line)\/([\w\.]+)/i,
             /\b(line)\/([\w\.]+)\/iab/i,
-            /\bLINE\/([\w\.]+)/i,
+            /\b(line)\/([\w\.]+)/i,
         ],
         properties: {
             name: 'Line',
@@ -57,6 +59,7 @@ export const BrowserMappings: MappingEntry[] = [
         },
     },
     {
+        kind: 'application',
         regex: [/(twitter)(?:and| f.+e\/([\w\.]+))/i],
         properties: {
             name: 'Twitter',
@@ -64,7 +67,8 @@ export const BrowserMappings: MappingEntry[] = [
         },
     },
     {
-        regex: [/instagram[\/ ]([-\w\.]+)/i],
+        kind: 'application',
+        regex: [/(instagram)[\/ ]([-\w\.]+)/i],
         properties: {
             name: 'Instagram',
             version: { value: (match: string) => match },
@@ -72,7 +76,8 @@ export const BrowserMappings: MappingEntry[] = [
         },
     },
     {
-        regex: [/musical_ly(?:.+app_?version\/|_)([\w\.]+)/i],
+        kind: 'application',
+        regex: [/(musical_ly)(?:.+app_?version\/|_)([\w\.]+)/i],
         properties: {
             name: 'Tiktok',
             version: { value: (match: string) => match },
@@ -135,17 +140,17 @@ export const BrowserMappings: MappingEntry[] = [
         },
     },
     {
+        regex: [/ wv\).+(chrome)\/([\w\.]+)/i],
+        properties: {
+            name: 'Chrome Webview',
+            version: { value: (match: string) => match },
+        },
+    },
+    {
         regex: [/chrome\/([\w\.]+) mobile/i],
         properties: {
             version: { value: (match: string) => match },
             name: 'Chrome Mobile',
-        },
-    },
-    {
-        regex: [/ wv\).+(chrome)\/([\w\.]+)/i],
-        properties: {
-            version: { value: (match: string) => match },
-            name: 'Chrome Webview',
         },
     },
     {
@@ -194,3 +199,7 @@ export const BrowserMappings: MappingEntry[] = [
         },
     },
 ];
+
+export const ApplicationMappings = BrowserMappings.filter((mapping) => mapping.kind === 'application');
+
+export const RuntimeBrowserMappings = BrowserMappings.filter((mapping) => mapping.kind !== 'application');
