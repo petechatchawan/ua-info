@@ -22,19 +22,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: npm install
-      - name: Run lint
-        id: lint
-        continue-on-error: true
-        run: npm run lint -- --format json --output-file lint-report.json
-      - name: Upload lint report
-        if: steps.lint.outcome == 'failure'
-        uses: actions/upload-artifact@v4
-        with:
-          name: lint-report-${{ matrix.node-version }}
-          path: lint-report.json
-      - name: Fail on lint errors
-        if: steps.lint.outcome == 'failure'
-        run: exit 1
+      - run: npm run lint
       - run: npm test
       - run: npm run build
       - run: npm run pack:check
