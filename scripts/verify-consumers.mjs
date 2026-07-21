@@ -8,6 +8,9 @@ const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 const nodeCommand = process.execPath;
 const rootDirectory = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const workspace = await mkdtemp(path.join(os.tmpdir(), 'ua-info-consumer-'));
+const chromeUA =
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 ' +
+  '(KHTML, like Gecko) Chrome/120.0.6099.109 Safari/537.36';
 
 try {
   const packOutput = execFileSync(
@@ -29,9 +32,11 @@ try {
     esmConsumer,
     `import assert from 'node:assert/strict';\n` +
       `import { UAInfo } from 'ua-info';\n` +
-      `import { BrowserId, parseVersion, satisfiesVersion } from 'ua-info/v2';\n` +
+      `import { BrowserId, parse, parseVersion, satisfiesVersion } from 'ua-info/v2';\n` +
+      `const result = parse(${JSON.stringify(chromeUA)});\n` +
       `assert.equal(typeof UAInfo, 'function');\n` +
-      `assert.equal(BrowserId.Chrome, 'chrome');\n` +
+      `assert.equal(result.browser?.id, BrowserId.Chrome);\n` +
+      `assert.equal(result.engine?.id, 'blink');\n` +
       `assert.equal(satisfiesVersion(parseVersion('120.0.1'), '>=120'), true);\n`,
   );
 
@@ -40,9 +45,11 @@ try {
     cjsConsumer,
     `const assert = require('node:assert/strict');\n` +
       `const { UAInfo } = require('ua-info');\n` +
-      `const { BrowserId, parseVersion, satisfiesVersion } = require('ua-info/v2');\n` +
+      `const { BrowserId, parse, parseVersion, satisfiesVersion } = require('ua-info/v2');\n` +
+      `const result = parse(${JSON.stringify(chromeUA)});\n` +
       `assert.equal(typeof UAInfo, 'function');\n` +
-      `assert.equal(BrowserId.Chrome, 'chrome');\n` +
+      `assert.equal(result.browser?.id, BrowserId.Chrome);\n` +
+      `assert.equal(result.engine?.id, 'blink');\n` +
       `assert.equal(satisfiesVersion(parseVersion('120.0.1'), '>=120'), true);\n`,
   );
 
