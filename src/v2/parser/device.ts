@@ -13,12 +13,17 @@ function inferAndroidVendor(model: string): string | null {
 }
 
 function androidModel(userAgent: string): string | null {
-    const match = /Android[^;)]*;\s*(?:[^;)]*;\s*)?([^;)]+?)(?:\s+Build\/[A-Z0-9._-]+)?(?:;|\))/i.exec(userAgent);
-    if (!match?.[1]) return null;
+    const body = /Android[ /][0-9.]+;([^)]*)\)/i.exec(userAgent)?.[1];
+    if (!body) return null;
 
-    const value = match[1].trim();
-    if (/^(?:wv|[a-z]{2}(?:-[A-Z]{2})?)$/i.test(value)) return null;
-    return value;
+    for (const rawSegment of body.split(';')) {
+        const segment = rawSegment.trim().replace(/\s+Build\/[A-Z0-9._-]+.*$/i, '').trim();
+        if (!segment || /^(?:wv|mobile|tablet|[a-z]{2}(?:-[A-Z]{2})?)$/i.test(segment)) continue;
+        if (/^(?:arm|arm64|aarch64|x86|x86_64)$/i.test(segment)) continue;
+        return segment;
+    }
+
+    return null;
 }
 
 function createDevice(type: DeviceType, vendor: string | null = null, model: string | null = null): DeviceInfo {
