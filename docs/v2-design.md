@@ -2,26 +2,21 @@
 
 ## Status
 
-The v2 public model is frozen for implementation. This document is the concise reference for the public result shape and entry-point boundaries. The existing v1 API remains unchanged while v2 is developed behind the `ua-info/v2` subpath.
-
-PR 1 exposes only the v2 types, identity constants, and version utilities. The v2 parser entry points are implemented in later phases.
+The v2 public model and entry-point boundaries are frozen and implemented in `ua-info` 1.3.0. The existing v1 API remains available from the package root; the modern parser is opt-in through `ua-info/v2`, `ua-info/server`, and `ua-info/browser`.
 
 ## Product scope
 
 `ua-info` v2 is a general-purpose User-Agent and Client Hints parser. LINE and LIFF are representative in-app fixtures, not the product boundary.
 
-The core result follows the familiar browser-parser dimensions:
+The canonical result contains:
 
 - browser
 - rendering engine
 - operating system
 - device
 - CPU
-
-Two additional dimensions resolve cases that do not fit the browser field:
-
-- `client`: the most specific selected non-browser actor, such as a crawler, automation tool, or HTTP client
-- `context`: an execution surface, such as an in-app browser, mini app, PWA, or embedded environment
+- selected non-browser client
+- execution context
 
 ## Canonical result
 
@@ -42,13 +37,13 @@ export interface UAResult {
 
 `browser` contains only a browser product/runtime. Host applications such as LINE must never replace Chrome, Safari, Firefox, or another underlying browser.
 
-`browser.family` represents browser lineage, for example `chromium`, `firefox`, or `safari`. Rendering-engine identities such as Blink, Gecko, and WebKit belong in `engine`.
+`browser.family` represents browser lineage such as `chromium`, `firefox`, or `safari`. Rendering-engine identities such as Blink, Gecko, and WebKit belong in `engine`.
 
 `browser.mode` distinguishes `browser`, `webview`, `headless`, `embedded`, and `unknown` execution modes.
 
 ### Client
 
-`client` is nullable and represents one selected non-browser actor. Ordinary browsers and in-app host applications do not duplicate themselves in this field.
+`client` is nullable and represents the most specific selected non-browser actor. Ordinary browsers and in-app host applications do not duplicate themselves in this field.
 
 Examples:
 
@@ -59,7 +54,7 @@ Examples:
 - Playwright: `client.kind = 'automation'`
 - curl: `client.kind = 'http-client'`
 
-When multiple classifications describe the same actor, selection uses this specificity order:
+When several classifications describe the same actor, the public selection follows:
 
 ```text
 ai-agent
@@ -73,7 +68,7 @@ ai-agent
 > unknown
 ```
 
-This precedence selects one public v2 client; it is not a public multi-agent model.
+This is a singular public-client selection rule, not a public multi-agent model.
 
 ### Context
 
@@ -88,9 +83,9 @@ export interface ContextInfo {
 }
 ```
 
-The host is nullable because contexts such as standalone PWA do not require a host application.
+The host is nullable because standalone PWA contexts do not require a host application.
 
-For LINE LIFF:
+LINE LIFF resolves as:
 
 ```text
 browser.id      = chrome
@@ -119,30 +114,28 @@ Missing comparison segments are treated as zero. Malformed values and unsupporte
 
 ## Entry-point capability boundaries
 
-| API | Inputs | Runtime-only context such as PWA |
-| --- | --- | --- |
-| `parse(ua)` | User-Agent string only | No |
-| `parseRequest({ headers })` | User-Agent plus request Client Hints | Partial |
-| `detectCurrent()` | User-Agent, browser Client Hints, and runtime signals | Yes |
+| API | Package | Inputs | Runtime-only context such as PWA |
+| --- | --- | --- | --- |
+| `parse(ua)` | `ua-info/v2` | User-Agent string only | No |
+| `parseRequest({ headers })` | `ua-info/server` | User-Agent plus request Client Hints | Partial |
+| `detectCurrent()` | `ua-info/browser` | User-Agent, browser Client Hints, and runtime signals | Yes |
 
-The pure parser must not read `navigator`, `document`, or other browser globals. Runtime enrichment belongs in the browser entry point.
+The pure parser never reads `navigator`, `document`, or other browser globals. Runtime enrichment belongs in the browser entry point.
 
 ## Package boundaries
 
-During v2 development:
-
 ```ts
 import { UAInfo } from 'ua-info';
-import { BrowserId, satisfiesVersion, type UAResult } from 'ua-info/v2';
+import { parse, satisfiesVersion, type UAResult } from 'ua-info/v2';
+import { parseRequest } from 'ua-info/server';
+import { detectCurrent } from 'ua-info/browser';
 ```
 
-The main entry remains the existing v1 API until the v2 migration and release gates are complete.
-
-The package publishes native ESM and CommonJS outputs and verifies both entry points from a packed tarball.
+The package publishes native ESM and CommonJS outputs and verifies all entry points from a packed tarball.
 
 ## Compatibility policy
 
-V2 is developed alongside v1 rather than by rewriting the existing parser in place. Before the v2 beta, fixtures must classify each v1 capability as preserved, normalized, deprecated, or intentionally removed.
+V2 is additive in version 1.3.0. The package root retains the existing v1 API and result shape. Consumers migrate explicitly by importing a v2 subpath.
 
 ## Security and provenance
 
