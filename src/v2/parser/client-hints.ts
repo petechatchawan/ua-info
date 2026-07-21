@@ -19,7 +19,7 @@ export function readHeader(headers: HeaderSource, name: string): string | null {
     const target = name.toLowerCase();
     for (const [key, value] of Object.entries(headers)) {
         if (key.toLowerCase() !== target || value === undefined) continue;
-        return Array.isArray(value) ? value.join(', ') : value;
+        return typeof value === 'string' ? value : value.join(', ');
     }
     return null;
 }
@@ -52,7 +52,7 @@ function selectBrowser(brands: readonly BrandVersion[], current: BrowserInfo | n
         { match: /Microsoft Edge/i, id: BrowserId.Edge, name: 'Edge', family: BrowserFamily.Chromium },
         { match: /Opera/i, id: BrowserId.Opera, name: 'Opera', family: BrowserFamily.Chromium },
         { match: /Google Chrome/i, id: BrowserId.Chrome, name: 'Chrome', family: BrowserFamily.Chromium },
-        { match: /^Chromium$/i, id: BrowserId.Chrome, name: 'Chrome', family: BrowserFamily.Chromium },
+        { match: /^Chromium$/i, id: BrowserId.Chromium, name: 'Chromium', family: BrowserFamily.Chromium },
     ];
 
     for (const candidate of candidates) {
