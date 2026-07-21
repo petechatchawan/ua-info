@@ -23,7 +23,12 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: npm install
       - name: Lint
-        run: npm run lint 2>&1 | tee lint.log
+        run: |
+          set +e
+          npm run lint > lint.log 2>&1
+          status=$?
+          cat lint.log
+          exit $status
       - name: Upload lint diagnostics
         if: failure()
         uses: actions/upload-artifact@v4
