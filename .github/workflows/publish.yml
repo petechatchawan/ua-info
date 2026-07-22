@@ -101,13 +101,13 @@ jobs:
           body=$(cat <<EOF
           Automated npm release verification.
 
-          - Package: `${{ steps.package.outputs.name }}@${{ steps.package.outputs.version }}`
+          - Package: ${{ steps.package.outputs.name }}@${{ steps.package.outputs.version }}
           - Registry status: **${status}**
-          - Version existed before this run: `${{ steps.registry.outputs.exists }}`
-          - Publish step outcome: `${{ steps.publish.outcome }}`
+          - Version existed before this run: ${{ steps.registry.outputs.exists }}
+          - Publish step outcome: ${{ steps.publish.outcome }}
           - Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
-          When status is `not-published`, configure either npm Trusted Publishing for workflow `publish.yml` or a valid repository secret named `NPM_TOKEN`, then run the workflow again.
+          When status is not-published, configure either npm Trusted Publishing for workflow publish.yml or a valid repository secret named NPM_TOKEN, then run the workflow again.
           EOF
           )
 
