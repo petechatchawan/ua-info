@@ -135,9 +135,9 @@ This separation matters in embedded environments. A LINE LIFF page can run in a 
 ```ts
 const details = parse(chromeUserAgent);
 
-console.log(details.browser?.id);
-console.log(details.client);
-console.log(details.context);
+details.browser?.id;
+details.client;
+details.context;
 ```
 
 For an ordinary Chrome request, `client` and `context` are normally `null`.
@@ -147,11 +147,11 @@ For an ordinary Chrome request, `client` and `context` are normally `null`.
 ```ts
 const details = parse(lineLiffUserAgent);
 
-console.log(details.browser?.id);
-console.log(details.browser?.mode);
-console.log(details.context?.kind);
-console.log(details.context?.id);
-console.log(details.context?.host?.id);
+details.browser?.id;
+details.browser?.mode;
+details.context?.kind;
+details.context?.id;
+details.context?.host?.id;
 ```
 
 A typical result identifies Chrome in WebView mode, a `mini-app` context named `liff`, and LINE as the host.
@@ -440,12 +440,11 @@ Comparison rules:
 - Segments are compared numerically.
 - Missing segments are treated as zero.
 - Dot, underscore, and comma separators are accepted by `parseVersion()`.
-- Invalid or absent values return `null` from `parseVersion()` and `compareVersions()`.
-- `satisfiesVersion()` returns `false` for invalid versions or unsupported ranges.
+- Invalid or absent values return `null` from `parseVersion()` and `compareVersions()`, and `false` from `satisfiesVersion()`.
 
-## Result contract
+## TypeScript API
 
-The top-level result is:
+### Result shape
 
 ```ts
 interface UAResult {
@@ -460,11 +459,250 @@ interface UAResult {
 }
 ```
 
-User-Agent strings and Client Hints are untrusted client claims. Do not use them as proof of identity, authentication, authorization, fraud status, or device ownership.
+### Product versions
 
-## Package contract
+```ts
+interface Version {
+  readonly raw: string;
+  readonly major: number | null;
+  readonly minor: number | null;
+}
+```
 
-The supported package entry points are:
+### Browser
+
+```ts
+interface BrowserInfo extends ProductInfo {
+  readonly family: string | null;
+  readonly mode: BrowserMode;
+}
+```
+
+Known browser families are `chromium`, `firefox`, `safari`, and `internet-explorer`. Rendering engine identity remains separate in `engine`.
+
+### Device
+
+```ts
+type DeviceType =
+  | 'desktop'
+  | 'mobile'
+  | 'tablet'
+  | 'smart-tv'
+  | 'console'
+  | 'wearable'
+  | 'xr'
+  | 'embedded'
+  | 'unknown';
+```
+
+### Non-browser client
+
+```ts
+type ClientKind =
+  | 'bot'
+  | 'crawler'
+  | 'ai-agent'
+  | 'automation'
+  | 'http-client'
+  | 'library'
+  | 'email-client'
+  | 'media-player'
+  | 'unknown';
+```
+
+### Execution context
+
+```ts
+type ContextKind =
+  | 'in-app-browser'
+  | 'mini-app'
+  | 'pwa'
+  | 'embedded'
+  | 'unknown';
+```
+
+### Known-ID constants
+
+```ts
+import {
+  BrowserFamily,
+  BrowserId,
+  CPUArchitecture,
+  EngineId,
+  OSId,
+} from 'ua-info';
+
+if (details.browser?.id === BrowserId.Edge) {
+  console.log(details.browser.name);
+}
+
+if (details.engine?.id === EngineId.WebKit) {
+  console.log(details.engine.name);
+}
+```
+
+Also exported:
+
+```ts
+type KnownBrowserId;
+type KnownBrowserFamily;
+type KnownEngineId;
+type KnownOSId;
+type KnownCPUArchitecture;
+```
+
+## Detection coverage
+
+### Browsers
+
+Chrome, Chromium, Edge, Firefox, Safari, Opera, Samsung Internet, Vivaldi, Yandex Browser, UC Browser, Huawei Browser, Xiaomi Browser, Arc, Brave, and Internet Explorer.
+
+### Engines
+
+Blink, WebKit, Gecko, Trident, and EdgeHTML.
+
+### Operating systems
+
+Windows, macOS, iOS, Android, ChromeOS, Linux, HarmonyOS, KaiOS, and Tizen.
+
+### Device classes
+
+Desktop, mobile, tablet, smart TV, console, wearable, XR, embedded, and unknown. Common Android vendor and model information is extracted when available.
+
+### Browser modes
+
+Ordinary browser, WebView, headless, embedded, and unknown.
+
+Detection is evidence-based. Unrecognized products return `null` or `unknown` rather than being forced into an incorrect identity.
+
+## Null and `unknown` semantics
+
+- Use `null` when an optional dimension is not detected, such as `browser`, `os`, `cpu`, `client`, or `context`.
+- Use `unknown` when a dimension always exists but its category cannot be classified, such as `device.type`.
+- Sparse User-Agent strings are valid input.
+- The original supplied value is preserved in `result.ua`.
+
+```ts
+const details = parse('');
+
+console.log(details.browser);
+console.log(details.os);
+console.log(details.device.type);
+console.log(details.client);
+console.log(details.context);
+```
+
+## API reference
+
+### `parse(userAgent)`
+
+```ts
+function parse(userAgent: string): UAResult;
+```
+
+Pure, synchronous User-Agent parsing.
+
+### `parseRequest(input)`
+
+```ts
+interface ParseRequestInput {
+  readonly headers: HeaderSource;
+  readonly userAgent?: string;
+}
+
+function parseRequest(input: ParseRequestInput): UAResult;
+```
+
+Import from `ua-info/server`.
+
+Header types are exported for adapters:
+
+```ts
+type HeaderValue = string | readonly string[] | undefined;
+type HeaderRecord = Readonly<Record<string, HeaderValue>>;
+
+interface HeaderGetter {
+  get(name: string): string | null;
+}
+
+type HeaderSource = HeaderRecord | HeaderGetter;
+```
+
+### `detectCurrent(options?)`
+
+```ts
+interface DetectCurrentOptions {
+  readonly highEntropy?: readonly (
+    | 'architecture'
+    | 'bitness'
+    | 'fullVersionList'
+    | 'model'
+    | 'platformVersion'
+  )[];
+}
+
+function detectCurrent(
+  options?: DetectCurrentOptions,
+): Promise<UAResult>;
+```
+
+Import from `ua-info/browser`.
+
+### Version functions
+
+```ts
+function parseVersion(value: string): Version | null;
+
+function compareVersions(
+  left: Version | string | null | undefined,
+  right: Version | string | null | undefined,
+): -1 | 0 | 1 | null;
+
+function satisfiesVersion(
+  version: Version | string | null | undefined,
+  range: string,
+): boolean;
+```
+
+## Migrating from the previous package name
+
+The API is unchanged. See [MIGRATION.md](MIGRATION.md) for dependency and import replacements.
+
+## Security and privacy
+
+User-Agent strings and Client Hints are **untrusted client claims**.
+
+Do not use this package to:
+
+- authenticate a user,
+- prove device identity,
+- enforce authorization,
+- make fraud decisions by itself,
+- assume a browser feature is definitely available.
+
+Prefer feature detection for capabilities. Use User-Agent information for analytics, compatibility fallbacks, diagnostics, presentation choices, and routing where occasional misclassification is acceptable.
+
+Avoid logging complete User-Agent or Client Hint values unless your privacy policy and retention controls allow it.
+
+## Limitations
+
+- User-Agent reduction and frozen User-Agent strings can make UA-only results less precise.
+- Client Hints are not available in every browser or request.
+- In-app browsers may change or omit tokens between releases.
+- Device vendor and model detection is best-effort.
+- `parse()` cannot detect standalone PWA mode because that requires runtime state.
+- Browser feature support should be tested directly rather than inferred only from browser name and version.
+
+## Package compatibility
+
+- Native ESM import.
+- CommonJS `require()`.
+- TypeScript declarations included.
+- Node.js 18, 20, and 22 covered by CI.
+- Browser and server code split through package subpath exports.
+- `sideEffects: false` for tree-shaking.
+
+Public entry points:
 
 ```ts
 import { parse } from 'ua-info';
@@ -472,19 +710,27 @@ import { parseRequest } from 'ua-info/server';
 import { detectCurrent } from 'ua-info/browser';
 ```
 
-The package does not expose the removed v1 `UAInfo` class or transitional `/v2` entry points.
-
-## Development
+## Contributing
 
 ```bash
+git clone https://github.com/petechatchawan/ua-info.git
+cd ua-info
 npm install
 npm run check
 ```
 
-`npm run check` verifies package identity, linting, all tests, ESM and CommonJS builds, packed package contents, and packed ESM/CommonJS consumers.
+`npm run check` runs identity validation, linting, Jest tests, ESM and CommonJS builds, package-content validation, and packed-package consumer tests.
 
-The CI matrix runs on Node.js 18, 20, and 22.
+When adding a detector:
+
+1. Add representative positive fixtures.
+2. Add exclusion and precedence fixtures for shared tokens.
+3. Keep browser, client, and context identity separate.
+4. Preserve pure behavior in `parse()`.
+5. Use detector data and fixtures with clear, compatible provenance.
+
+Architecture and field semantics are documented in [`docs/v2-design.md`](docs/v2-design.md).
 
 ## License
 
-MIT
+MIT © Chatchawan Koedsawas
