@@ -1,4 +1,4 @@
-# Canonical release workflow for user-agent-info.
+# Canonical release workflow for user-agent-info bootstrap.
 name: Publish to npm
 
 on:
