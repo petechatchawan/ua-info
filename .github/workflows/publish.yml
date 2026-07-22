@@ -11,6 +11,7 @@ on:
 permissions:
   contents: read
   id-token: write
+  issues: write
 
 concurrency:
   group: npm-publish
@@ -37,24 +38,28 @@ jobs:
       - name: Validate package
         run: npm run check
 
+      - name: Read package identity
+        id: package
+        shell: bash
+        run: |
+          echo "name=$(node -p "require('./package.json').name")" >> "$GITHUB_OUTPUT"
+          echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
       - name: Check registry version
         id: registry
         shell: bash
         run: |
-          package_name="$(node -p "require('./package.json').name")"
-          package_version="$(node -p "require('./package.json').version")"
-          echo "name=${package_name}" >> "$GITHUB_OUTPUT"
-          echo "version=${package_version}" >> "$GITHUB_OUTPUT"
-
-          if npm view "${package_name}@${package_version}" version >/dev/null 2>&1; then
+          if npm view "${{ steps.package.outputs.name }}@${{ steps.package.outputs.version }}" version >/dev/null 2>&1; then
             echo "exists=true" >> "$GITHUB_OUTPUT"
-            echo "${package_name}@${package_version} already exists; publication will be skipped."
+            echo "${{ steps.package.outputs.name }}@${{ steps.package.outputs.version }} already exists; publication will be skipped."
           else
             echo "exists=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Publish package
+        id: publish
         if: steps.registry.outputs.exists != 'true'
+        continue-on-error: true
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         shell: bash
@@ -65,13 +70,69 @@ jobs:
 
           npm publish --access public --provenance
 
-      - name: Publication summary
+      - name: Verify npm registry
+        id: verify
+        if: always()
         shell: bash
         run: |
-          if [ "${{ steps.registry.outputs.exists }}" = "true" ]; then
-            echo "### npm publication" >> "$GITHUB_STEP_SUMMARY"
-            echo "${{ steps.registry.outputs.name }}@${{ steps.registry.outputs.version }} was already present in the registry." >> "$GITHUB_STEP_SUMMARY"
+          published=false
+          for attempt in $(seq 1 12); do
+            if npm view "${{ steps.package.outputs.name }}@${{ steps.package.outputs.version }}" version >/dev/null 2>&1; then
+              published=true
+              break
+            fi
+            sleep 5
+          done
+          echo "published=${published}" >> "$GITHUB_OUTPUT"
+
+      - name: Report publication status
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          title="[release-report] ${{ steps.package.outputs.name }}@${{ steps.package.outputs.version }}"
+          if [ "${{ steps.verify.outputs.published }}" = "true" ]; then
+            status="published"
           else
-            echo "### npm publication" >> "$GITHUB_STEP_SUMMARY"
-            echo "Published ${{ steps.registry.outputs.name }}@${{ steps.registry.outputs.version }}." >> "$GITHUB_STEP_SUMMARY"
+            status="not-published"
           fi
+
+          body=$(cat <<EOF
+          Automated npm release verification.
+
+          - Package: `${{ steps.package.outputs.name }}@${{ steps.package.outputs.version }}`
+          - Registry status: **${status}**
+          - Version existed before this run: `${{ steps.registry.outputs.exists }}`
+          - Publish step outcome: `${{ steps.publish.outcome }}`
+          - Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+          When status is `not-published`, configure either npm Trusted Publishing for workflow `publish.yml` or a valid repository secret named `NPM_TOKEN`, then run the workflow again.
+          EOF
+          )
+
+          issue_number=$(gh issue list --state all --search "${title} in:title" --json number,title --jq ".[] | select(.title == \"${title}\") | .number" | head -n 1)
+          if [ -z "$issue_number" ]; then
+            issue_url=$(gh issue create --title "$title" --body "$body")
+            issue_number="${issue_url##*/}"
+          else
+            gh issue edit "$issue_number" --body "$body"
+          fi
+
+          if [ "$status" = "published" ]; then
+            gh issue close "$issue_number" --reason completed || true
+          else
+            gh issue reopen "$issue_number" || true
+          fi
+
+      - name: Publication summary
+        if: always()
+        shell: bash
+        run: |
+          echo "### npm publication" >> "$GITHUB_STEP_SUMMARY"
+          echo "Package: ${{ steps.package.outputs.name }}@${{ steps.package.outputs.version }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "Published: ${{ steps.verify.outputs.published }}" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Fail when package is not published
+        if: always() && steps.verify.outputs.published != 'true'
+        run: exit 1
