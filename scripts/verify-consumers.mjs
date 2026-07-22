@@ -31,12 +31,12 @@ try {
   await writeFile(
     esmConsumer,
     `import assert from 'node:assert/strict';\n` +
-      `import { UAInfo } from 'ua-info';\n` +
-      `import { BrowserId, parse, parseVersion, satisfiesVersion } from 'ua-info/v2';\n` +
+      `import * as uaInfo from 'ua-info';\n` +
       `import { parseRequest } from 'ua-info/server';\n` +
       `import { detectCurrent } from 'ua-info/browser';\n` +
+      `const { BrowserId, parse, parseVersion, satisfiesVersion } = uaInfo;\n` +
       `const result = parse(${JSON.stringify(chromeUA)});\n` +
-      `assert.equal(typeof UAInfo, 'function');\n` +
+      `assert.equal('UAInfo' in uaInfo, false);\n` +
       `assert.equal(result.browser?.id, BrowserId.Chrome);\n` +
       `assert.equal(result.os?.id, 'windows');\n` +
       `assert.equal(result.device.type, 'desktop');\n` +
@@ -52,19 +52,27 @@ try {
   await writeFile(
     cjsConsumer,
     `const assert = require('node:assert/strict');\n` +
-      `const { UAInfo } = require('ua-info');\n` +
-      `const { BrowserId, parse } = require('ua-info/v2');\n` +
+      `const uaInfo = require('ua-info');\n` +
+      `const { BrowserId, parse } = uaInfo;\n` +
       `const { parseRequest } = require('ua-info/server');\n` +
       `const result = parse(${JSON.stringify(chromeUA)});\n` +
-      `assert.equal(typeof UAInfo, 'function');\n` +
+      `assert.equal('UAInfo' in uaInfo, false);\n` +
       `assert.equal(result.browser?.id, BrowserId.Chrome);\n` +
       `assert.equal(parseRequest({ headers: { 'user-agent': ${JSON.stringify(chromeUA)} } }).os?.id, 'windows');\n`,
   );
 
+  const removedV2SubpathConsumer = path.join(workspace, 'removed-v2-subpath.cjs');
+  await writeFile(
+    removedV2SubpathConsumer,
+    `const assert = require('node:assert/strict');\n` +
+      `assert.throws(() => require('ua-info/v2'), /Package subpath|not defined|cannot find/i);\n`,
+  );
+
   execFileSync(nodeCommand, [esmConsumer], { cwd: workspace, stdio: 'inherit' });
   execFileSync(nodeCommand, [cjsConsumer], { cwd: workspace, stdio: 'inherit' });
+  execFileSync(nodeCommand, [removedV2SubpathConsumer], { cwd: workspace, stdio: 'inherit' });
 
-  console.log('Package consumer verification passed for v1, v2, server, browser, ESM, and CommonJS.');
+  console.log('Package consumer verification passed for the 2.0 root, server, browser, ESM, and CommonJS APIs.');
 } finally {
   await rm(workspace, { recursive: true, force: true });
 }

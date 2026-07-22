@@ -1,24 +1,12 @@
-# ua-info v2 design
+# ua-info 2.0 design
 
 ## Status
 
-The v2 public model and entry-point boundaries are frozen and implemented in `ua-info` 1.3.0. The existing v1 API remains available from the package root; the modern parser is opt-in through `ua-info/v2`, `ua-info/server`, and `ua-info/browser`.
+The 2.0 public model and entry-point boundaries are implemented and frozen. Version 2.0 is a breaking release: the modern parser is exported from the package root and the v1 class API is removed.
 
 ## Product scope
 
-`ua-info` v2 is a general-purpose User-Agent and Client Hints parser. LINE and LIFF are representative in-app fixtures, not the product boundary.
-
-The canonical result contains:
-
-- browser
-- rendering engine
-- operating system
-- device
-- CPU
-- selected non-browser client
-- execution context
-
-## Canonical result
+`ua-info` is a general-purpose User-Agent and Client Hints parser. The canonical result contains browser, rendering engine, operating system, device, CPU, non-browser client, and execution-context dimensions.
 
 ```ts
 export interface UAResult {
@@ -33,28 +21,32 @@ export interface UAResult {
 }
 ```
 
-### Browser
+## Browser, client, and context
 
-`browser` contains only a browser product/runtime. Host applications such as LINE must never replace Chrome, Safari, Firefox, or another underlying browser.
+`browser` contains only a browser product/runtime. Host applications such as LINE never replace Chrome, Safari, Firefox, or another underlying browser.
 
-`browser.family` represents browser lineage such as `chromium`, `firefox`, or `safari`. Rendering-engine identities such as Blink, Gecko, and WebKit belong in `engine`.
+`browser.family` represents browser lineage such as `chromium`, `firefox`, or `safari`. Blink, Gecko, and WebKit belong in `engine`.
 
 `browser.mode` distinguishes `browser`, `webview`, `headless`, `embedded`, and `unknown` execution modes.
 
-### Client
+`client` is nullable and contains the most specific selected non-browser actor, such as a crawler, AI agent, automation tool, or HTTP client. Ordinary browsers and in-app host applications do not duplicate themselves in this field.
 
-`client` is nullable and represents the most specific selected non-browser actor. Ordinary browsers and in-app host applications do not duplicate themselves in this field.
+`context` describes the execution surface separately from browser and client identity. Its host is nullable because surfaces such as standalone PWAs do not require a host application.
 
-Examples:
+For LINE LIFF:
 
-- Chrome: `client = null`
-- LINE LIFF: `client = null`, LINE is stored in `context.host`
-- AhrefsBot: `client.kind = 'crawler'`
-- GPTBot: `client.kind = 'ai-agent'`
-- Playwright: `client.kind = 'automation'`
-- curl: `client.kind = 'http-client'`
+```text
+browser.id      = chrome
+browser.mode    = webview
+context.kind    = mini-app
+context.id      = liff
+context.host.id = line
+client          = null
+```
 
-When several classifications describe the same actor, the public selection follows:
+## Client selection
+
+When multiple classifications describe the same non-browser actor, selection uses this specificity order:
 
 ```text
 ai-agent
@@ -68,37 +60,11 @@ ai-agent
 > unknown
 ```
 
-This is a singular public-client selection rule, not a public multi-agent model.
-
-### Context
-
-`context` describes the execution surface separately from browser and client identity.
-
-```ts
-export interface ContextInfo {
-  readonly kind: 'in-app-browser' | 'mini-app' | 'pwa' | 'embedded' | 'unknown';
-  readonly id: string | null;
-  readonly name: string | null;
-  readonly host: ProductInfo | null;
-}
-```
-
-The host is nullable because standalone PWA contexts do not require a host application.
-
-LINE LIFF resolves as:
-
-```text
-browser.id      = chrome
-browser.mode    = webview
-context.kind    = mini-app
-context.id      = liff
-context.host.id = line
-client          = null
-```
+This selects one public client. It is not a public multi-agent model.
 
 ## Version semantics
 
-`Version.raw` is canonical. `major` and `minor` are convenience values with stable meaning across product families.
+`Version.raw` is canonical. `major` and `minor` are cross-product convenience values.
 
 ```ts
 export interface Version {
@@ -110,32 +76,27 @@ export interface Version {
 
 Versions are not assumed to follow Semantic Versioning. Full numeric comparison parses `raw` internally through `compareVersions()` and `satisfiesVersion()`.
 
-Missing comparison segments are treated as zero. Malformed values and unsupported range syntax do not throw; comparison returns `null` and range checks return `false`.
+## Entry-point boundaries
 
-## Entry-point capability boundaries
-
-| API | Package | Inputs | Runtime-only context such as PWA |
+| API | Import | Inputs | Runtime-only context such as PWA |
 | --- | --- | --- | --- |
-| `parse(ua)` | `ua-info/v2` | User-Agent string only | No |
+| `parse(ua)` | `ua-info` | User-Agent string only | No |
 | `parseRequest({ headers })` | `ua-info/server` | User-Agent plus request Client Hints | Partial |
 | `detectCurrent()` | `ua-info/browser` | User-Agent, browser Client Hints, and runtime signals | Yes |
 
-The pure parser never reads `navigator`, `document`, or other browser globals. Runtime enrichment belongs in the browser entry point.
+The pure parser must not read `navigator`, `document`, or other browser globals.
 
-## Package boundaries
+## Package contract
+
+Version 2.0 exports:
 
 ```ts
-import { UAInfo } from 'ua-info';
-import { parse, satisfiesVersion, type UAResult } from 'ua-info/v2';
+import { parse, satisfiesVersion } from 'ua-info';
 import { parseRequest } from 'ua-info/server';
 import { detectCurrent } from 'ua-info/browser';
 ```
 
-The package publishes native ESM and CommonJS outputs and verifies all entry points from a packed tarball.
-
-## Compatibility policy
-
-V2 is additive in version 1.3.0. The package root retains the existing v1 API and result shape. Consumers migrate explicitly by importing a v2 subpath.
+The package does not export `UAInfo`, `ua-info/v2`, `ua-info/v2/server`, or `ua-info/v2/browser`.
 
 ## Security and provenance
 
