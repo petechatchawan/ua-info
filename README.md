@@ -1,228 +1,203 @@
-# ua-info
+# User Agent Info
 
-[![npm version](https://img.shields.io/npm/v/ua-info.svg)](https://www.npmjs.com/package/ua-info)
-[![CI](https://github.com/petechatchawan/ua-info/actions/workflows/ci.yml/badge.svg)](https://github.com/petechatchawan/ua-info/actions/workflows/ci.yml)
-[![license](https://img.shields.io/npm/l/ua-info.svg)](LICENSE)
+[![npm version](https://img.shields.io/npm/v/user-agent-info.svg)](https://www.npmjs.com/package/user-agent-info)
+[![CI](https://github.com/petechatchawan/user-agent-info/actions/workflows/ci.yml/badge.svg)](https://github.com/petechatchawan/user-agent-info/actions/workflows/ci.yml)
+[![license](https://img.shields.io/npm/l/user-agent-info.svg)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-ready-blue.svg)](https://www.typescriptlang.org/)
 
-A small, typed User-Agent and Client Hints parser for browsers, rendering engines, operating systems, devices, CPUs, bots, HTTP clients, in-app browsers, mini apps, WebViews, and PWAs.
+A zero-dependency TypeScript User-Agent parser for browsers, devices, operating systems, bots, WebViews, in-app browsers, and User-Agent Client Hints.
 
 ```ts
-import { parse } from 'ua-info';
+import { parse } from 'user-agent-info';
 
-const info = parse(navigator.userAgent);
+const details = parse(navigator.userAgent);
 
-console.log(info.browser?.name);     // Chrome
-console.log(info.os?.name);          // Android
-console.log(info.device.type);       // mobile
-console.log(info.context?.host?.id); // line, facebook, instagram, ...
+console.log(details.browser?.name);
+console.log(details.os?.name);
+console.log(details.device.type);
 ```
 
-## Why `ua-info`?
+## Why User Agent Info?
 
-- **One predictable result shape** for browser, server, automation, bot, and in-app environments.
-- **Clear separation of concerns**: Chrome stays in `browser`; LINE, Facebook, or Electron live in `context`.
-- **Pure core parser**: `parse()` never reads browser globals and is safe in Node.js, SSR, tests, and workers.
+- **One stable result shape** for browsers, servers, bots, automation tools, and embedded web runtimes.
+- **Separate identities** for the underlying browser, rendering engine, non-browser client, and host application.
+- **Pure core parser**: `parse()` does not access browser globals and works in Node.js, SSR, tests, and workers.
 - **Client Hints support** through dedicated server and browser entry points.
-- **TypeScript-first** with readonly results, exported types, and constants for known IDs.
-- **ESM and CommonJS** package exports.
+- **TypeScript declarations** for results, options, constants, and helper functions.
+- **ESM and CommonJS** exports.
 - **No runtime dependencies** and `sideEffects: false` for bundlers.
 
 ## Installation
 
 ```bash
-npm install ua-info
+npm install user-agent-info
 ```
 
 ```bash
-pnpm add ua-info
+pnpm add user-agent-info
 ```
 
 ```bash
-yarn add ua-info
+yarn add user-agent-info
 ```
 
 Requirements:
 
 - Node.js 18 or newer for server-side usage.
-- A modern bundler or browser when using the browser entry point.
-- TypeScript is optional; declarations are included in the package.
+- A modern browser or bundler for the browser entry point.
+- TypeScript is optional; declarations are included.
 
 ## Quick start
 
 ### TypeScript / ESM
 
 ```ts
-import {
-  BrowserId,
-  OSId,
-  parse,
-  satisfiesVersion,
-} from 'ua-info';
+import { BrowserId, parse } from 'user-agent-info';
 
-const info = parse(
-  'Mozilla/5.0 (Linux; Android 16; Pixel 9 Pro) ' +
-  'AppleWebKit/537.36 (KHTML, like Gecko) ' +
-  'Chrome/150.0.7871.46 Mobile Safari/537.36',
-);
+const details = parse(navigator.userAgent);
 
-if (
-  info.browser?.id === BrowserId.Chrome &&
-  info.os?.id === OSId.Android &&
-  satisfiesVersion(info.browser.version, '>=120')
-) {
-  console.log('Supported Chrome on Android');
+if (details.browser?.id === BrowserId.Chrome) {
+  console.log(details.browser.version?.raw);
 }
 ```
 
 ### CommonJS
 
 ```js
-const { parse } = require('ua-info');
+const { parse } = require('user-agent-info');
 
-const info = parse(userAgent);
-console.log(info.browser?.name);
+const details = parse(userAgent);
+console.log(details.browser?.name);
 ```
 
 ## Choose the right entry point
 
 | Use case | Import | Data source | Runtime detection |
 | --- | --- | --- | --- |
-| Parse a known User-Agent | `ua-info` | Supplied UA string | No |
-| Parse an HTTP request | `ua-info/server` | UA + request Client Hints | No |
-| Detect the current browser | `ua-info/browser` | UA + browser Client Hints + runtime signals | Yes |
+| Parse a known User-Agent | `user-agent-info` | Supplied User-Agent string | No |
+| Parse an HTTP request | `user-agent-info/server` | User-Agent and request Client Hints | No |
+| Detect the current browser | `user-agent-info/browser` | User-Agent, browser Client Hints, and runtime signals | Yes |
 
 ### `parse()` — universal and pure
 
 ```ts
-import { parse } from 'ua-info';
+import { parse } from 'user-agent-info';
 
-const info = parse(userAgent);
+const details = parse(userAgent);
 ```
 
-Use `parse()` when you already have a User-Agent string. It is synchronous and deterministic. It does not access `navigator`, `document`, `window`, headers, cookies, or network APIs.
+Use `parse()` when a User-Agent string is already available. It is synchronous and deterministic. It does not access `navigator`, `document`, `window`, headers, cookies, or network APIs.
 
 ### `parseRequest()` — server requests and Client Hints
 
 ```ts
-import { parseRequest } from 'ua-info/server';
+import { parseRequest } from 'user-agent-info/server';
 
-const info = parseRequest({
+const details = parseRequest({
   headers: request.headers,
 });
 ```
 
-Use `parseRequest()` when parsing an incoming request. It accepts either:
-
-- a Fetch-compatible `Headers` object with `get(name)`, or
-- a plain header record whose values are strings, string arrays, or `undefined`.
-
-It combines the User-Agent with available Client Hints such as full browser version, platform version, device model, CPU architecture, and bitness.
+Use `parseRequest()` for incoming HTTP requests. It accepts either a Fetch-compatible `Headers` object or a plain header record. Available Client Hints can enrich browser versions, platform versions, device models, CPU architecture, and bitness.
 
 ### `detectCurrent()` — browser enrichment and PWA detection
 
 ```ts
-import { detectCurrent } from 'ua-info/browser';
+import { detectCurrent } from 'user-agent-info/browser';
 
-const info = await detectCurrent();
+const details = await detectCurrent();
 ```
 
-Use `detectCurrent()` inside a browser when you want runtime-only information. It can read `navigator.userAgentData`, request high-entropy Client Hints, and detect standalone PWA mode.
+Use `detectCurrent()` inside a browser when runtime-only signals matter. It can read `navigator.userAgentData`, request selected high-entropy Client Hints, and detect standalone PWA mode.
 
 `detectCurrent()` throws when no browser-like `navigator` exists. Use `parse()` or `parseRequest()` during SSR.
 
 ## Result mental model
 
-`ua-info` keeps product identity, execution context, and non-browser clients separate:
+The result keeps independent dimensions separate:
 
 ```text
-browser  -> What browser/runtime is rendering the page?
-engine   -> What rendering engine is used?
-os       -> What operating system is claimed?
-device   -> What device class/vendor/model is claimed?
-cpu      -> What CPU architecture/bitness is claimed?
-client   -> Is the caller a bot, crawler, automation tool, HTTP client, or library?
-context  -> Is the browser running inside LINE, Facebook, Electron, a PWA, etc.?
+browser  -> Browser product and execution mode
+engine   -> Rendering engine
+os       -> Operating system claim
+device   -> Device class, vendor, and model claim
+cpu      -> CPU architecture and bitness claim
+client   -> Bot, crawler, automation tool, HTTP client, or library
+context  -> Host app or surface such as LINE, LIFF, Electron, or a PWA
 ```
 
-This avoids collapsing unrelated concepts into one `browser` field.
+This separation matters in embedded environments. A LINE LIFF page can run in a Chrome WebView: Chrome remains the browser while LINE and LIFF are represented by the context.
 
-### Example: ordinary Chrome
+### Ordinary Chrome
 
 ```ts
-const info = parse(chromeUserAgent);
+const details = parse(chromeUserAgent);
 
-info.browser?.id; // 'chrome'
-info.client;      // null
-info.context;     // null
+details.browser?.id;
+details.client;
+details.context;
 ```
 
-### Example: LINE LIFF
+For an ordinary Chrome request, `client` and `context` are normally `null`.
+
+### LINE LIFF
 
 ```ts
-const info = parse(lineLiffUserAgent);
+const details = parse(lineLiffUserAgent);
 
-info.browser?.id;       // 'chrome'
-info.browser?.mode;     // 'webview'
-info.context?.kind;     // 'mini-app'
-info.context?.id;       // 'liff'
-info.context?.host?.id; // 'line'
-info.client;            // null
+details.browser?.id;
+details.browser?.mode;
+details.context?.kind;
+details.context?.id;
+details.context?.host?.id;
 ```
 
-### Example: GPTBot
+A typical result identifies Chrome in WebView mode, a `mini-app` context named `liff`, and LINE as the host.
+
+### Non-browser client
 
 ```ts
-const info = parse('GPTBot/1.2');
+const details = parse('GPTBot/1.2');
 
-info.browser;             // null
-info.client?.kind;        // 'ai-agent'
-info.client?.id;          // 'gptbot'
-info.client?.version?.raw; // '1.2'
+console.log(details.client?.kind);
+console.log(details.client?.name);
+console.log(details.client?.version?.raw);
 ```
+
+A selected non-browser actor is returned in `client`; `browser` is normally `null` for a standalone bot or HTTP client.
 
 ## Common recipes
 
-### Detect browser and version
-
-Prefer stable IDs for program logic and names for display:
+### Check a browser version
 
 ```ts
 import {
   BrowserId,
   parse,
   satisfiesVersion,
-} from 'ua-info';
+} from 'user-agent-info';
 
-const info = parse(userAgent);
-
-const isModernChrome =
-  info.browser?.id === BrowserId.Chrome &&
-  satisfiesVersion(info.browser.version, '>=120');
+const details = parse(userAgent);
+const supported =
+  details.browser?.id === BrowserId.Chrome &&
+  satisfiesVersion(details.browser.version, '>=120');
 ```
 
-### Detect mobile, tablet, or desktop
+Use stable IDs for program logic and names for display.
+
+### Read the device class
 
 ```ts
-const info = parse(userAgent);
+const details = parse(userAgent);
 
-switch (info.device.type) {
-  case 'mobile':
-    // Phone-sized device claim
-    break;
-  case 'tablet':
-    // Tablet claim
-    break;
-  case 'desktop':
-    // Desktop-class claim
-    break;
-  default:
-    // smart-tv, console, wearable, xr, embedded, or unknown
-    break;
-}
+const isTouchDevice =
+  details.device.type === 'mobile' ||
+  details.device.type === 'tablet';
 ```
 
-`device` is always present. Unknown device information is represented by:
+Other device types are `desktop`, `smart-tv`, `console`, `wearable`, `xr`, `embedded`, and `unknown`.
+
+`device` is always present. Unknown device information is represented as:
 
 ```ts
 {
@@ -232,14 +207,13 @@ switch (info.device.type) {
 }
 ```
 
-### Detect WebView, headless, or embedded browser mode
+### Detect a WebView or headless browser
 
 ```ts
-const info = parse(userAgent);
+const details = parse(userAgent);
 
-const isWebView = info.browser?.mode === 'webview';
-const isHeadless = info.browser?.mode === 'headless';
-const isEmbedded = info.browser?.mode === 'embedded';
+const isWebView = details.browser?.mode === 'webview';
+const isHeadless = details.browser?.mode === 'headless';
 ```
 
 Browser modes are:
@@ -256,103 +230,95 @@ type BrowserMode =
 ### Detect an in-app browser
 
 ```ts
-const info = parse(userAgent);
+const details = parse(userAgent);
+const host = details.context?.host;
 
-const host = info.context?.host;
-
-if (info.context?.kind === 'in-app-browser' && host) {
-  console.log(`Running inside ${host.name}`);
+if (details.context?.kind === 'in-app-browser' && host) {
+  console.log(`Opened inside ${host.name}`);
 }
 ```
 
-Known contexts currently include LINE, Facebook, Instagram, TikTok, X, WeChat, Telegram, Electron, Capacitor, Cordova, and runtime-detected standalone PWAs.
+Known contexts include LINE, Facebook, Instagram, TikTok, X, WeChat, Telegram, Electron, Capacitor, Cordova, and runtime-detected standalone PWAs.
 
 ### Detect LINE and LIFF
 
 ```ts
-const info = parse(navigator.userAgent);
+const details = parse(navigator.userAgent);
 
-const isLine = info.context?.host?.id === 'line';
-const isLiff =
-  info.context?.kind === 'mini-app' &&
-  info.context.id === 'liff' &&
-  info.context.host?.id === 'line';
+const isLine = details.context?.host?.id === 'line';
+const isLiff = details.context?.id === 'liff';
 ```
 
-Do not use only `browser.id` to identify LINE. The underlying browser remains available in `browser`; LINE is represented in `context.host`.
+LINE stays in `context.host`; the underlying browser stays in `browser`.
 
 ### Detect bots, crawlers, and AI agents
 
 ```ts
-const info = parse(request.headers.get('user-agent') ?? '');
+const details = parse(request.headers.get('user-agent') ?? '');
 
-if (info.client?.kind === 'crawler') {
-  console.log(`Crawler: ${info.client.name}`);
+if (details.client?.kind === 'crawler') {
+  console.log(`Crawler: ${details.client.name}`);
 }
 
-if (info.client?.kind === 'ai-agent') {
-  console.log(`AI agent: ${info.client.name}`);
+if (details.client?.kind === 'ai-agent') {
+  console.log(`AI agent: ${details.client.name}`);
 }
 ```
 
-Examples of recognized non-browser clients include:
+Recognized clients include:
 
-- AI agents: GPTBot, ClaudeBot, PerplexityBot, Google-Extended.
-- Crawlers: Googlebot, Bingbot, AhrefsBot, SemrushBot, Applebot, CCBot.
-- Automation: Playwright, Puppeteer, Selenium.
-- HTTP clients: curl, Wget, Postman, HTTPie.
-- Libraries: Axios, Python Requests, OkHttp.
-- Other clients: Thunderbird and VLC.
+- AI agents such as GPTBot, ClaudeBot, PerplexityBot, and Google-Extended.
+- Crawlers such as Googlebot, Bingbot, AhrefsBot, SemrushBot, Applebot, and CCBot.
+- Automation tools such as Playwright, Puppeteer, and Selenium.
+- HTTP clients such as curl, Wget, Postman, and HTTPie.
+- Libraries such as Axios, Python Requests, and OkHttp.
+- Email and media clients such as Thunderbird and VLC.
 - Generic `bot`, `spider`, or `crawler` tokens as a fallback.
 
-`client` is a single selected non-browser actor. Ordinary browsers and in-app hosts return `client: null`.
+`client` contains one selected non-browser actor. Ordinary browsers and in-app hosts return `client: null`.
 
 ## Server usage
 
-### Fetch API / Web-standard request
+### Fetch API / web-standard request
 
 ```ts
-import { parseRequest } from 'ua-info/server';
+import { parseRequest } from 'user-agent-info/server';
 
-export function handleRequest(request: Request): Response {
-  const info = parseRequest({ headers: request.headers });
+export function getClientDetails(request: Request) {
+  const details = parseRequest({ headers: request.headers });
 
-  return Response.json({
-    browser: info.browser,
-    os: info.os,
-    device: info.device,
-  });
+  return {
+    browser: details.browser?.name,
+    os: details.os?.name,
+    device: details.device.type,
+  };
 }
 ```
 
 ### Node.js / Express-style headers
 
 ```ts
-import { parseRequest } from 'ua-info/server';
+import { parseRequest } from 'user-agent-info/server';
 
-app.get('/client-info', (req, res) => {
-  const info = parseRequest({ headers: req.headers });
-
-  res.json(info);
+app.get('/client-details', (req, res) => {
+  res.json(parseRequest({ headers: req.headers }));
 });
 ```
 
 ### Override the User-Agent
 
 ```ts
-const info = parseRequest({
+const details = parseRequest({
   headers: request.headers,
   userAgent: forwardedUserAgent,
 });
 ```
 
-`userAgent` takes precedence over the `user-agent` header when supplied.
+An explicit `userAgent` takes precedence over the `user-agent` header.
 
 ### Client Hints notes
 
-`parseRequest()` consumes hints that are already present. It does not negotiate them for you.
-
-A server that needs high-entropy hints may advertise appropriate `Accept-CH` response headers. Browser support and delivery rules vary, so your application must continue to work when hints are absent.
+`parseRequest()` consumes hints already present in the request. It does not negotiate them.
 
 Supported request hints include:
 
@@ -367,16 +333,16 @@ Sec-CH-UA-Arch
 Sec-CH-UA-Bitness
 ```
 
-GREASE brands such as `Not A Brand` are ignored.
+GREASE brands such as `Not A Brand` are ignored. Applications must continue to work when Client Hints are absent.
 
 ## Browser usage
 
 ### Default enrichment
 
 ```ts
-import { detectCurrent } from 'ua-info/browser';
+import { detectCurrent } from 'user-agent-info/browser';
 
-const info = await detectCurrent();
+const details = await detectCurrent();
 ```
 
 When supported, the default call requests:
@@ -391,10 +357,10 @@ When supported, the default call requests:
 ]
 ```
 
-### Request only selected high-entropy hints
+### Request selected high-entropy hints
 
 ```ts
-const info = await detectCurrent({
+const details = await detectCurrent({
   highEntropy: [
     'fullVersionList',
     'platformVersion',
@@ -402,58 +368,37 @@ const info = await detectCurrent({
 });
 ```
 
-To avoid requesting high-entropy values entirely:
+To avoid requesting high-entropy values:
 
 ```ts
-const info = await detectCurrent({ highEntropy: [] });
+const details = await detectCurrent({ highEntropy: [] });
 ```
 
-### SSR-safe pattern
+### SSR-safe usage
 
 ```ts
-import { parse } from 'ua-info';
+import { parse } from 'user-agent-info';
 
-const info = typeof navigator === 'undefined'
-  ? parse(serverUserAgent)
-  : parse(navigator.userAgent);
+const details = parse(serverUserAgent);
 ```
 
-Use `detectCurrent()` only after entering the browser runtime.
+Call `detectCurrent()` only after entering a browser runtime. Server rendering should use `parse()` or `parseRequest()`.
 
-### Angular service example
+### Angular service
 
 ```ts
 import { Injectable } from '@angular/core';
-import { detectCurrent, type DetectCurrentOptions } from 'ua-info/browser';
-import { parse, type UAResult } from 'ua-info';
+import { detectCurrent } from 'user-agent-info/browser';
 
 @Injectable({ providedIn: 'root' })
 export class UserAgentService {
-  private current: UAResult | null = null;
-
-  get snapshot(): UAResult | null {
-    return this.current;
-  }
-
-  async detect(options?: DetectCurrentOptions): Promise<UAResult> {
-    this.current = typeof navigator === 'undefined'
-      ? parse('')
-      : await detectCurrent(options);
-
-    return this.current;
-  }
-
-  get isMobile(): boolean {
-    return this.current?.device.type === 'mobile';
-  }
-
-  get isLine(): boolean {
-    return this.current?.context?.host?.id === 'line';
+  detect() {
+    return detectCurrent();
   }
 }
 ```
 
-For Angular SSR, call `detect()` only in the browser or pass the request User-Agent to `parse()` on the server.
+Angular SSR code should use `parse()` or `parseRequest()` instead of calling `detectCurrent()`.
 
 ## Version utilities
 
@@ -464,19 +409,19 @@ import {
   compareVersions,
   parseVersion,
   satisfiesVersion,
-} from 'ua-info';
+} from 'user-agent-info';
 
 const version = parseVersion('150.0.7871.46');
 
-version?.raw;   // '150.0.7871.46'
-version?.major; // 150
-version?.minor; // 0
+console.log(version?.raw);
+console.log(version?.major);
+console.log(version?.minor);
 
-compareVersions('150.0.7871.46', '150.0.7871.45'); // 1
-satisfiesVersion(version, '>=150');                // true
+console.log(compareVersions('150.0.7871.46', '150.0.7871.45'));
+console.log(satisfiesVersion(version, '>=150'));
 ```
 
-### Supported comparisons
+Supported comparisons:
 
 ```ts
 satisfiesVersion(version, '>120');
@@ -486,14 +431,14 @@ satisfiesVersion(version, '=150');
 satisfiesVersion(version, '==150.0');
 ```
 
-Only one comparator is supported per call. Compound ranges such as `>=120 <130`, caret ranges, tilde ranges, and prerelease SemVer syntax are intentionally not supported.
+Only one comparator is supported per call. Compound ranges, caret ranges, tilde ranges, and prerelease SemVer syntax are intentionally not supported.
 
 Comparison rules:
 
 - Segments are compared numerically.
 - Missing segments are treated as zero.
 - Dot, underscore, and comma separators are accepted by `parseVersion()`.
-- Invalid or absent values return `null` from `parseVersion()` / `compareVersions()` and `false` from `satisfiesVersion()`.
+- Invalid or absent values return `null` from `parseVersion()` and `compareVersions()`, and `false` from `satisfiesVersion()`.
 
 ## TypeScript API
 
@@ -576,8 +521,6 @@ type ContextKind =
 
 ### Known-ID constants
 
-Use constants to avoid string typos while keeping IDs extensible:
-
 ```ts
 import {
   BrowserFamily,
@@ -585,14 +528,14 @@ import {
   CPUArchitecture,
   EngineId,
   OSId,
-} from 'ua-info';
+} from 'user-agent-info';
 
-if (info.browser?.id === BrowserId.Edge) {
-  // ...
+if (details.browser?.id === BrowserId.Edge) {
+  console.log(details.browser.name);
 }
 
-if (info.engine?.id === EngineId.WebKit) {
-  // ...
+if (details.engine?.id === EngineId.WebKit) {
+  console.log(details.engine.name);
 }
 ```
 
@@ -622,29 +565,29 @@ Windows, macOS, iOS, Android, ChromeOS, Linux, HarmonyOS, KaiOS, and Tizen.
 
 ### Device classes
 
-Desktop, mobile, tablet, smart TV, console, wearable, XR, embedded, and unknown. Common Android vendor/model information is extracted when available.
+Desktop, mobile, tablet, smart TV, console, wearable, XR, embedded, and unknown. Common Android vendor and model information is extracted when available.
 
 ### Browser modes
 
 Ordinary browser, WebView, headless, embedded, and unknown.
 
-Detection coverage is intentionally evidence-based. Unrecognized products return `null` or `unknown` rather than being forced into an incorrect identity.
+Detection is evidence-based. Unrecognized products return `null` or `unknown` rather than being forced into an incorrect identity.
 
 ## Null and `unknown` semantics
 
 - Use `null` when an optional dimension is not detected, such as `browser`, `os`, `cpu`, `client`, or `context`.
-- Use `unknown` when the dimension always exists but its category cannot be classified, such as `device.type`.
-- Never treat `null` as an error. Sparse User-Agent strings are valid input.
+- Use `unknown` when a dimension always exists but its category cannot be classified, such as `device.type`.
+- Sparse User-Agent strings are valid input.
 - The original supplied value is preserved in `result.ua`.
 
 ```ts
-const info = parse('');
+const details = parse('');
 
-info.browser;     // null
-info.os;          // null
-info.device.type; // 'unknown'
-info.client;      // null
-info.context;     // null
+console.log(details.browser);
+console.log(details.os);
+console.log(details.device.type);
+console.log(details.client);
+console.log(details.context);
 ```
 
 ## API reference
@@ -668,7 +611,7 @@ interface ParseRequestInput {
 function parseRequest(input: ParseRequestInput): UAResult;
 ```
 
-Import from `ua-info/server`.
+Import from `user-agent-info/server`.
 
 Header types are exported for adapters:
 
@@ -701,7 +644,7 @@ function detectCurrent(
 ): Promise<UAResult>;
 ```
 
-Import from `ua-info/browser`.
+Import from `user-agent-info/browser`.
 
 ### Version functions
 
@@ -719,35 +662,9 @@ function satisfiesVersion(
 ): boolean;
 ```
 
-## Migrating from 1.x
+## Migrating from the previous package name
 
-Version 2 is a breaking redesign. The mutable `UAInfo` class and legacy result shape were removed.
-
-Before:
-
-```ts
-import { UAInfo } from 'ua-info';
-
-const parser = new UAInfo(userAgent);
-const info = parser.getParsedUserAgent();
-```
-
-After:
-
-```ts
-import { parse } from 'ua-info';
-
-const info = parse(userAgent);
-```
-
-Important model changes:
-
-- Browser runtime is in `browser`.
-- Rendering engine is in `engine`.
-- LINE and other host apps are in `context.host`.
-- Bots and HTTP clients are in `client`.
-- Results are immutable values rather than mutable parser state.
-- There is no `ua-info/v2` or legacy subpath; version 2 is the package-root API.
+The API is unchanged. See [MIGRATION.md](MIGRATION.md) for dependency and import replacements.
 
 ## Security and privacy
 
@@ -761,54 +678,54 @@ Do not use this package to:
 - make fraud decisions by itself,
 - assume a browser feature is definitely available.
 
-Prefer feature detection for browser capabilities. Use UA information for analytics, compatibility fallbacks, diagnostics, presentation choices, and routing where occasional misclassification is acceptable.
+Prefer feature detection for capabilities. Use User-Agent information for analytics, compatibility fallbacks, diagnostics, presentation choices, and routing where occasional misclassification is acceptable.
 
-Avoid logging full User-Agent or Client Hint values unless your privacy policy and retention controls allow it.
+Avoid logging complete User-Agent or Client Hint values unless your privacy policy and retention controls allow it.
 
 ## Limitations
 
-- User-Agent reduction and frozen UA strings can make UA-only results less precise.
-- Client Hints are not available in every browser or every request.
-- In-app browsers often customize tokens inconsistently between platform versions.
-- Device vendor/model detection is best-effort.
-- `parse()` cannot detect standalone PWA mode because that requires runtime state; use `detectCurrent()`.
-- Browser feature support should be tested directly rather than inferred only from browser name/version.
+- User-Agent reduction and frozen User-Agent strings can make UA-only results less precise.
+- Client Hints are not available in every browser or request.
+- In-app browsers may change or omit tokens between releases.
+- Device vendor and model detection is best-effort.
+- `parse()` cannot detect standalone PWA mode because that requires runtime state.
+- Browser feature support should be tested directly rather than inferred only from browser name and version.
 
 ## Package compatibility
 
 - Native ESM import.
 - CommonJS `require()`.
 - TypeScript declarations included.
-- Node.js 18, 20, and 22 are covered by CI.
-- Browser/server code is split through package subpath exports.
-- `sideEffects: false` supports tree-shaking.
+- Node.js 18, 20, and 22 covered by CI.
+- Browser and server code split through package subpath exports.
+- `sideEffects: false` for tree-shaking.
 
 Public entry points:
 
 ```ts
-import { parse } from 'ua-info';
-import { parseRequest } from 'ua-info/server';
-import { detectCurrent } from 'ua-info/browser';
+import { parse } from 'user-agent-info';
+import { parseRequest } from 'user-agent-info/server';
+import { detectCurrent } from 'user-agent-info/browser';
 ```
 
 ## Contributing
 
 ```bash
-git clone https://github.com/petechatchawan/ua-info.git
-cd ua-info
+git clone https://github.com/petechatchawan/user-agent-info.git
+cd user-agent-info
 npm install
 npm run check
 ```
 
-`npm run check` runs linting, Jest tests, ESM and CommonJS builds, package-content validation, and packed-package consumer tests.
+`npm run check` runs identity validation, linting, Jest tests, ESM and CommonJS builds, package-content validation, and packed-package consumer tests.
 
 When adding a detector:
 
 1. Add representative positive fixtures.
-2. Add exclusion/precedence fixtures to prevent shared-token false positives.
+2. Add exclusion and precedence fixtures for shared tokens.
 3. Keep browser, client, and context identity separate.
 4. Preserve pure behavior in `parse()`.
-5. Do not copy third-party regex databases or fixtures without license-compatible provenance.
+5. Use detector data and fixtures with clear, compatible provenance.
 
 Architecture and field semantics are documented in [`docs/v2-design.md`](docs/v2-design.md).
 
