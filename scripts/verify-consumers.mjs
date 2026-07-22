@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 const nodeCommand = process.execPath;
 const rootDirectory = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const workspace = await mkdtemp(path.join(os.tmpdir(), 'user-agent-info-consumer-'));
+const workspace = await mkdtemp(path.join(os.tmpdir(), 'ua-info-consumer-'));
 const chromeUA =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 ' +
   '(KHTML, like Gecko) Chrome/120.0.6099.109 Safari/537.36';
@@ -20,7 +20,7 @@ try {
   );
   const [packReport] = JSON.parse(packOutput);
 
-  if (packReport.name !== 'user-agent-info' || packReport.version !== '2.0.1') {
+  if (packReport.name !== 'ua-info' || packReport.version !== '2.0.2') {
     throw new Error(`Unexpected packed identity: ${packReport.name}@${packReport.version}`);
   }
 
@@ -36,9 +36,9 @@ try {
   await writeFile(
     esmConsumer,
     `import assert from 'node:assert/strict';\n` +
-      `import * as userAgentInfo from 'user-agent-info';\n` +
-      `import { parseRequest } from 'user-agent-info/server';\n` +
-      `import { detectCurrent } from 'user-agent-info/browser';\n` +
+      `import * as userAgentInfo from 'ua-info';\n` +
+      `import { parseRequest } from 'ua-info/server';\n` +
+      `import { detectCurrent } from 'ua-info/browser';\n` +
       `const { BrowserId, parse, parseVersion, satisfiesVersion } = userAgentInfo;\n` +
       `const result = parse(${JSON.stringify(chromeUA)});\n` +
       `assert.equal('UAInfo' in userAgentInfo, false);\n` +
@@ -57,9 +57,9 @@ try {
   await writeFile(
     cjsConsumer,
     `const assert = require('node:assert/strict');\n` +
-      `const userAgentInfo = require('user-agent-info');\n` +
+      `const userAgentInfo = require('ua-info');\n` +
       `const { BrowserId, parse } = userAgentInfo;\n` +
-      `const { parseRequest } = require('user-agent-info/server');\n` +
+      `const { parseRequest } = require('ua-info/server');\n` +
       `const result = parse(${JSON.stringify(chromeUA)});\n` +
       `assert.equal('UAInfo' in userAgentInfo, false);\n` +
       `assert.equal(result.browser?.id, BrowserId.Chrome);\n` +
@@ -70,14 +70,14 @@ try {
   await writeFile(
     removedV2SubpathConsumer,
     `const assert = require('node:assert/strict');\n` +
-      `assert.throws(() => require('user-agent-info/v2'), /Package subpath|not defined|cannot find/i);\n`,
+      `assert.throws(() => require('ua-info/v2'), /Package subpath|not defined|cannot find/i);\n`,
   );
 
   execFileSync(nodeCommand, [esmConsumer], { cwd: workspace, stdio: 'inherit' });
   execFileSync(nodeCommand, [cjsConsumer], { cwd: workspace, stdio: 'inherit' });
   execFileSync(nodeCommand, [removedV2SubpathConsumer], { cwd: workspace, stdio: 'inherit' });
 
-  console.log('Package consumer verification passed for user-agent-info root, server, browser, ESM, and CommonJS APIs.');
+  console.log('Package consumer verification passed for ua-info root, server, browser, ESM, and CommonJS APIs.');
 } finally {
   await rm(workspace, { recursive: true, force: true });
 }

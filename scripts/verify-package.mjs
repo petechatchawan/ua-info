@@ -5,16 +5,16 @@ import { readFile } from 'node:fs/promises';
 const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 const packageJson = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'));
 
-if (packageJson.name !== 'user-agent-info') {
-  throw new Error(`Expected package name user-agent-info, received ${packageJson.name}`);
+if (packageJson.name !== 'ua-info') {
+  throw new Error(`Expected package name ua-info, received ${packageJson.name}`);
 }
 
-if (packageJson.version !== '2.0.1') {
-  throw new Error(`Expected package version 2.0.1, received ${packageJson.version}`);
+if (packageJson.version !== '2.0.2') {
+  throw new Error(`Expected package version 2.0.2, received ${packageJson.version}`);
 }
 
 if (!/^2\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(packageJson.version)) {
-  throw new Error(`Expected a valid user-agent-info 2.x version, received ${packageJson.version}`);
+  throw new Error(`Expected a valid ua-info 2.x version, received ${packageJson.version}`);
 }
 
 if (!packageJson.exports?.['.'] || packageJson.exports['./v2'] || packageJson.exports['./v2/server'] || packageJson.exports['./v2/browser']) {
@@ -33,7 +33,7 @@ const output = execFileSync(
 
 const [report] = JSON.parse(output);
 
-if (report.name !== 'user-agent-info' || report.version !== '2.0.1') {
+if (report.name !== 'ua-info' || report.version !== '2.0.2') {
   throw new Error(`Unexpected packed identity: ${report.name}@${report.version}`);
 }
 
@@ -52,13 +52,17 @@ if (forbiddenFiles.length > 0) {
   process.exit(1);
 }
 
-const requiredDocumentation = ['README.md', 'MIGRATION.md', 'LICENSE'];
+const requiredDocumentation = ['README.md', 'LICENSE'];
 const missingDocumentation = requiredDocumentation.filter((path) => !packedPaths.includes(path));
 
 if (missingDocumentation.length > 0) {
   throw new Error(`Package is missing required documentation: ${missingDocumentation.join(', ')}`);
 }
 
+if (packedPaths.includes('MIGRATION.md')) {
+  throw new Error('Package must not include the superseded MIGRATION.md document.');
+}
+
 console.log(
-  `Package contents verified: ${report.files.length} files, user-agent-info@2.0.1, 2.x exports only, README/MIGRATION/LICENSE present, no tests or v1 artifacts.`,
+  `Package contents verified: ${report.files.length} files, ua-info@2.0.2, 2.x exports only, README/LICENSE present, no tests or v1 artifacts.`,
 );

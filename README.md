@@ -1,14 +1,16 @@
-# User Agent Info
+# UA Info
 
-[![npm version](https://img.shields.io/npm/v/user-agent-info.svg)](https://www.npmjs.com/package/user-agent-info)
-[![CI](https://github.com/petechatchawan/user-agent-info/actions/workflows/ci.yml/badge.svg)](https://github.com/petechatchawan/user-agent-info/actions/workflows/ci.yml)
-[![license](https://img.shields.io/npm/l/user-agent-info.svg)](LICENSE)
+[![npm version](https://img.shields.io/npm/v/ua-info.svg)](https://www.npmjs.com/package/ua-info)
+[![CI](https://github.com/petechatchawan/ua-info/actions/workflows/ci.yml/badge.svg)](https://github.com/petechatchawan/ua-info/actions/workflows/ci.yml)
+[![license](https://img.shields.io/npm/l/ua-info.svg)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-ready-blue.svg)](https://www.typescriptlang.org/)
 
-A zero-dependency TypeScript User-Agent parser for browsers, devices, operating systems, bots, WebViews, in-app browsers, and User-Agent Client Hints.
+**UA Info** stands for **User-Agent Information**.
+
+A zero-dependency TypeScript User-Agent information parser for browsers, devices, operating systems, bots, WebViews, in-app browsers, and User-Agent Client Hints.
 
 ```ts
-import { parse } from 'user-agent-info';
+import { parse } from 'ua-info';
 
 const details = parse(navigator.userAgent);
 
@@ -17,7 +19,7 @@ console.log(details.os?.name);
 console.log(details.device.type);
 ```
 
-## Why User Agent Info?
+## Why UA Info?
 
 - **One stable result shape** for browsers, servers, bots, automation tools, and embedded web runtimes.
 - **Separate identities** for the underlying browser, rendering engine, non-browser client, and host application.
@@ -30,15 +32,15 @@ console.log(details.device.type);
 ## Installation
 
 ```bash
-npm install user-agent-info
+npm install ua-info
 ```
 
 ```bash
-pnpm add user-agent-info
+pnpm add ua-info
 ```
 
 ```bash
-yarn add user-agent-info
+yarn add ua-info
 ```
 
 Requirements:
@@ -52,7 +54,7 @@ Requirements:
 ### TypeScript / ESM
 
 ```ts
-import { BrowserId, parse } from 'user-agent-info';
+import { BrowserId, parse } from 'ua-info';
 
 const details = parse(navigator.userAgent);
 
@@ -64,7 +66,7 @@ if (details.browser?.id === BrowserId.Chrome) {
 ### CommonJS
 
 ```js
-const { parse } = require('user-agent-info');
+const { parse } = require('ua-info');
 
 const details = parse(userAgent);
 console.log(details.browser?.name);
@@ -74,14 +76,14 @@ console.log(details.browser?.name);
 
 | Use case | Import | Data source | Runtime detection |
 | --- | --- | --- | --- |
-| Parse a known User-Agent | `user-agent-info` | Supplied User-Agent string | No |
-| Parse an HTTP request | `user-agent-info/server` | User-Agent and request Client Hints | No |
-| Detect the current browser | `user-agent-info/browser` | User-Agent, browser Client Hints, and runtime signals | Yes |
+| Parse a known User-Agent | `ua-info` | Supplied User-Agent string | No |
+| Parse an HTTP request | `ua-info/server` | User-Agent and request Client Hints | No |
+| Detect the current browser | `ua-info/browser` | User-Agent, browser Client Hints, and runtime signals | Yes |
 
 ### `parse()` — universal and pure
 
 ```ts
-import { parse } from 'user-agent-info';
+import { parse } from 'ua-info';
 
 const details = parse(userAgent);
 ```
@@ -91,7 +93,7 @@ Use `parse()` when a User-Agent string is already available. It is synchronous a
 ### `parseRequest()` — server requests and Client Hints
 
 ```ts
-import { parseRequest } from 'user-agent-info/server';
+import { parseRequest } from 'ua-info/server';
 
 const details = parseRequest({
   headers: request.headers,
@@ -103,7 +105,7 @@ Use `parseRequest()` for incoming HTTP requests. It accepts either a Fetch-compa
 ### `detectCurrent()` — browser enrichment and PWA detection
 
 ```ts
-import { detectCurrent } from 'user-agent-info/browser';
+import { detectCurrent } from 'ua-info/browser';
 
 const details = await detectCurrent();
 ```
@@ -175,7 +177,7 @@ import {
   BrowserId,
   parse,
   satisfiesVersion,
-} from 'user-agent-info';
+} from 'ua-info';
 
 const details = parse(userAgent);
 const supported =
@@ -282,7 +284,7 @@ Recognized clients include:
 ### Fetch API / web-standard request
 
 ```ts
-import { parseRequest } from 'user-agent-info/server';
+import { parseRequest } from 'ua-info/server';
 
 export function getClientDetails(request: Request) {
   const details = parseRequest({ headers: request.headers });
@@ -298,7 +300,7 @@ export function getClientDetails(request: Request) {
 ### Node.js / Express-style headers
 
 ```ts
-import { parseRequest } from 'user-agent-info/server';
+import { parseRequest } from 'ua-info/server';
 
 app.get('/client-details', (req, res) => {
   res.json(parseRequest({ headers: req.headers }));
@@ -340,7 +342,7 @@ GREASE brands such as `Not A Brand` are ignored. Applications must continue to w
 ### Default enrichment
 
 ```ts
-import { detectCurrent } from 'user-agent-info/browser';
+import { detectCurrent } from 'ua-info/browser';
 
 const details = await detectCurrent();
 ```
@@ -377,7 +379,7 @@ const details = await detectCurrent({ highEntropy: [] });
 ### SSR-safe usage
 
 ```ts
-import { parse } from 'user-agent-info';
+import { parse } from 'ua-info';
 
 const details = parse(serverUserAgent);
 ```
@@ -388,7 +390,7 @@ Call `detectCurrent()` only after entering a browser runtime. Server rendering s
 
 ```ts
 import { Injectable } from '@angular/core';
-import { detectCurrent } from 'user-agent-info/browser';
+import { detectCurrent } from 'ua-info/browser';
 
 @Injectable({ providedIn: 'root' })
 export class UserAgentService {
@@ -409,7 +411,7 @@ import {
   compareVersions,
   parseVersion,
   satisfiesVersion,
-} from 'user-agent-info';
+} from 'ua-info';
 
 const version = parseVersion('150.0.7871.46');
 
@@ -528,7 +530,7 @@ import {
   CPUArchitecture,
   EngineId,
   OSId,
-} from 'user-agent-info';
+} from 'ua-info';
 
 if (details.browser?.id === BrowserId.Edge) {
   console.log(details.browser.name);
@@ -611,7 +613,7 @@ interface ParseRequestInput {
 function parseRequest(input: ParseRequestInput): UAResult;
 ```
 
-Import from `user-agent-info/server`.
+Import from `ua-info/server`.
 
 Header types are exported for adapters:
 
@@ -644,7 +646,7 @@ function detectCurrent(
 ): Promise<UAResult>;
 ```
 
-Import from `user-agent-info/browser`.
+Import from `ua-info/browser`.
 
 ### Version functions
 
@@ -703,16 +705,16 @@ Avoid logging complete User-Agent or Client Hint values unless your privacy poli
 Public entry points:
 
 ```ts
-import { parse } from 'user-agent-info';
-import { parseRequest } from 'user-agent-info/server';
-import { detectCurrent } from 'user-agent-info/browser';
+import { parse } from 'ua-info';
+import { parseRequest } from 'ua-info/server';
+import { detectCurrent } from 'ua-info/browser';
 ```
 
 ## Contributing
 
 ```bash
-git clone https://github.com/petechatchawan/user-agent-info.git
-cd user-agent-info
+git clone https://github.com/petechatchawan/ua-info.git
+cd ua-info
 npm install
 npm run check
 ```
