@@ -111,7 +111,17 @@ jobs:
         continue-on-error: true
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: npm publish --access public --provenance
+        shell: bash
+        run: |
+          set -o pipefail
+          npm publish --access public --provenance 2>&1 | tee publish.log
+
+      - name: Upload publish log
+        if: always() && steps.publish.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-release-publish-log
+          path: publish.log
 
       - name: Verify npm registry
         id: verify
