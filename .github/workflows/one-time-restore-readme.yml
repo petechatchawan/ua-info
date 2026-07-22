@@ -1,0 +1,59 @@
+name: One-time restore README scope
+
+on:
+  push:
+    branches:
+      - agent/ua-info-identity-restoration
+    paths:
+      - .github/workflows/one-time-restore-readme.yml
+
+permissions:
+  contents: write
+
+jobs:
+  restore-readme:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/ua-info-identity-restoration
+          fetch-depth: 0
+
+      - name: Restore comprehensive README and change identity only
+        shell: python
+        run: |
+          from pathlib import Path
+          import subprocess
+
+          source = subprocess.check_output(
+              ["git", "show", "origin/master:README.md"],
+              text=True,
+          )
+
+          source = source.replace("# User Agent Info\n", "# UA Info\n", 1)
+          source = source.replace("user-agent-info", "ua-info")
+          source = source.replace("## Why User Agent Info?", "## Why UA Info?")
+
+          description = (
+              "A zero-dependency TypeScript User-Agent parser for browsers, devices, operating systems, "
+              "bots, WebViews, in-app browsers, and User-Agent Client Hints."
+          )
+          replacement = (
+              "**UA Info** stands for **User-Agent Information**.\n\n"
+              "A zero-dependency TypeScript User-Agent information parser for browsers, devices, operating systems, "
+              "bots, WebViews, in-app browsers, and User-Agent Client Hints."
+          )
+          if description not in source:
+              raise RuntimeError("Expected README description was not found")
+          source = source.replace(description, replacement, 1)
+
+          Path("README.md").write_text(source, encoding="utf-8")
+
+      - name: Commit README identity restoration
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          git commit -m "docs: preserve README while restoring ua-info"
+          git push origin HEAD:agent/ua-info-identity-restoration
