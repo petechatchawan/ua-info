@@ -1,3 +1,4 @@
+# Canonical release workflow for user-agent-info.
 name: Publish to npm
 
 on:
