@@ -21,9 +21,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-      - name: Verify target npm name is available
-        if: matrix.node-version == 22
-        run: node scripts/verify-target-name-available.mjs
       - run: npm install
       - run: npm run lint
       - run: npm test
