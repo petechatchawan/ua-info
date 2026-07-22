@@ -21,7 +21,7 @@ try {
   );
   const [packReport] = JSON.parse(packOutput);
 
-  if (packReport.name !== 'ua-info' || packReport.version !== '2.0.2') {
+  if (packReport.name !== 'ua-info' || packReport.version !== '2.0.3') {
     throw new Error(`Unexpected packed identity: ${packReport.name}@${packReport.version}`);
   }
 
