@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 const nodeCommand = process.execPath;
 const rootDirectory = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const typescriptCommand = path.join(rootDirectory, 'node_modules', 'typescript', 'bin', 'tsc');
 const workspace = await mkdtemp(path.join(os.tmpdir(), 'ua-info-consumer-'));
 const chromeUA =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 ' +
@@ -25,6 +26,10 @@ try {
   }
 
   const tarballPath = path.join(workspace, packReport.filename);
+  await writeFile(
+    path.join(workspace, 'package.json'),
+    '{\n  "private": true,\n  "type": "module"\n}\n',
+  );
 
   execFileSync(
     npmCommand,
@@ -66,6 +71,43 @@ try {
       `assert.equal(parseRequest({ headers: { 'user-agent': ${JSON.stringify(chromeUA)} } }).os?.id, 'windows');\n`,
   );
 
+  const typescriptConsumer = path.join(workspace, 'consumer.ts');
+  await writeFile(
+    typescriptConsumer,
+    `import { BrowserId, parse } from 'ua-info';\n` +
+      `import { parseRequest } from 'ua-info/server';\n` +
+      `import { detectCurrent } from 'ua-info/browser';\n` +
+      `const result = parse(${JSON.stringify(chromeUA)});\n` +
+      `const browserId = result.browser?.id;\n` +
+      `const requestResult = parseRequest({ headers: { 'user-agent': result.ua } });\n` +
+      `const detector: typeof detectCurrent = detectCurrent;\n` +
+      `void BrowserId;\n` +
+      `void browserId;\n` +
+      `void requestResult;\n` +
+      `void detector;\n`,
+  );
+  const typescriptConfig = path.join(workspace, 'tsconfig.json');
+  await writeFile(
+    typescriptConfig,
+    JSON.stringify(
+      {
+        compilerOptions: {
+          target: 'ES2020',
+          module: 'Node16',
+          moduleResolution: 'Node16',
+          strict: true,
+          skipLibCheck: false,
+          noEmit: true,
+          lib: ['ES2020', 'DOM'],
+          types: [],
+        },
+        include: ['./consumer.ts'],
+      },
+      null,
+      2,
+    ),
+  );
+
   const removedV2SubpathConsumer = path.join(workspace, 'removed-v2-subpath.cjs');
   await writeFile(
     removedV2SubpathConsumer,
@@ -75,9 +117,15 @@ try {
 
   execFileSync(nodeCommand, [esmConsumer], { cwd: workspace, stdio: 'inherit' });
   execFileSync(nodeCommand, [cjsConsumer], { cwd: workspace, stdio: 'inherit' });
+  execFileSync(nodeCommand, [typescriptCommand, '--project', typescriptConfig], {
+    cwd: workspace,
+    stdio: 'inherit',
+  });
   execFileSync(nodeCommand, [removedV2SubpathConsumer], { cwd: workspace, stdio: 'inherit' });
 
-  console.log('Package consumer verification passed for ua-info root, server, browser, ESM, and CommonJS APIs.');
+  console.log(
+    'Package consumer verification passed for ua-info root, server, browser, ESM, CommonJS, and TypeScript Node16 APIs.',
+  );
 } finally {
   await rm(workspace, { recursive: true, force: true });
 }
