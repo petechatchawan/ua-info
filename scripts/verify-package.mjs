@@ -1,3 +1,4 @@
+import './verify-package-identity.mjs';
 import { execFileSync } from 'node:child_process';
 import { readFile } from 'node:fs/promises';
 
