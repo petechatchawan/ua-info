@@ -23,18 +23,26 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node-version }}
-          registry-url: https://registry.npmjs.org
           package-manager-cache: false
 
-      - name: Verify clean consumers
+      - name: Install clean package
         shell: bash
         run: |
           set -euo pipefail
-          workspace=$(mktemp -d)
+          workspace="$RUNNER_TEMP/ua-info-live-${{ matrix.node-version }}"
+          rm -rf "$workspace"
+          mkdir -p "$workspace"
+          echo "WORKSPACE=$workspace" >> "$GITHUB_ENV"
           cd "$workspace"
           npm init -y >/dev/null
+          npm pkg set type=module
           npm install --ignore-scripts --no-audit --no-fund ua-info@2.0.2 typescript@4.9.5 @types/node@18
 
+      - name: Verify ESM consumer
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$WORKSPACE"
           cat > verify.mjs <<'EOF'
           import assert from 'node:assert/strict';
           import { createRequire } from 'node:module';
@@ -43,8 +51,7 @@ jobs:
           import { detectCurrent } from 'ua-info/browser';
 
           const userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.109 Safari/537.36';
-          const parsed = root.parse(userAgent);
-          assert.equal(parsed.browser?.id, root.BrowserId.Chrome);
+          assert.equal(root.parse(userAgent).browser?.id, root.BrowserId.Chrome);
           assert.equal(parseRequest({ headers: { 'user-agent': userAgent } }).browser?.id, root.BrowserId.Chrome);
           assert.equal(typeof detectCurrent, 'function');
           assert.equal('UAInfo' in root, false);
@@ -55,7 +62,13 @@ jobs:
           assert.equal(manifest.version, '2.0.2');
           assert.throws(() => require('ua-info/v2'), /Package subpath|not defined|cannot find/i);
           EOF
+          node verify.mjs
 
+      - name: Verify CommonJS consumer
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$WORKSPACE"
           cat > verify.cjs <<'EOF'
           const assert = require('node:assert/strict');
           const root = require('ua-info');
@@ -66,15 +79,22 @@ jobs:
           assert.equal(parseRequest({ headers: { 'user-agent': userAgent } }).browser?.id, root.BrowserId.Chrome);
           assert.equal(typeof detectCurrent, 'function');
           assert.equal('UAInfo' in root, false);
+          assert.throws(() => require('ua-info/v2'), /Package subpath|not defined|cannot find/i);
           EOF
+          node verify.cjs
 
+      - name: Verify TypeScript consumer
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$WORKSPACE"
           cat > verify.ts <<'EOF'
           import { BrowserId, parse } from 'ua-info';
           import { parseRequest } from 'ua-info/server';
           import { detectCurrent } from 'ua-info/browser';
 
           const result = parse('Mozilla/5.0 Chrome/120.0.0.0 Safari/537.36');
-          const browserId: string | undefined = result.browser?.id;
+          const browserId = result.browser?.id;
           const requestResult = parseRequest({ headers: { 'user-agent': result.ua } });
           const detector: typeof detectCurrent = detectCurrent;
           void BrowserId;
@@ -97,10 +117,12 @@ jobs:
           }
           EOF
 
-          node verify.mjs
-          node verify.cjs
           npx tsc --project tsconfig.json
 
+      - name: Verify registry metadata
+        shell: bash
+        run: |
+          set -euo pipefail
           test "$(npm view ua-info@2.0.2 name)" = "ua-info"
           test "$(npm view ua-info@2.0.2 version)" = "2.0.2"
           test "$(npm view ua-info@2.0.2 repository.url)" = "git+https://github.com/petechatchawan/ua-info.git"
