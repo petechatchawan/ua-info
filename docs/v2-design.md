@@ -1,4 +1,4 @@
-# ua-info 2.0 design
+# user-agent-info 2.0 design
 
 ## Status
 
@@ -6,7 +6,7 @@ The 2.0 public model and entry-point boundaries are implemented and frozen. Vers
 
 ## Product scope
 
-`ua-info` is a general-purpose User-Agent and Client Hints parser. The canonical result contains browser, rendering engine, operating system, device, CPU, non-browser client, and execution-context dimensions.
+`user-agent-info` is a general-purpose User-Agent and Client Hints parser. The canonical result contains browser, rendering engine, operating system, device, CPU, non-browser client, and execution-context dimensions.
 
 ```ts
 export interface UAResult {
@@ -80,9 +80,9 @@ Versions are not assumed to follow Semantic Versioning. Full numeric comparison 
 
 | API | Import | Inputs | Runtime-only context such as PWA |
 | --- | --- | --- | --- |
-| `parse(ua)` | `ua-info` | User-Agent string only | No |
-| `parseRequest({ headers })` | `ua-info/server` | User-Agent plus request Client Hints | Partial |
-| `detectCurrent()` | `ua-info/browser` | User-Agent, browser Client Hints, and runtime signals | Yes |
+| `parse(ua)` | `user-agent-info` | User-Agent string only | No |
+| `parseRequest({ headers })` | `user-agent-info/server` | User-Agent plus request Client Hints | Partial |
+| `detectCurrent()` | `user-agent-info/browser` | User-Agent, browser Client Hints, and runtime signals | Yes |
 
 The pure parser must not read `navigator`, `document`, or other browser globals.
 
@@ -91,12 +91,12 @@ The pure parser must not read `navigator`, `document`, or other browser globals.
 Version 2.0 exports:
 
 ```ts
-import { parse, satisfiesVersion } from 'ua-info';
-import { parseRequest } from 'ua-info/server';
-import { detectCurrent } from 'ua-info/browser';
+import { parse, satisfiesVersion } from 'user-agent-info';
+import { parseRequest } from 'user-agent-info/server';
+import { detectCurrent } from 'user-agent-info/browser';
 ```
 
-The package does not export `UAInfo`, `ua-info/v2`, `ua-info/v2/server`, or `ua-info/v2/browser`.
+The package does not export `UAInfo`, `user-agent-info/v2`, `user-agent-info/v2/server`, or `user-agent-info/v2/browser`.
 
 ## Security and provenance
 
