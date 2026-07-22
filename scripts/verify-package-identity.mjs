@@ -6,11 +6,11 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const packageJson = JSON.parse(await readFile(path.join(root, 'package.json'), 'utf8'));
 
 const expected = Object.freeze({
-  name: 'user-agent-info',
-  version: '2.0.1',
-  repository: 'git+https://github.com/petechatchawan/user-agent-info.git',
-  homepage: 'https://github.com/petechatchawan/user-agent-info#readme',
-  bugs: 'https://github.com/petechatchawan/user-agent-info/issues',
+  name: 'ua-info',
+  version: '2.0.2',
+  repository: 'git+https://github.com/petechatchawan/ua-info.git',
+  homepage: 'https://github.com/petechatchawan/ua-info#readme',
+  bugs: 'https://github.com/petechatchawan/ua-info/issues',
 });
 
 const failures = [];
@@ -21,15 +21,16 @@ if (packageJson.repository?.url !== expected.repository) failures.push(`reposito
 if (packageJson.homepage !== expected.homepage) failures.push(`homepage: ${packageJson.homepage}`);
 if (packageJson.bugs?.url !== expected.bugs) failures.push(`bugs: ${packageJson.bugs?.url}`);
 
-const requiredFiles = new Set(['dist', 'README.md', 'MIGRATION.md', 'LICENSE']);
+const requiredFiles = new Set(['dist', 'README.md', 'LICENSE']);
 for (const entry of requiredFiles) {
   if (!packageJson.files?.includes(entry)) failures.push(`files is missing ${entry}`);
 }
+if (packageJson.files?.includes('MIGRATION.md')) failures.push('files must not include MIGRATION.md');
 
 const publishWorkflow = await readFile(path.join(root, '.github/workflows/publish.yml'), 'utf8');
 const requiredWorkflowFragments = [
   'id-token: write',
-  'expected_repository="petechatchawan/user-agent-info"',
+  'expected_repository="petechatchawan/ua-info"',
   'needs: release-context',
   "if: needs.release-context.outputs.can-publish == 'true'",
 ];
@@ -38,18 +39,19 @@ for (const fragment of requiredWorkflowFragments) {
 }
 
 const ignoredDirectories = new Set(['.git', 'dist', 'node_modules']);
-const allowedLegacyFiles = new Set([
-  'MIGRATION.md',
+const allowedHistoricalFiles = new Set([
   'docs/superpowers/specs/2026-07-22-user-agent-info-package-migration-design.md',
   'docs/superpowers/plans/2026-07-22-user-agent-info-package-migration.md',
+  'docs/superpowers/specs/2026-07-22-ua-info-identity-restoration-design.md',
+  'docs/superpowers/plans/2026-07-22-ua-info-identity-restoration.md',
 ]);
 const forbiddenPatterns = [
-  /from ['"]ua-info(?:\/[^'"]*)?['"]/g,
-  /require\(['"]ua-info(?:\/[^'"]*)?['"]\)/g,
-  /(?:npm install|npm i|pnpm add|yarn add) ua-info(?:\s|$)/g,
-  /github\.com\/petechatchawan\/ua-info/g,
-  /npmjs\.com\/package\/ua-info/g,
-  /shields\.io\/npm\/(?:v|l)\/ua-info/g,
+  /from ['"]user-agent-info(?:\/[^'"]*)?['"]/g,
+  /require\(['"]user-agent-info(?:\/[^'"]*)?['"]\)/g,
+  /(?:npm install|npm i|pnpm add|yarn add) user-agent-info(?:\s|$)/g,
+  /github\.com\/petechatchawan\/user-agent-info/g,
+  /npmjs\.com\/package\/user-agent-info/g,
+  /shields\.io\/npm\/(?:v|l)\/user-agent-info/g,
 ];
 
 async function collect(directory) {
@@ -68,12 +70,12 @@ async function collect(directory) {
 
 for (const absolute of await collect(root)) {
   const relative = path.relative(root, absolute).split(path.sep).join('/');
-  if (allowedLegacyFiles.has(relative)) continue;
+  if (allowedHistoricalFiles.has(relative)) continue;
   const content = await readFile(absolute, 'utf8');
 
   for (const pattern of forbiddenPatterns) {
     pattern.lastIndex = 0;
-    if (pattern.test(content)) failures.push(`${relative}: stale legacy reference matched ${pattern}`);
+    if (pattern.test(content)) failures.push(`${relative}: stale superseded reference matched ${pattern}`);
   }
 }
 
@@ -83,4 +85,4 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
-console.log('Package identity verified: user-agent-info@2.0.1 and canonical repository metadata.');
+console.log('Package identity verified: ua-info@2.0.2 and canonical repository metadata.');
