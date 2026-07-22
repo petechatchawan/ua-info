@@ -8,12 +8,12 @@ A TypeScript User-Agent and Client Hints parser for browser, engine, operating s
 npm install ua-info
 ```
 
-The existing v1 API remains available from the package root. The modern parser is opt-in through `ua-info/v2`.
+`ua-info` 2.0 exposes the modern parser directly from the package root. The v1 `UAInfo` class and the transitional `ua-info/v2` subpath are not included.
 
 ## Parse a User-Agent
 
 ```ts
-import { parse, satisfiesVersion } from 'ua-info/v2';
+import { parse, satisfiesVersion } from 'ua-info';
 
 const info = parse(userAgent);
 
@@ -93,6 +93,26 @@ interface UAResult {
 }
 ```
 
+## Migrating from 1.x
+
+Version 2.0 is a breaking release. Replace the mutable class API:
+
+```ts
+import { UAInfo } from 'ua-info';
+
+const info = new UAInfo(userAgent).getParsedUserAgent();
+```
+
+with the immutable parser API:
+
+```ts
+import { parse } from 'ua-info';
+
+const info = parse(userAgent);
+```
+
+The old class, mappings, result shape, and helper methods are intentionally removed rather than retained under a legacy subpath.
+
 User-Agent and Client Hints values are untrusted client claims. They must not be used as proof of identity or as a security boundary.
 
-See [`docs/v2-design.md`](docs/v2-design.md) for field semantics and compatibility rules.
+See [`docs/v2-design.md`](docs/v2-design.md) for field semantics and entry-point boundaries.
