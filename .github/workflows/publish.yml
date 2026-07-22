@@ -1,4 +1,4 @@
-# Canonical release workflow for ua-info.
+# Canonical release workflow for ua-info releases.
 name: Publish to npm
 
 on:
