@@ -1,5 +1,10 @@
 # User Agent Info Package Migration Design
 
+> **Status: SUPERSEDED**  
+> **Reason:** npm rejected the unscoped `user-agent-info` package name as too similar to an existing package.  
+> **Canonical package identity:** `ua-info`
+
+
 **Status:** Approved for implementation planning  
 **Date:** 2026-07-22  
 **Current package:** `ua-info@2.0.1`  

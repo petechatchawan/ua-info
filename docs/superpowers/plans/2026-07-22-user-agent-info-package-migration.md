@@ -1,5 +1,10 @@
 # User Agent Info Package Migration Implementation Plan
 
+> **Status: SUPERSEDED**  
+> **Reason:** npm rejected the unscoped `user-agent-info` package name as too similar to an existing package.  
+> **Canonical package identity:** `ua-info`
+
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Rename the active npm package and GitHub repository from `ua-info` to `user-agent-info` without changing the public API, publish `user-agent-info@2.0.1`, and permanently deprecate every `ua-info` version after registry verification.
