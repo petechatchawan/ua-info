@@ -18,7 +18,41 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  release-context:
+    runs-on: ubuntu-latest
+    outputs:
+      can-publish: ${{ steps.context.outputs.can-publish }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Check canonical release identity
+        id: context
+        shell: bash
+        run: |
+          package_name=$(node -p "require('./package.json').name")
+          expected_repository="petechatchawan/user-agent-info"
+
+          if [ "$package_name" != "user-agent-info" ]; then
+            echo "Unexpected package name: $package_name" >&2
+            exit 1
+          fi
+
+          if [ "${GITHUB_REPOSITORY}" = "$expected_repository" ]; then
+            echo "can-publish=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "can-publish=false" >> "$GITHUB_OUTPUT"
+            {
+              echo "### npm publication paused"
+              echo "Package: user-agent-info@2.0.1"
+              echo "Current repository: ${GITHUB_REPOSITORY}"
+              echo "Expected repository: ${expected_repository}"
+              echo "Rename the repository before bootstrap publication."
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
   publish:
+    needs: release-context
+    if: needs.release-context.outputs.can-publish == 'true'
     runs-on: ubuntu-latest
 
     steps:
