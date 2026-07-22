@@ -1,4 +1,4 @@
-# Canonical release workflow for user-agent-info bootstrap.
+# Canonical release workflow for ua-info.
 name: Publish to npm
 
 on:
@@ -31,9 +31,10 @@ jobs:
         shell: bash
         run: |
           package_name=$(node -p "require('./package.json').name")
-          expected_repository="petechatchawan/user-agent-info"
+          package_version=$(node -p "require('./package.json').version")
+          expected_repository="petechatchawan/ua-info"
 
-          if [ "$package_name" != "user-agent-info" ]; then
+          if [ "$package_name" != "ua-info" ]; then
             echo "Unexpected package name: $package_name" >&2
             exit 1
           fi
@@ -44,10 +45,10 @@ jobs:
             echo "can-publish=false" >> "$GITHUB_OUTPUT"
             {
               echo "### npm publication paused"
-              echo "Package: user-agent-info@2.0.1"
+              echo "Package: ${package_name}@${package_version}"
               echo "Current repository: ${GITHUB_REPOSITORY}"
               echo "Expected repository: ${expected_repository}"
-              echo "Rename the repository before bootstrap publication."
+              echo "Rename the repository to the canonical identity before publication."
             } >> "$GITHUB_STEP_SUMMARY"
           fi
 
@@ -162,7 +163,7 @@ jobs:
           - Publish step outcome: ${{ steps.publish.outcome }}
           - Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
-          When validation passes but status is not-published, configure either npm Trusted Publishing for workflow publish.yml or a valid repository secret named NPM_TOKEN, then run the workflow again.
+          When validation passes but status is not-published, verify npm Trusted Publishing for workflow publish.yml or the temporary NPM_TOKEN fallback, then run the workflow again.
           EOF
           )
 
