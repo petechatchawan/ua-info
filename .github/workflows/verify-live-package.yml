@@ -83,7 +83,7 @@ jobs:
           EOF
           node verify.cjs
 
-      - name: Verify TypeScript consumer
+      - name: Prepare TypeScript consumer
         shell: bash
         run: |
           set -euo pipefail
@@ -117,7 +117,21 @@ jobs:
           }
           EOF
 
-          npx tsc --project tsconfig.json
+      - name: Verify TypeScript consumer
+        id: typescript
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -o pipefail
+          cd "$WORKSPACE"
+          npx tsc --project tsconfig.json 2>&1 | tee tsc.log
+
+      - name: Upload TypeScript diagnostics
+        if: steps.typescript.outcome != 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: typescript-diagnostics-node-${{ matrix.node-version }}
+          path: ${{ env.WORKSPACE }}/tsc.log
 
       - name: Verify registry metadata
         shell: bash
@@ -127,6 +141,10 @@ jobs:
           test "$(npm view ua-info@2.0.2 version)" = "2.0.2"
           test "$(npm view ua-info@2.0.2 repository.url)" = "git+https://github.com/petechatchawan/ua-info.git"
           test -z "$(npm view ua-info@2.0.2 deprecated 2>/dev/null || true)"
+
+      - name: Fail on TypeScript error
+        if: steps.typescript.outcome != 'success'
+        run: exit 1
 
   report:
     needs: verify
