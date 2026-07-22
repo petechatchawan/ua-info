@@ -175,7 +175,23 @@ Requirements:
 
 A temporary granular token may be used only when an interactive publish is impractical. It must be revoked after Trusted Publishing is confirmed.
 
-### 8.3 Trusted Publisher after bootstrap
+### 8.3 Publish workflow cutover guard
+
+The migration PR changes the package name before the GitHub repository is renamed. The push-triggered publish workflow must not attempt a new-package publish during that interval.
+
+The publish job must enforce the canonical repository identity before dependency installation or registry publication:
+
+```yaml
+jobs:
+  publish:
+    if: github.repository == 'petechatchawan/user-agent-info'
+```
+
+The workflow may retain its existing `push` and `workflow_dispatch` triggers, but a run from `petechatchawan/ua-info` must skip the publish job completely. This guard remains in the workflow after migration to prevent publication from a fork or stale repository identity.
+
+Repository rename does not replace the bootstrap publication requirement. After rename, the package still must be created through one authenticated publish before Trusted Publishing can be configured.
+
+### 8.4 Trusted Publisher after bootstrap
 
 After `user-agent-info@2.0.1` exists, configure:
 
@@ -190,7 +206,7 @@ After `user-agent-info@2.0.1` exists, configure:
 
 The workflow must retain `id-token: write`, use a supported Node/npm combination, verify the registry after publishing, and remain idempotent when the exact version already exists.
 
-### 8.4 Old package deprecation
+### 8.5 Old package deprecation
 
 Deprecation occurs only after the new package is installable and all public entry points have been verified from the npm registry.
 
@@ -208,18 +224,19 @@ The old package remains installable for existing lockfiles but receives no furth
 2. Create the implementation branch from the latest `master`.
 3. Replace package identity and documentation references.
 4. Add a repository-wide identity audit that fails on unintended `ua-info` references.
-5. Run lint, tests, ESM build, CommonJS build, package verification, and packed consumers on Node 18, 20, and 22.
-6. Review the packed tarball and confirm its name and version are `user-agent-info@2.0.1`.
-7. Merge the migration PR.
-8. Rename the GitHub repository to `petechatchawan/user-agent-info`.
-9. Perform the one-time authenticated bootstrap publish of `user-agent-info@2.0.1`.
-10. Install the registry package into clean ESM and CommonJS consumer projects.
-11. Verify `user-agent-info/server` and `user-agent-info/browser` resolve from the registry tarball.
-12. Configure Trusted Publishing for the new package and renamed repository.
-13. Run the publish workflow once to prove the OIDC configuration; the workflow should detect that `2.0.1` already exists and complete successfully without republishing.
-14. Deprecate all `ua-info` versions.
-15. Verify npm displays the deprecation warning and the renamed GitHub repository is canonical.
-16. Remove or revoke any temporary npm token used during bootstrap.
+5. Add the canonical-repository guard to the publish job.
+6. Run lint, tests, ESM build, CommonJS build, package verification, and packed consumers on Node 18, 20, and 22.
+7. Review the packed tarball and confirm its name and version are `user-agent-info@2.0.1`.
+8. Merge the migration PR; the old-repository publish job must skip because the repository guard is false.
+9. Rename the GitHub repository to `petechatchawan/user-agent-info`.
+10. Perform the one-time authenticated bootstrap publish of `user-agent-info@2.0.1`.
+11. Install the registry package into clean ESM and CommonJS consumer projects.
+12. Verify `user-agent-info/server` and `user-agent-info/browser` resolve from the registry tarball.
+13. Configure Trusted Publishing for the new package and renamed repository.
+14. Run the publish workflow once to prove the OIDC configuration; the workflow should detect that `2.0.1` already exists and complete successfully without republishing.
+15. Deprecate all `ua-info` versions.
+16. Verify npm displays the deprecation warning and the renamed GitHub repository is canonical.
+17. Remove or revoke any temporary npm token used during bootstrap.
 
 ## 10. Verification requirements
 
@@ -246,6 +263,7 @@ The migration is complete only when every item below passes.
 
 ### Registry and migration
 
+- A publish run from `petechatchawan/ua-info` skips before publication.
 - `user-agent-info@2.0.1` is visible in the public npm registry.
 - A clean install resolves the exact package and public entry points.
 - npm provenance/repository metadata points to `petechatchawan/user-agent-info` for future OIDC publications.
@@ -256,6 +274,7 @@ The migration is complete only when every item below passes.
 
 - If the new name is unavailable, stop before changing repository identity and return to name selection.
 - If CI or packed consumers fail, do not merge or publish.
+- If the old-repository publish job does not skip, cancel the run and fix the guard before merging.
 - If bootstrap publication fails, keep `ua-info` active and do not deprecate it.
 - If the package publishes but a public entry point fails, do not deprecate `ua-info`; fix the new package with a patch release first.
 - If Trusted Publishing cannot be validated, the new package may remain published, but token-based credentials must not become the permanent release path.
