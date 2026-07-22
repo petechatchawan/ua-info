@@ -26,6 +26,17 @@ for (const entry of requiredFiles) {
   if (!packageJson.files?.includes(entry)) failures.push(`files is missing ${entry}`);
 }
 
+const publishWorkflow = await readFile(path.join(root, '.github/workflows/publish.yml'), 'utf8');
+const requiredWorkflowFragments = [
+  'id-token: write',
+  'expected_repository="petechatchawan/user-agent-info"',
+  'needs: release-context',
+  "if: needs.release-context.outputs.can-publish == 'true'",
+];
+for (const fragment of requiredWorkflowFragments) {
+  if (!publishWorkflow.includes(fragment)) failures.push(`publish workflow is missing: ${fragment}`);
+}
+
 const ignoredDirectories = new Set(['.git', 'dist', 'node_modules']);
 const allowedLegacyFiles = new Set([
   'MIGRATION.md',
