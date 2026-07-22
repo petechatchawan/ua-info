@@ -9,8 +9,8 @@ if (packageJson.name !== 'ua-info') {
   throw new Error(`Expected package name ua-info, received ${packageJson.name}`);
 }
 
-if (packageJson.version !== '2.0.2') {
-  throw new Error(`Expected package version 2.0.2, received ${packageJson.version}`);
+if (packageJson.version !== '2.0.3') {
+  throw new Error(`Expected package version 2.0.3, received ${packageJson.version}`);
 }
 
 if (!/^2\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(packageJson.version)) {
@@ -33,7 +33,7 @@ const output = execFileSync(
 
 const [report] = JSON.parse(output);
 
-if (report.name !== 'ua-info' || report.version !== '2.0.2') {
+if (report.name !== 'ua-info' || report.version !== '2.0.3') {
   throw new Error(`Unexpected packed identity: ${report.name}@${report.version}`);
 }
 
@@ -64,5 +64,5 @@ if (packedPaths.includes('MIGRATION.md')) {
 }
 
 console.log(
-  `Package contents verified: ${report.files.length} files, ua-info@2.0.2, 2.x exports only, README/LICENSE present, no tests or v1 artifacts.`,
+  `Package contents verified: ${report.files.length} files, ua-info@2.0.3, 2.x exports only, README/LICENSE present, no tests or v1 artifacts.`,
 );

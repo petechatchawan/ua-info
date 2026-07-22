@@ -43,7 +43,10 @@ async function walk(directory) {
     const entryPath = path.join(directory, entry.name);
     if (entry.isDirectory()) {
       await walk(entryPath);
-    } else if (entry.isFile() && entry.name.endsWith('.js')) {
+    } else if (
+      entry.isFile() &&
+      (entry.name.endsWith('.js') || entry.name.endsWith('.d.ts'))
+    ) {
       await rewriteEsmSpecifiers(entryPath);
     }
   }
