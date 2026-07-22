@@ -1,16 +1,16 @@
 {
-  "name": "user-agent-info",
-  "version": "2.0.1",
-  "description": "TypeScript User-Agent parser with Client Hints, browser and device detection, bots, WebViews, and in-app context support",
+  "name": "ua-info",
+  "version": "2.0.2",
+  "description": "TypeScript User-Agent information parser with Client Hints, browser and device detection, bots, WebViews, and in-app context support",
   "author": "Chatchawan Koedsawas",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/petechatchawan/user-agent-info.git"
+    "url": "git+https://github.com/petechatchawan/ua-info.git"
   },
-  "homepage": "https://github.com/petechatchawan/user-agent-info#readme",
+  "homepage": "https://github.com/petechatchawan/ua-info#readme",
   "bugs": {
-    "url": "https://github.com/petechatchawan/user-agent-info/issues"
+    "url": "https://github.com/petechatchawan/ua-info/issues"
   },
   "engines": {
     "node": ">=18"
@@ -60,7 +60,6 @@
   "files": [
     "dist",
     "README.md",
-    "MIGRATION.md",
     "LICENSE"
   ],
   "keywords": [
