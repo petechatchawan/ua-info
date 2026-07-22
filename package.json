@@ -1,16 +1,16 @@
 {
-  "name": "ua-info",
+  "name": "user-agent-info",
   "version": "2.0.1",
-  "description": "General-purpose User-Agent and Client Hints parser with browser, platform, client, and execution-context detection",
+  "description": "TypeScript User-Agent parser with Client Hints, browser and device detection, bots, WebViews, and in-app context support",
   "author": "Chatchawan Koedsawas",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/petechatchawan/ua-info.git"
+    "url": "git+https://github.com/petechatchawan/user-agent-info.git"
   },
-  "homepage": "https://github.com/petechatchawan/ua-info#readme",
+  "homepage": "https://github.com/petechatchawan/user-agent-info#readme",
   "bugs": {
-    "url": "https://github.com/petechatchawan/ua-info/issues"
+    "url": "https://github.com/petechatchawan/user-agent-info/issues"
   },
   "engines": {
     "node": ">=18"
@@ -51,24 +51,36 @@
     "build:cjs": "tsc --project tsconfig.build.cjs.json",
     "build": "npm run clean && npm run build:esm && npm run build:cjs && node scripts/finalize-build.mjs",
     "test": "jest --verbose",
+    "identity:check": "node scripts/verify-package-identity.mjs",
     "consumer:check": "node scripts/verify-consumers.mjs",
-    "check": "npm run lint && npm test && npm run build && npm run pack:check",
+    "check": "npm run identity:check && npm run lint && npm test && npm run build && npm run pack:check",
     "pack:check": "node scripts/verify-package.mjs && npm run consumer:check",
     "prepack": "npm run check"
   },
   "files": [
     "dist",
     "README.md",
+    "MIGRATION.md",
     "LICENSE"
   ],
   "keywords": [
     "user-agent",
+    "user-agent-parser",
     "ua-parser",
+    "useragent",
+    "typescript",
+    "javascript",
+    "browser-detection",
+    "device-detection",
+    "os-detection",
     "client-hints",
-    "browser",
-    "device",
-    "bot",
-    "webview"
+    "bot-detection",
+    "crawler-detection",
+    "webview-detection",
+    "in-app-browser",
+    "line-liff",
+    "pwa-detection",
+    "nodejs"
   ],
   "devDependencies": {
     "@types/jest": "^29.5.14",
