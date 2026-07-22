@@ -26,7 +26,8 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version: '24'
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org'
           package-manager-cache: false
 
       - name: Install current npm CLI
@@ -35,18 +36,21 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Validate package
-        run: npm run check
-
       - name: Read package identity
         id: package
         shell: bash
         run: |
-          echo "name=$(node -p "require('./package.json').name")" >> "$GITHUB_OUTPUT"
-          echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+          node -e "const p = require('./package.json'); console.log('name=' + p.name)" >> "$GITHUB_OUTPUT"
+          node -e "const p = require('./package.json'); console.log('version=' + p.version)" >> "$GITHUB_OUTPUT"
+
+      - name: Validate package
+        id: validation
+        continue-on-error: true
+        run: npm run check
 
       - name: Check registry version
         id: registry
+        if: always()
         shell: bash
         run: |
           if npm view "${{ steps.package.outputs.name }}@${{ steps.package.outputs.version }}" version >/dev/null 2>&1; then
@@ -58,17 +62,11 @@ jobs:
 
       - name: Publish package
         id: publish
-        if: steps.registry.outputs.exists != 'true'
+        if: steps.validation.outcome == 'success' && steps.registry.outputs.exists != 'true'
         continue-on-error: true
         env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        shell: bash
-        run: |
-          if [ -n "${NPM_TOKEN:-}" ]; then
-            printf '//registry.npmjs.org/:_authToken=%s\n' "$NPM_TOKEN" > "$HOME/.npmrc"
-          fi
-
-          npm publish --access public --provenance
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --access public --provenance
 
       - name: Verify npm registry
         id: verify
@@ -102,12 +100,13 @@ jobs:
           Automated npm release verification.
 
           - Package: ${{ steps.package.outputs.name }}@${{ steps.package.outputs.version }}
+          - Validation outcome: ${{ steps.validation.outcome }}
           - Registry status: **${status}**
           - Version existed before this run: ${{ steps.registry.outputs.exists }}
           - Publish step outcome: ${{ steps.publish.outcome }}
           - Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
-          When status is not-published, configure either npm Trusted Publishing for workflow publish.yml or a valid repository secret named NPM_TOKEN, then run the workflow again.
+          When validation passes but status is not-published, configure either npm Trusted Publishing for workflow publish.yml or a valid repository secret named NPM_TOKEN, then run the workflow again.
           EOF
           )
 
@@ -131,8 +130,9 @@ jobs:
         run: |
           echo "### npm publication" >> "$GITHUB_STEP_SUMMARY"
           echo "Package: ${{ steps.package.outputs.name }}@${{ steps.package.outputs.version }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "Validation: ${{ steps.validation.outcome }}" >> "$GITHUB_STEP_SUMMARY"
           echo "Published: ${{ steps.verify.outputs.published }}" >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Fail when package is not published
-        if: always() && steps.verify.outputs.published != 'true'
+      - name: Fail when release is incomplete
+        if: always() && (steps.validation.outcome != 'success' || steps.verify.outputs.published != 'true')
         run: exit 1
