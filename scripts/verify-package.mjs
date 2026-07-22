@@ -4,16 +4,16 @@ import { readFile } from 'node:fs/promises';
 const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 const packageJson = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'));
 
-if (packageJson.version !== '2.0.0') {
-  throw new Error(`Expected package version 2.0.0, received ${packageJson.version}`);
+if (!/^2\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(packageJson.version)) {
+  throw new Error(`Expected a valid ua-info 2.x version, received ${packageJson.version}`);
 }
 
 if (!packageJson.exports?.['.'] || packageJson.exports['./v2'] || packageJson.exports['./v2/server'] || packageJson.exports['./v2/browser']) {
-  throw new Error('The 2.0 export map must expose the modern root API without transitional /v2 subpaths.');
+  throw new Error('The 2.x export map must expose the modern root API without transitional /v2 subpaths.');
 }
 
 if (!packageJson.exports['./server'] || !packageJson.exports['./browser']) {
-  throw new Error('The 2.0 export map must retain the environment-specific server and browser entry points.');
+  throw new Error('The 2.x export map must retain the environment-specific server and browser entry points.');
 }
 
 const output = execFileSync(
@@ -38,4 +38,13 @@ if (forbiddenFiles.length > 0) {
   process.exit(1);
 }
 
-console.log(`Package contents verified: ${report.files.length} files, 2.0 exports only, no tests or v1 artifacts.`);
+const requiredDocumentation = ['README.md', 'LICENSE'];
+const missingDocumentation = requiredDocumentation.filter((path) => !packedPaths.includes(path));
+
+if (missingDocumentation.length > 0) {
+  throw new Error(`Package is missing required documentation: ${missingDocumentation.join(', ')}`);
+}
+
+console.log(
+  `Package contents verified: ${report.files.length} files, 2.x exports only, README/LICENSE present, no tests or v1 artifacts.`,
+);
