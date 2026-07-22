@@ -65,8 +65,8 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
           package-manager-cache: false
 
-      - name: Install Trusted Publishing compatible npm CLI
-        run: npm install --global npm@11.5.1
+      - name: Install current npm 11 CLI
+        run: npm install --global npm@11.17.0
 
       - name: Install dependencies
         run: npm install
@@ -155,7 +155,7 @@ jobs:
           Automated npm release verification.
 
           - Package: ${{ steps.package.outputs.name }}@${{ steps.package.outputs.version }}
-          - npm CLI: 11.5.1
+          - npm CLI: 11.17.0
           - Validation outcome: ${{ steps.validation.outcome }}
           - Registry status: **${status}**
           - Version existed before this run: ${{ steps.registry.outputs.exists }}
