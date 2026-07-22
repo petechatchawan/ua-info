@@ -30,8 +30,8 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
           package-manager-cache: false
 
-      - name: Install current npm CLI
-        run: npm install --global npm@latest
+      - name: Install Trusted Publishing compatible npm CLI
+        run: npm install --global npm@11.5.1
 
       - name: Install dependencies
         run: npm install
@@ -46,7 +46,17 @@ jobs:
       - name: Validate package
         id: validation
         continue-on-error: true
-        run: npm run check
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run check 2>&1 | tee validation.log
+
+      - name: Upload validation log
+        if: always() && steps.validation.outcome != 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-release-validation-log
+          path: validation.log
 
       - name: Check registry version
         id: registry
@@ -100,6 +110,7 @@ jobs:
           Automated npm release verification.
 
           - Package: ${{ steps.package.outputs.name }}@${{ steps.package.outputs.version }}
+          - npm CLI: 11.5.1
           - Validation outcome: ${{ steps.validation.outcome }}
           - Registry status: **${status}**
           - Version existed before this run: ${{ steps.registry.outputs.exists }}
