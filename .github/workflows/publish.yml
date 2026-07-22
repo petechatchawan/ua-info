@@ -1,0 +1,77 @@
+name: Publish to npm
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - package.json
+      - .github/workflows/publish.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: npm-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          package-manager-cache: false
+
+      - name: Install current npm CLI
+        run: npm install --global npm@latest
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Validate package
+        run: npm run check
+
+      - name: Check registry version
+        id: registry
+        shell: bash
+        run: |
+          package_name="$(node -p "require('./package.json').name")"
+          package_version="$(node -p "require('./package.json').version")"
+          echo "name=${package_name}" >> "$GITHUB_OUTPUT"
+          echo "version=${package_version}" >> "$GITHUB_OUTPUT"
+
+          if npm view "${package_name}@${package_version}" version >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "${package_name}@${package_version} already exists; publication will be skipped."
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publish package
+        if: steps.registry.outputs.exists != 'true'
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        shell: bash
+        run: |
+          if [ -n "${NPM_TOKEN:-}" ]; then
+            printf '//registry.npmjs.org/:_authToken=%s\n' "$NPM_TOKEN" > "$HOME/.npmrc"
+          fi
+
+          npm publish --access public --provenance
+
+      - name: Publication summary
+        shell: bash
+        run: |
+          if [ "${{ steps.registry.outputs.exists }}" = "true" ]; then
+            echo "### npm publication" >> "$GITHUB_STEP_SUMMARY"
+            echo "${{ steps.registry.outputs.name }}@${{ steps.registry.outputs.version }} was already present in the registry." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "### npm publication" >> "$GITHUB_STEP_SUMMARY"
+            echo "Published ${{ steps.registry.outputs.name }}@${{ steps.registry.outputs.version }}." >> "$GITHUB_STEP_SUMMARY"
+          fi
