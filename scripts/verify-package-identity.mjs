@@ -31,6 +31,7 @@ const publishWorkflow = await readFile(path.join(root, '.github/workflows/publis
 const requiredWorkflowFragments = [
   'id-token: write',
   'expected_repository="petechatchawan/ua-info"',
+  'if [ "$package_name" != "ua-info" ]; then',
   'needs: release-context',
   "if: needs.release-context.outputs.can-publish == 'true'",
 ];
