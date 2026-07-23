@@ -39,6 +39,15 @@ for (const fragment of requiredWorkflowFragments) {
   if (!publishWorkflow.includes(fragment)) failures.push(`publish workflow is missing: ${fragment}`);
 }
 
+const forbiddenWorkflowFragments = [
+  'NODE_AUTH_TOKEN',
+  'secrets.NPM_TOKEN',
+  'temporary NPM_TOKEN fallback',
+];
+for (const fragment of forbiddenWorkflowFragments) {
+  if (publishWorkflow.includes(fragment)) failures.push(`publish workflow must be OIDC-only and remove: ${fragment}`);
+}
+
 const ignoredDirectories = new Set(['.git', 'dist', 'node_modules']);
 const allowedHistoricalFiles = new Set([
   'docs/superpowers/specs/2026-07-22-user-agent-info-package-migration-design.md',
@@ -86,4 +95,4 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
-console.log('Package identity verified: ua-info@2.0.3 and canonical repository metadata.');
+console.log('Package identity verified: ua-info@2.0.3, canonical metadata, and OIDC-only release workflow.');
