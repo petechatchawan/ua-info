@@ -10,13 +10,15 @@ The playground imports only `ua-info`, `ua-info/browser`, and the dynamically lo
 
 ```bash
 npm install
-npm ci --prefix apps/playground
 npm run playground:dev
 ```
+
+`playground:dev` installs the locked Playground tooling, builds the root library, installs the generated package tarball, and starts Vite.
 
 Useful root commands:
 
 ```bash
+npm run playground:setup
 npm run playground:install
 npm run playground:boundaries
 npm run playground:typecheck
@@ -25,6 +27,8 @@ npm run playground:build
 npm run playground:test:e2e
 npm run playground:check
 ```
+
+`playground:check` is self-contained and runs the complete packed-consumer verification gate.
 
 ## Source layers
 
