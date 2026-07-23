@@ -1,0 +1,32 @@
+name: Materialize Playground Implementation
+
+on:
+  push:
+    branches: [agent/ua-info-playground-spec]
+    paths:
+      - playground-implementation.tar.gz.b64
+      - .github/workflows/materialize-playground.yml
+
+permissions:
+  contents: write
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/ua-info-playground-spec
+      - name: Extract implementation
+        run: |
+          base64 --decode playground-implementation.tar.gz.b64 > /tmp/playground-implementation.tar.gz
+          tar -xzf /tmp/playground-implementation.tar.gz
+          rm playground-implementation.tar.gz.b64
+          rm .github/workflows/materialize-playground.yml
+      - name: Commit implementation
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add -A
+          git commit -m "feat: implement ua-info playground"
+          git push origin HEAD:agent/ua-info-playground-spec
