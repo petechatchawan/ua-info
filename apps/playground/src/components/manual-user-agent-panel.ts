@@ -25,6 +25,7 @@ export function createManualUserAgentPanel(
   element.id = 'manual-user-agent-panel';
   element.className = 'ua-playground-panel ua-playground-input-panel';
   element.setAttribute('role', 'tabpanel');
+  element.setAttribute('aria-labelledby', 'manual-user-agent-tab');
 
   const heading = document.createElement('h2');
   heading.textContent = 'Manual User-Agent';
