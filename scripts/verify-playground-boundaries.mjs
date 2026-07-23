@@ -4,9 +4,14 @@ import { fileURLToPath } from 'node:url';
 
 const rootDirectory = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const sourceDirectory = path.join(rootDirectory, 'apps', 'playground', 'src');
-const allowedUaImports = new Set([
+const allowedUaImportOwners = new Set([
   'services/ua-detection-service.ts',
   'contract/public-entrypoints.test.ts',
+]);
+const allowedUaSpecifiers = new Set([
+  'ua-info',
+  'ua-info/browser',
+  'ua-info/server',
 ]);
 const forbiddenText = [
   ['../../src', 'source-tree import'],
@@ -48,7 +53,10 @@ for (const absolute of await walk(sourceDirectory)) {
 
   for (const target of imports) {
     if (target === 'ua-info' || target.startsWith('ua-info/')) {
-      if (!allowedUaImports.has(relative)) {
+      if (!allowedUaSpecifiers.has(target)) {
+        violations.push(`${relative}: unsupported ua-info package specifier (${target})`);
+      }
+      if (!allowedUaImportOwners.has(relative)) {
         violations.push(`${relative}: ua-info import is owned by the detection service`);
       }
     }
