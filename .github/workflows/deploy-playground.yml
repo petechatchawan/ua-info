@@ -34,9 +34,7 @@ jobs:
           cache: npm
           cache-dependency-path: apps/playground/package-lock.json
       - run: npm install
-      - run: npm ci --prefix apps/playground
-      - run: npm run build
-      - run: npm run playground:install
+      - run: npm run playground:setup
       - run: npm run playground:boundaries
       - run: npm run playground:typecheck
       - run: npm run playground:test
