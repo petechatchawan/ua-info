@@ -1,0 +1,79 @@
+name: Patch Playground README
+
+on:
+  pull_request:
+    branches: [master]
+    paths:
+      - '.github/workflows/patch-playground-readme.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.head_ref == 'agent/ua-info-playground-spec'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/ua-info-playground-spec
+      - name: Add playground documentation
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('README.md')
+          text = path.read_text()
+
+          requirements = '''Requirements:
+
+          - Node.js 18 or newer for server-side usage.
+          - A modern browser or bundler for the browser entry point.
+          - TypeScript is optional; declarations are included.
+          '''
+          playground = '''Requirements:
+
+          - Node.js 18 or newer for server-side usage.
+          - A modern browser or bundler for the browser entry point.
+          - TypeScript is optional; declarations are included.
+
+          ## Interactive Playground
+
+          Try the [UA Info Interactive Playground](https://petechatchawan.github.io/ua-info/) to inspect the current browser, parse manual User-Agent strings, and supply optional Client Hints. Detection and parsing run locally in the browser; input is not uploaded.
+          '''
+          if requirements not in text:
+              raise SystemExit('Requirements insertion anchor not found')
+          text = text.replace(requirements, playground, 1)
+
+          contributing = '''git clone https://github.com/petechatchawan/ua-info.git
+          cd ua-info
+          npm install
+          npm run check
+          ```
+
+          `npm run check` runs identity validation, linting, Jest tests, ESM and CommonJS builds, package-content validation, and packed-package consumer tests.
+          '''
+          updated = '''git clone https://github.com/petechatchawan/ua-info.git
+          cd ua-info
+          npm install
+          npm run check
+          npm run playground:dev
+          ```
+
+          `npm run check` runs identity validation, linting, Jest tests, ESM and CommonJS builds, package-content validation, and packed-package consumer tests.
+
+          `npm run playground:dev` builds the library, installs the generated package tarball into the private Playground application, and starts the Vite development server. See [`apps/playground/README.md`](apps/playground/README.md) for architecture, testing, and deployment details.
+          '''
+          if contributing not in text:
+              raise SystemExit('Contributing insertion anchor not found')
+          text = text.replace(contributing, updated, 1)
+
+          path.write_text(text)
+          PY
+      - name: Commit README
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add README.md
+          git commit -m "docs: document interactive playground"
+          git push origin HEAD:agent/ua-info-playground-spec
