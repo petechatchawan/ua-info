@@ -6,6 +6,8 @@ test('detects the current browser without console errors', async ({ page }) => {
     if (message.type() === 'error') errors.push(message.text());
   });
   await page.goto('./');
+  await expect(page.locator('#current-browser-panel')).toBeVisible();
+  await expect(page.locator('#manual-user-agent-panel')).toBeHidden();
   await expect(page.getByTestId('detection-summary')).toBeVisible();
   const json = await page.getByTestId('raw-json').textContent();
   expect(() => JSON.parse(json ?? '')).not.toThrow();
@@ -16,6 +18,8 @@ test('detects the current browser without console errors', async ({ page }) => {
 test('separates LINE LIFF browser, mode, and context fields', async ({ page }) => {
   await page.goto('./');
   await page.getByRole('tab', { name: 'Manual User-Agent' }).click();
+  await expect(page.locator('#current-browser-panel')).toBeHidden();
+  await expect(page.locator('#manual-user-agent-panel')).toBeVisible();
   await page.getByTestId('sample-selector').selectOption('line-liff');
   const summary = page.getByTestId('detection-summary');
   await expect(summary).toBeVisible();
