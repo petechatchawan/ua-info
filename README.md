@@ -726,7 +726,7 @@ npm run playground:dev
 
 `npm run check` runs identity validation, linting, Jest tests, ESM and CommonJS builds, package-content validation, and packed-package consumer tests.
 
-`npm run playground:dev` builds the library, installs the generated package tarball into the private Playground application, and starts the Vite development server. See [`apps/playground/README.md`](apps/playground/README.md) for architecture, testing, and deployment details.
+`npm run playground:dev` installs the locked Playground tooling, builds the library, installs the generated package tarball into the private Playground application, and starts the Vite development server. See [`apps/playground/README.md`](apps/playground/README.md) for architecture, testing, and deployment details.
 
 When adding a detector:
 
