@@ -26,3 +26,49 @@ jobs:
       - run: npm test
       - run: npm run build
       - run: npm run pack:check
+
+  playground:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/playground/package-lock.json
+      - name: Install root dependencies
+        run: npm install
+      - name: Prepare packed playground consumer
+        run: npm run playground:setup
+      - name: Verify boundaries
+        run: npm run playground:boundaries
+      - name: Type-check playground
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run playground:typecheck 2>&1 | tee apps/playground/typecheck.log
+      - name: Upload type-check diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playground-typecheck
+          path: apps/playground/typecheck.log
+          if-no-files-found: ignore
+      - name: Run playground tests
+        run: npm run playground:test
+      - name: Build playground
+        run: npm run playground:build
+      - name: Install Chromium
+        run: npx --prefix apps/playground playwright install --with-deps chromium
+      - name: Run production smoke
+        run: npm run test:e2e --prefix apps/playground
+      - name: Upload Playwright diagnostics
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playground-playwright
+          path: |
+            apps/playground/playwright-report
+            apps/playground/test-results
+          if-no-files-found: ignore

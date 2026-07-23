@@ -29,6 +29,7 @@ Thumbs.db
 
 # npm package lock file (optional)
 package-lock.json
+!apps/playground/package-lock.json
 
 # Miscellaneous
 *.tgz

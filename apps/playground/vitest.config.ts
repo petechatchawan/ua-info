@@ -1,0 +1,12 @@
+import { defineConfig } from 'vitest/config';
+
+export default defineConfig({
+  define: { __UA_INFO_VERSION__: JSON.stringify('test') },
+  test: {
+    environment: 'jsdom',
+    setupFiles: ['./src/tests/setup.ts'],
+    include: ['./src/**/*.test.ts'],
+    restoreMocks: true,
+    clearMocks: true,
+  },
+});

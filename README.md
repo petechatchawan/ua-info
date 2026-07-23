@@ -49,6 +49,10 @@ Requirements:
 - A modern browser or bundler for the browser entry point.
 - TypeScript is optional; declarations are included.
 
+## Interactive Playground
+
+Try the [UA Info Interactive Playground](https://petechatchawan.github.io/ua-info/) to inspect the current browser, parse manual User-Agent strings, and supply optional Client Hints. Detection and parsing run locally in the browser; input is not uploaded.
+
 ## Quick start
 
 ### TypeScript / ESM
@@ -717,9 +721,12 @@ git clone https://github.com/petechatchawan/ua-info.git
 cd ua-info
 npm install
 npm run check
+npm run playground:dev
 ```
 
 `npm run check` runs identity validation, linting, Jest tests, ESM and CommonJS builds, package-content validation, and packed-package consumer tests.
+
+`npm run playground:dev` installs the locked Playground tooling, builds the library, installs the generated package tarball into the private Playground application, and starts the Vite development server. See [`apps/playground/README.md`](apps/playground/README.md) for architecture, testing, and deployment details.
 
 When adding a detector:
 
