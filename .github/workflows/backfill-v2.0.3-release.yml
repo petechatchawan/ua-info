@@ -1,0 +1,42 @@
+name: Backfill v2.0.3 GitHub release
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - .github/workflows/backfill-v2.0.3-release.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create and verify v2.0.3 release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag="v2.0.3"
+          target="11031cba2ad77d97f9638d2eb343af807024d308"
+
+          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "$tag already exists; verifying target."
+          else
+            gh release create "$tag" \
+              --repo "$GITHUB_REPOSITORY" \
+              --target "$target" \
+              --title "UA Info v2.0.3" \
+              --notes "Patch release fixing TypeScript Node16 and NodeNext declaration resolution. Relative specifiers in emitted declaration files now include explicit .js extensions. Runtime APIs and parser behavior are unchanged."
+          fi
+
+          actual=$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" --jq '.object.sha')
+          if [ "$actual" != "$target" ]; then
+            echo "Unexpected $tag target: $actual (expected $target)" >&2
+            exit 1
+          fi
+
+          gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json tagName,name,isDraft,isPrerelease,url
