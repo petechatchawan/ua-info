@@ -1,4 +1,4 @@
-# Canonical release workflow for ua-info releases.
+# Canonical OIDC-only release workflow for ua-info releases.
 name: Publish to npm
 
 on:
@@ -106,12 +106,10 @@ jobs:
             echo "exists=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Publish package
+      - name: Publish package with npm Trusted Publishing
         id: publish
         if: steps.validation.outcome == 'success' && steps.registry.outputs.exists != 'true'
         continue-on-error: true
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         shell: bash
         run: |
           set -o pipefail
@@ -157,13 +155,14 @@ jobs:
 
           - Package: ${{ steps.package.outputs.name }}@${{ steps.package.outputs.version }}
           - npm CLI: 11.17.0
+          - Authentication: npm Trusted Publishing via GitHub Actions OIDC
           - Validation outcome: ${{ steps.validation.outcome }}
           - Registry status: **${status}**
           - Version existed before this run: ${{ steps.registry.outputs.exists }}
           - Publish step outcome: ${{ steps.publish.outcome }}
           - Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
-          When validation passes but status is not-published, verify npm Trusted Publishing for workflow publish.yml or the temporary NPM_TOKEN fallback, then run the workflow again.
+          When validation passes but status is not-published, verify the npm Trusted Publisher configuration for repository petechatchawan/ua-info and workflow publish.yml, then run the workflow again.
           EOF
           )
 
@@ -187,6 +186,7 @@ jobs:
         run: |
           echo "### npm publication" >> "$GITHUB_STEP_SUMMARY"
           echo "Package: ${{ steps.package.outputs.name }}@${{ steps.package.outputs.version }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "Authentication: npm Trusted Publishing via GitHub Actions OIDC" >> "$GITHUB_STEP_SUMMARY"
           echo "Validation: ${{ steps.validation.outcome }}" >> "$GITHUB_STEP_SUMMARY"
           echo "Published: ${{ steps.verify.outputs.published }}" >> "$GITHUB_STEP_SUMMARY"
 
