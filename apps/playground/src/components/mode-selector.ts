@@ -19,6 +19,7 @@ export function createModeSelector(
   element.setAttribute('aria-label', 'Detection mode');
 
   const current = document.createElement('button');
+  current.id = 'current-browser-tab';
   current.type = 'button';
   current.dataset.mode = 'current';
   current.setAttribute('role', 'tab');
@@ -26,6 +27,7 @@ export function createModeSelector(
   current.textContent = 'Current Browser';
 
   const manual = document.createElement('button');
+  manual.id = 'manual-user-agent-tab';
   manual.type = 'button';
   manual.dataset.mode = 'manual';
   manual.setAttribute('role', 'tab');
