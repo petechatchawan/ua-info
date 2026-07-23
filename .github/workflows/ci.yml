@@ -29,30 +29,18 @@ jobs:
 
   playground:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref }}
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
+          cache-dependency-path: apps/playground/package-lock.json
       - name: Install root dependencies
         run: npm install
       - name: Install playground tooling
-        run: npm install --prefix apps/playground
-      - name: Commit generated playground lockfile
-        if: github.event_name == 'pull_request'
-        run: |
-          git config user.name github-actions[bot]
-          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add -f apps/playground/package-lock.json
-          if ! git diff --cached --quiet; then
-            git commit -m "chore: lock playground dependencies"
-            git push origin HEAD:${{ github.head_ref }}
-          fi
+        run: npm ci --prefix apps/playground
       - name: Build library
         run: npm run build
       - name: Install packed library into playground
@@ -60,7 +48,10 @@ jobs:
       - name: Verify boundaries
         run: npm run playground:boundaries
       - name: Type-check playground
-        run: npm run playground:typecheck 2>&1 | tee apps/playground/typecheck.log
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run playground:typecheck 2>&1 | tee apps/playground/typecheck.log
       - name: Upload type-check diagnostics
         if: always()
         uses: actions/upload-artifact@v4
