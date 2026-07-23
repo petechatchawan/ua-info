@@ -1,15 +1,14 @@
 name: Materialize Playground Implementation
 
 on:
-  push:
-    branches: [agent/ua-info-playground-spec]
-    paths:
-      - playground-implementation.tar.gz.b64
-      - .github/workflows/materialize-playground.yml
   pull_request:
     branches: [master]
     paths:
-      - playground-implementation.tar.gz.b64
+      - playground-implementation.part00
+      - playground-implementation.part01
+      - playground-implementation.part02
+      - playground-implementation.part03
+      - playground-implementation.part04
       - .github/workflows/materialize-playground.yml
 
 permissions:
@@ -17,17 +16,25 @@ permissions:
 
 jobs:
   materialize:
-    if: github.event_name == 'pull_request' && github.head_ref == 'agent/ua-info-playground-spec'
+    if: github.head_ref == 'agent/ua-info-playground-spec'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           ref: agent/ua-info-playground-spec
-      - name: Extract implementation
+      - name: Validate and extract implementation
         run: |
-          base64 --decode playground-implementation.tar.gz.b64 > /tmp/playground-implementation.tar.gz
+          cat playground-implementation.part00 \
+              playground-implementation.part01 \
+              playground-implementation.part02 \
+              playground-implementation.part03 \
+              playground-implementation.part04 \
+            > /tmp/playground-implementation.tar.gz.b64
+          test "$(wc -c < /tmp/playground-implementation.tar.gz.b64)" -eq 39268
+          base64 --decode /tmp/playground-implementation.tar.gz.b64 > /tmp/playground-implementation.tar.gz
+          gzip --test /tmp/playground-implementation.tar.gz
           tar -xzf /tmp/playground-implementation.tar.gz
-          rm playground-implementation.tar.gz.b64
+          rm -f playground-implementation.tar.gz.b64 playground-implementation.part0*
           rm .github/workflows/materialize-playground.yml
       - name: Commit implementation
         run: |
