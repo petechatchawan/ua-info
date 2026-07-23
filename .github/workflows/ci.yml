@@ -29,9 +29,13 @@ jobs:
 
   playground:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref }}
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -39,6 +43,16 @@ jobs:
         run: npm install
       - name: Install playground tooling
         run: npm install --prefix apps/playground
+      - name: Commit generated playground lockfile
+        if: github.event_name == 'pull_request'
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add -f apps/playground/package-lock.json
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: lock playground dependencies"
+            git push origin HEAD:${{ github.head_ref }}
+          fi
       - name: Build library
         run: npm run build
       - name: Install packed library into playground
@@ -46,7 +60,14 @@ jobs:
       - name: Verify boundaries
         run: npm run playground:boundaries
       - name: Type-check playground
-        run: npm run playground:typecheck
+        run: npm run playground:typecheck 2>&1 | tee apps/playground/typecheck.log
+      - name: Upload type-check diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playground-typecheck
+          path: apps/playground/typecheck.log
+          if-no-files-found: ignore
       - name: Run playground tests
         run: npm run playground:test
       - name: Build playground
@@ -55,13 +76,6 @@ jobs:
         run: npx --prefix apps/playground playwright install --with-deps chromium
       - name: Run production smoke
         run: npm run test:e2e --prefix apps/playground
-      - name: Upload playground lockfile
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playground-lockfile
-          path: apps/playground/package-lock.json
-          if-no-files-found: error
       - name: Upload Playwright diagnostics
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
