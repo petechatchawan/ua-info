@@ -6,12 +6,18 @@ on:
     paths:
       - playground-implementation.tar.gz.b64
       - .github/workflows/materialize-playground.yml
+  pull_request:
+    branches: [master]
+    paths:
+      - playground-implementation.tar.gz.b64
+      - .github/workflows/materialize-playground.yml
 
 permissions:
   contents: write
 
 jobs:
   materialize:
+    if: github.event_name == 'pull_request' && github.head_ref == 'agent/ua-info-playground-spec'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
