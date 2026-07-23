@@ -13,6 +13,7 @@ export function createCurrentBrowserPanel(
   element.id = 'current-browser-panel';
   element.className = 'ua-playground-panel ua-playground-input-panel';
   element.setAttribute('role', 'tabpanel');
+  element.setAttribute('aria-labelledby', 'current-browser-tab');
 
   const heading = document.createElement('h2');
   heading.textContent = 'Current Browser';
