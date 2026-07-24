@@ -1,6 +1,6 @@
 {
   "name": "ua-info",
-  "version": "2.0.3",
+  "version": "2.1.0",
   "description": "TypeScript User-Agent information parser with Client Hints, browser and device detection, bots, WebViews, and in-app context support",
   "author": "Chatchawan Koedsawas",
   "license": "MIT",
