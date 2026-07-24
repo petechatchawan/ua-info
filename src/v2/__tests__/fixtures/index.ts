@@ -4,6 +4,7 @@ import { CLIENT_FIXTURES } from './clients';
 import { CONTEXT_FIXTURES } from './contexts';
 import { DEVICE_FIXTURES } from './devices';
 import type { DetectionFixture } from './fixture-types';
+import { MALFORMED_FIXTURES } from './malformed';
 import { OPERATING_SYSTEM_FIXTURES } from './operating-systems';
 
 export const ALL_DETECTION_FIXTURES: readonly DetectionFixture[] = Object.freeze([
@@ -13,6 +14,7 @@ export const ALL_DETECTION_FIXTURES: readonly DetectionFixture[] = Object.freeze
     ...OPERATING_SYSTEM_FIXTURES,
     ...DEVICE_FIXTURES,
     ...CLIENT_HINT_FIXTURES,
+    ...MALFORMED_FIXTURES,
 ]);
 
 export { BROWSER_FIXTURES } from './browsers';
@@ -20,6 +22,7 @@ export { CLIENT_HINT_FIXTURES } from './client-hints';
 export { CLIENT_FIXTURES } from './clients';
 export { CONTEXT_FIXTURES } from './contexts';
 export { DEVICE_FIXTURES } from './devices';
+export { MALFORMED_FIXTURES } from './malformed';
 export { OPERATING_SYSTEM_FIXTURES } from './operating-systems';
 export { PROVENANCE } from './provenance';
 export type {
