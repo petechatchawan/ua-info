@@ -33,6 +33,56 @@ describe('v2 adapters', () => {
         expect(result.cpu).toEqual({ architecture: 'arm64', bitness: 64 });
     });
 
+    it('requests and applies the default high-entropy browser hints', async () => {
+        const navigatorDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'navigator');
+        const getHighEntropyValues = jest.fn(async (hints: readonly string[]) => {
+            expect(hints).toEqual([
+                'architecture',
+                'bitness',
+                'fullVersionList',
+                'model',
+                'platformVersion',
+            ]);
+
+            return {
+                architecture: 'x86',
+                bitness: '64',
+                fullVersionList: [
+                    { brand: 'Google Chrome', version: '150.0.0.0' },
+                    { brand: 'Microsoft Edge', version: '150.0.0.0' },
+                ],
+                model: 'Surface Pro',
+                platformVersion: '15.0.0',
+            };
+        });
+
+        Object.defineProperty(globalThis, 'navigator', {
+            configurable: true,
+            value: {
+                userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/150.0.0.0',
+                userAgentData: {
+                    brands: [{ brand: 'Google Chrome', version: '150' }],
+                    mobile: false,
+                    platform: 'Windows',
+                    getHighEntropyValues,
+                },
+            },
+        });
+
+        try {
+            await expect(detectCurrent()).resolves.toMatchObject({
+                browser: { id: 'edge', version: { raw: '150.0.0.0' } },
+                os: { id: 'windows', version: { raw: '15.0.0' } },
+                device: { model: 'Surface Pro' },
+                cpu: { architecture: 'x86_64', bitness: 64 },
+            });
+            expect(getHighEntropyValues).toHaveBeenCalledTimes(1);
+        } finally {
+            if (navigatorDescriptor) Object.defineProperty(globalThis, 'navigator', navigatorDescriptor);
+            else Reflect.deleteProperty(globalThis, 'navigator');
+        }
+    });
+
     it('uses an explicit userAgent over the header value', () => {
         const result = parseRequest({
             userAgent: 'curl/8.7.1',
