@@ -9,7 +9,7 @@ const expected = Object.freeze({
   name: 'ua-info',
   version: '2.0.3',
   repository: 'git+https://github.com/petechatchawan/ua-info.git',
-  homepage: 'https://github.com/petechatchawan/ua-info#readme',
+  homepage: 'https://petechatchawan.github.io/ua-info/',
   bugs: 'https://github.com/petechatchawan/ua-info/issues',
 });
 
