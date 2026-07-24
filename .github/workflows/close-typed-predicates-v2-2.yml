@@ -1,0 +1,81 @@
+name: Close typed predicates implementation records
+
+on:
+  push:
+    branches:
+      - agent/ua-info-v2-2-typed-predicates
+    paths:
+      - .github/workflows/close-typed-predicates-v2-2.yml
+
+permissions:
+  contents: write
+
+jobs:
+  close-records:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/ua-info-v2-2-typed-predicates
+          fetch-depth: 0
+
+      - name: Close spec and plan records
+        shell: bash
+        run: |
+          python <<'PY'
+          from pathlib import Path
+
+          spec_path = Path('docs/superpowers/specs/2026-07-24-ua-info-v2-2-typed-predicates-design.md')
+          spec = spec_path.read_text(encoding='utf-8')
+          old_status = '**Status:** Approved for implementation  '
+          new_status = '**Status:** Implemented and verified  '
+          if spec.count(old_status) != 1:
+              raise SystemExit('expected one approved spec status')
+          spec = spec.replace(old_status, new_status)
+
+          marker = '## 10. Acceptance Gates\n'
+          verification = """## 10. Verification Record
+
+          - Pull request: `#37 feat: add typed predicate helpers for ua-info 2.2`
+          - RED contract head: `55dedd784849be828e260b99fd0c56d885b7eef6`
+          - RED CI: run `30099922137` / CI `#199`; lint passed and tests failed before predicate exports existed.
+          - Initial GREEN head: `63ae08a5151a0fa42e6e2fa3ad5a36bf1cb24797`
+          - Initial GREEN CI: run `30100025324` / CI `#201`; predicate tests, coverage, build, packed consumers, and Node.js 18/20/22 passed.
+          - Final verified implementation head: `ec78e27de964fd871f5caf15aeb66500c13c9e13`
+          - Final CI: run `30100245895` / CI `#204`; detection coverage, Node.js 18/20/22 tests, build, packed consumers, Playground type-check/tests/build, and production smoke all passed.
+          - No runtime dependency, public result model, detector behavior, or package entry-point change was introduced.
+
+          ## 11. Acceptance Gates
+          """
+          if spec.count(marker) != 1:
+              raise SystemExit('expected one acceptance gate marker')
+          spec = spec.replace(marker, verification)
+          spec_path.write_text(spec, encoding='utf-8')
+
+          plan_path = Path('docs/superpowers/plans/2026-07-24-ua-info-v2-2-typed-predicates.md')
+          plan = plan_path.read_text(encoding='utf-8')
+          header = '# ua-info v2.2 Typed Predicate Helpers Implementation Plan\n'
+          status = """# ua-info v2.2 Typed Predicate Helpers Implementation Plan
+
+          **Status:** Implemented and verified  
+          **Pull request:** `#37`  
+          **Final implementation head:** `ec78e27de964fd871f5caf15aeb66500c13c9e13`  
+          **Final CI:** run `30100245895` / CI `#204`
+          """
+          if plan.count(header) != 1:
+              raise SystemExit('expected one plan header')
+          plan = plan.replace(header, status, 1)
+          plan = plan.replace('- [ ]', '- [x]')
+          plan_path.write_text(plan, encoding='utf-8')
+          PY
+
+      - name: Commit records and remove one-time workflow
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/close-typed-predicates-v2-2.yml
+          git add docs/superpowers/specs/2026-07-24-ua-info-v2-2-typed-predicates-design.md
+          git add docs/superpowers/plans/2026-07-24-ua-info-v2-2-typed-predicates.md
+          git commit -m "docs: record typed predicates verification"
+          git push origin HEAD:agent/ua-info-v2-2-typed-predicates
