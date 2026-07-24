@@ -21,7 +21,7 @@ All notable changes to `ua-info` are documented in this file.
 - `Perplexity-User` is not forced into an inaccurate autonomous crawler or AI-agent classification.
 - Generic bot fallback requires a complete `bot`, `spider`, or `crawler` product token and no longer matches ordinary substrings such as `RoboticsResearch`.
 - iPad User-Agent strings now reach the iPadOS-specific operating-system branch.
-- iPhone and iPad User-Agent strings now return the documented ARM64 CPU claim.
+- iPhone and iPad device tokens now produce the package's ARM64 CPU inference consistently.
 
 ### Compatibility
 
