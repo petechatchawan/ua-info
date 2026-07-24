@@ -18,6 +18,8 @@ The implementation from PR #28 already provides automated acceptance coverage fo
 
 Change the package `homepage` field from the GitHub README URL to the production Playground URL. Keep the repository and issue metadata unchanged so npm continues to expose dedicated Repository and Bugs links.
 
+Update the canonical package identity verifier to require the same production Playground URL. The verifier remains the regression guard that prevents package metadata from drifting.
+
 The root README already contains an Interactive Playground section with the production URL, so no duplicate documentation section is required.
 
 ## Constraints
@@ -31,6 +33,7 @@ The root README already contains an Interactive Playground section with the prod
 ## Success criteria
 
 - `package.json.homepage` equals `https://petechatchawan.github.io/ua-info/`.
+- The canonical identity verifier requires the same homepage value.
 - Existing repository and bugs URLs remain unchanged.
 - Root CI and packed-consumer checks pass.
 - The change is delivered in a focused pull request.
