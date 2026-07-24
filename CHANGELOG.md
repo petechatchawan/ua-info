@@ -8,6 +8,7 @@ All notable changes to `ua-info` are documented in this file.
 
 - Source-backed, test-only detection fixture corpus with globally unique IDs and provenance validation.
 - Explicit browser, client, context, operating-system, device, CPU, Client Hints, and malformed-input regression matrices.
+- Default high-entropy browser enrichment coverage for architecture, bitness, full-version lists, model, and platform version.
 - Detection coverage commands and a dedicated Node.js 22 CI job.
 - Enforced production coverage thresholds for `src/v2/**`: 90% statements, 90% lines, 90% functions, and 85% branches.
 - Crawler claims for `OAI-SearchBot`, `OAI-AdsBot`, Googlebot Image, and Googlebot Video.
