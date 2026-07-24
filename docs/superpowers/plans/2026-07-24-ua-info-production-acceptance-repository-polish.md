@@ -2,58 +2,60 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Point npm package homepage metadata to the deployed UA Info Playground and verify the package remains release-safe.
+**Goal:** Point npm package homepage metadata to the deployed UA Info Playground and keep the canonical identity verifier aligned.
 
-**Architecture:** This is a metadata-only patch. The package runtime, exports, version, publication configuration, and Playground implementation remain unchanged. Existing repository verification commands provide the acceptance gate.
+**Architecture:** This is a metadata and verification-guard patch. Runtime source, package exports, version, publish configuration, and Playground implementation remain unchanged.
 
-**Tech Stack:** npm package metadata, JSON, GitHub Actions.
+**Tech Stack:** npm package metadata, Node.js verification script, GitHub Actions.
 
 ## Global Constraints
 
-- Do not change package version `2.0.3`.
-- Do not modify `src/**`.
-- Do not modify package exports or `publishConfig`.
+- Keep package version `2.0.3`.
+- Do not modify `src/**`, exports, or `publishConfig`.
 - Do not publish a new npm release for this patch.
-- Production URL is exactly `https://petechatchawan.github.io/ua-info/`.
+- Use `https://petechatchawan.github.io/ua-info/` exactly.
 
 ---
 
-### Task 1: Update package homepage metadata
+### Task 1: Update homepage and identity guard
 
 **Files:**
 - Modify: `package.json:13`
+- Modify: `scripts/verify-package-identity.mjs:14`
 
 **Interfaces:**
-- Consumes: existing npm package metadata.
-- Produces: npm `homepage` metadata pointing to the production Playground.
+- Consumes: existing package metadata and canonical identity expectations.
+- Produces: matching production Playground homepage values.
 
-- [ ] **Step 1: Verify the current metadata is stale**
-
-Run:
+- [ ] **Step 1: Verify the old state**
 
 ```bash
 node -e "const p=require('./package.json'); if (p.homepage !== 'https://github.com/petechatchawan/ua-info#readme') process.exit(1)"
 ```
 
-Expected: exit code `0` before the patch.
+Expected: exit `0` before the patch.
 
-- [ ] **Step 2: Apply the minimal metadata change**
-
-Replace:
-
-```json
-"homepage": "https://github.com/petechatchawan/ua-info#readme"
-```
-
-with:
+- [ ] **Step 2: Change `package.json`**
 
 ```json
 "homepage": "https://petechatchawan.github.io/ua-info/"
 ```
 
-- [ ] **Step 3: Verify exact metadata and invariants**
+- [ ] **Step 3: Verify the RED identity gate**
 
-Run:
+```bash
+npm run identity:check
+```
+
+Expected before updating the verifier: FAIL because the new homepage is not yet canonical.
+
+- [ ] **Step 4: Align the identity verifier**
+
+```js
+homepage: 'https://petechatchawan.github.io/ua-info/',
+```
+
+- [ ] **Step 5: Verify metadata invariants**
 
 ```bash
 node - <<'NODE'
@@ -63,60 +65,43 @@ if (p.repository.url !== 'git+https://github.com/petechatchawan/ua-info.git') pr
 if (p.bugs.url !== 'https://github.com/petechatchawan/ua-info/issues') process.exit(1);
 if (p.version !== '2.0.3') process.exit(1);
 NODE
+npm run identity:check
 ```
 
-Expected: exit code `0`.
+Expected: both commands pass.
 
-- [ ] **Step 4: Run repository verification**
-
-Run:
+- [ ] **Step 6: Run full verification**
 
 ```bash
 npm install
 npm run check
 ```
 
-Expected: identity, lint, Jest, ESM/CommonJS build, package-content, and packed-consumer checks all pass.
-
-- [ ] **Step 5: Commit**
-
-```bash
-git add package.json
-git commit -m "docs: point package homepage to playground"
-```
+Expected: identity, lint, Jest, ESM/CommonJS build, package-content, and packed-consumer checks pass.
 
 ### Task 2: Deliver focused pull request
 
 **Files:**
 - Review: `package.json`
+- Review: `scripts/verify-package-identity.mjs`
 - Review: `docs/superpowers/specs/2026-07-24-ua-info-production-acceptance-repository-polish-design.md`
 - Review: `docs/superpowers/plans/2026-07-24-ua-info-production-acceptance-repository-polish.md`
 
-**Interfaces:**
-- Consumes: verified branch from Task 1.
-- Produces: reviewable PR targeting `master`.
-
 - [ ] **Step 1: Audit scope**
-
-Run:
 
 ```bash
 git diff --check master...HEAD
 git diff --name-only master...HEAD
 ```
 
-Expected changed paths are only the package metadata and the two approved design/plan documents.
+Expected: only the two metadata/verification files and two design/plan documents.
 
-- [ ] **Step 2: Open the pull request**
+- [ ] **Step 2: Open PR**
 
-Title:
+Title: `docs: point package homepage to playground`
 
-```text
-docs: point package homepage to playground
-```
+Record production acceptance, metadata invariants, RED identity evidence, and final CI results.
 
-The PR body must record production acceptance, metadata invariants, and CI results.
+- [ ] **Step 3: Merge after CI passes**
 
-- [ ] **Step 3: Merge only after CI passes**
-
-Use squash merge and lock the expected PR head SHA.
+Use squash merge with the expected head SHA.
