@@ -5,7 +5,8 @@ const requiredIds = [
   'chrome-windows', 'edge-windows', 'firefox-linux', 'safari-macos',
   'chrome-android', 'safari-iphone', 'android-webview', 'ios-wkwebview',
   'line-liff', 'line-in-app', 'facebook-in-app', 'instagram-in-app',
-  'tiktok-in-app', 'headless-chrome', 'googlebot', 'curl', 'unknown-client',
+  'tiktok-in-app', 'headless-chrome', 'googlebot', 'oai-searchbot',
+  'googlebot-image', 'google-extended-control-token', 'curl', 'unknown-client',
 ];
 
 describe('sample corpus', () => {
