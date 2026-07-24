@@ -6,7 +6,7 @@ function createCPU(architecture: string, bitness: 32 | 64 | null): CPUInfo {
 }
 
 export function detectCPU(userAgent: string): CPUInfo | null {
-    if (/\b(?:arm64|aarch64|AppleWebKit.+(?:iPhone|iPad))\b/i.test(userAgent)) {
+    if (/\b(?:arm64|aarch64|iPhone|iPad)\b/i.test(userAgent)) {
         return createCPU(CPUArchitecture.ARM64, 64);
     }
     if (/\b(?:armv8|armv7|arm)\b/i.test(userAgent)) return createCPU(CPUArchitecture.ARM, 32);

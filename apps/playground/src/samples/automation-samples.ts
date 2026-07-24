@@ -19,6 +19,24 @@ export const AUTOMATION_SAMPLES: readonly UserAgentSample[] = Object.freeze([
       '(compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
   },
   {
+    id: 'oai-searchbot',
+    label: 'OpenAI OAI-SearchBot',
+    category: 'Automation and bots',
+    userAgent: 'OAI-SearchBot/1.0',
+  },
+  {
+    id: 'googlebot-image',
+    label: 'Googlebot Image',
+    category: 'Automation and bots',
+    userAgent: 'Googlebot-Image/1.0',
+  },
+  {
+    id: 'google-extended-control-token',
+    label: 'Google-Extended control token',
+    category: 'Unknown or malformed',
+    userAgent: 'Google-Extended',
+  },
+  {
     id: 'curl',
     label: 'curl',
     category: 'HTTP clients',

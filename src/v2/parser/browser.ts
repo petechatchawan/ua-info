@@ -195,7 +195,22 @@ export function detectBrowser(userAgent: string): BrowserDetection | null {
         );
     }
 
-    const chrome = /\b(?:Chrome|Chromium)\/([0-9]+(?:\.[0-9]+)*)/i.exec(userAgent);
+    const chromium = /\bChromium\/([0-9]+(?:\.[0-9]+)*)/i.exec(userAgent);
+    if (chromium?.[1]) {
+        return createDetection(
+            {
+                regex: /$^/,
+                id: BrowserId.Chromium,
+                name: 'Chromium',
+                family: BrowserFamily.Chromium,
+                engine: 'blink',
+            },
+            chromium[1],
+            isAndroidWebView(userAgent) ? 'webview' : 'browser',
+        );
+    }
+
+    const chrome = /\bChrome\/([0-9]+(?:\.[0-9]+)*)/i.exec(userAgent);
     if (chrome?.[1]) {
         return createDetection(
             {

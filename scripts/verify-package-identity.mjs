@@ -7,7 +7,7 @@ const packageJson = JSON.parse(await readFile(path.join(root, 'package.json'), '
 
 const expected = Object.freeze({
   name: 'ua-info',
-  version: '2.0.3',
+  version: '2.1.0',
   repository: 'git+https://github.com/petechatchawan/ua-info.git',
   homepage: 'https://petechatchawan.github.io/ua-info/',
   bugs: 'https://github.com/petechatchawan/ua-info/issues',
@@ -95,4 +95,4 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
-console.log('Package identity verified: ua-info@2.0.3, canonical metadata, and OIDC-only release workflow.');
+console.log('Package identity verified: ua-info@2.1.0, canonical metadata, and OIDC-only release workflow.');

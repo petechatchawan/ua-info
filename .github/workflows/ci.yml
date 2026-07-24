@@ -27,6 +27,25 @@ jobs:
       - run: npm run build
       - run: npm run pack:check
 
+  detection-coverage:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - run: npm run lint
+      - run: npm run detection:check
+      - name: Upload detector coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: detector-coverage
+          path: coverage
+          if-no-files-found: ignore
+
   playground:
     runs-on: ubuntu-latest
 

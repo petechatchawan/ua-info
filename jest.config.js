@@ -10,4 +10,19 @@ module.exports = {
   },
   moduleFileExtensions: ['ts', 'js', 'json'],
   testMatch: ['**/__tests__/**/*.test.ts'],
+  collectCoverageFrom: [
+    'src/v2/**/*.ts',
+    '!src/v2/**/__tests__/**',
+    '!src/v2/**/*.d.ts',
+  ],
+  coverageDirectory: 'coverage',
+  coverageReporters: ['text', 'text-summary', 'lcov'],
+  coverageThreshold: {
+    global: {
+      statements: 90,
+      lines: 90,
+      functions: 90,
+      branches: 85,
+    },
+  },
 };

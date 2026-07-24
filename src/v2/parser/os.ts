@@ -32,11 +32,11 @@ export function detectOS(userAgent: string): OSInfo | null {
     const windows = /Windows NT[ /]([0-9.]+)/i.exec(userAgent);
     if (windows?.[1]) return createOS(OSId.Windows, 'Windows', detectWindowsVersion(windows[1]));
 
+    const ipadOS = /\biPad\b.*?(?:CPU )?OS[ _/]([0-9_]+)/i.exec(userAgent);
+    if (ipadOS?.[1]) return createOS(OSId.IOS, 'iPadOS', ipadOS[1]);
+
     const ios = /(?:CPU (?:iPhone )?OS|iPhone OS)[ _/]([0-9_]+)/i.exec(userAgent);
     if (ios?.[1]) return createOS(OSId.IOS, 'iOS', ios[1]);
-
-    const ipadOS = /\biPad\b.*?OS[ _/]([0-9_]+)/i.exec(userAgent);
-    if (ipadOS?.[1]) return createOS(OSId.IOS, 'iPadOS', ipadOS[1]);
 
     const harmony = /HarmonyOS[ /]([0-9.]+)/i.exec(userAgent);
     if (harmony?.[1]) return createOS(OSId.HarmonyOS, 'HarmonyOS', harmony[1]);
