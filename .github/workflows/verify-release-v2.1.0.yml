@@ -1,0 +1,279 @@
+name: Verify and release ua-info 2.1.0
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - .github/workflows/verify-release-v2.1.0.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: ua-info-v2.1.0-release-verification
+  cancel-in-progress: false
+
+jobs:
+  await-registry:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - name: Wait for npm registry propagation
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 60); do
+            if [ "$(npm view ua-info@2.1.0 version 2>/dev/null || true)" = "2.1.0" ]; then
+              echo "ua-info@2.1.0 is available from the npm registry."
+              exit 0
+            fi
+            echo "Registry attempt ${attempt}/60 did not resolve ua-info@2.1.0 yet."
+            sleep 10
+          done
+          echo "ua-info@2.1.0 did not propagate within the verification window." >&2
+          exit 1
+
+  verify:
+    needs: await-registry
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [18, 20, 22]
+
+    steps:
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node-version }}
+          package-manager-cache: false
+
+      - name: Install clean package
+        shell: bash
+        run: |
+          set -euo pipefail
+          workspace="$RUNNER_TEMP/ua-info-live-${{ matrix.node-version }}"
+          rm -rf "$workspace"
+          mkdir -p "$workspace"
+          echo "WORKSPACE=$workspace" >> "$GITHUB_ENV"
+          cd "$workspace"
+          npm init -y >/dev/null
+          npm pkg set type=module
+          npm install --ignore-scripts --no-audit --no-fund ua-info@2.1.0 typescript@4.9.5 @types/node@18
+
+      - name: Verify ESM behavior and package contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$WORKSPACE"
+          cat > verify.mjs <<'EOF'
+          import assert from 'node:assert/strict';
+          import { createRequire } from 'node:module';
+          import * as root from 'ua-info';
+          import { parseRequest } from 'ua-info/server';
+          import { detectCurrent } from 'ua-info/browser';
+
+          assert.equal(root.parse('Chromium/150.0.0.0').browser?.id, root.BrowserId.Chromium);
+          assert.equal(root.parse('Google-Extended').client, null);
+          assert.deepEqual(
+            {
+              kind: root.parse('OAI-SearchBot/1.0').client?.kind,
+              id: root.parse('OAI-SearchBot/1.0').client?.id,
+            },
+            { kind: 'crawler', id: 'oai-searchbot' },
+          );
+          assert.equal(
+            parseRequest({
+              userAgent: '',
+              headers: {
+                'sec-ch-ua': '"Google Chrome";v="150", "Microsoft Edge";v="150"',
+              },
+            }).browser?.id,
+            root.BrowserId.Edge,
+          );
+          assert.equal(typeof detectCurrent, 'function');
+          assert.equal('UAInfo' in root, false);
+
+          const require = createRequire(import.meta.url);
+          const manifest = require('ua-info/package.json');
+          assert.equal(manifest.name, 'ua-info');
+          assert.equal(manifest.version, '2.1.0');
+          assert.equal(manifest.repository.url, 'git+https://github.com/petechatchawan/ua-info.git');
+          assert.throws(() => require('ua-info/v2'), /Package subpath|not defined|cannot find/i);
+          EOF
+          node verify.mjs
+
+      - name: Verify CommonJS behavior and package contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$WORKSPACE"
+          cat > verify.cjs <<'EOF'
+          const assert = require('node:assert/strict');
+          const root = require('ua-info');
+          const { parseRequest } = require('ua-info/server');
+          const { detectCurrent } = require('ua-info/browser');
+
+          assert.equal(root.parse('Chromium/150.0.0.0').browser?.id, root.BrowserId.Chromium);
+          assert.equal(root.parse('Google-Extended').client, null);
+          assert.equal(root.parse('OAI-AdsBot/1.0').client?.id, 'oai-adsbot');
+          assert.equal(
+            parseRequest({
+              userAgent: '',
+              headers: { 'sec-ch-ua': '"Microsoft Edge";v="150"' },
+            }).browser?.id,
+            root.BrowserId.Edge,
+          );
+          assert.equal(typeof detectCurrent, 'function');
+          assert.equal('UAInfo' in root, false);
+          assert.throws(() => require('ua-info/v2'), /Package subpath|not defined|cannot find/i);
+          EOF
+          node verify.cjs
+
+      - name: Prepare TypeScript Node16 consumer
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$WORKSPACE"
+          cat > verify.ts <<'EOF'
+          import { BrowserId, parse } from 'ua-info';
+          import { parseRequest } from 'ua-info/server';
+          import { detectCurrent } from 'ua-info/browser';
+
+          const chromium = parse('Chromium/150.0.0.0');
+          const browserId: string | undefined = chromium.browser?.id;
+          const requestResult = parseRequest({
+            userAgent: '',
+            headers: { 'sec-ch-ua': '"Microsoft Edge";v="150"' },
+          });
+          const detector: typeof detectCurrent = detectCurrent;
+          void BrowserId;
+          void browserId;
+          void requestResult;
+          void detector;
+          EOF
+
+          cat > tsconfig.json <<'EOF'
+          {
+            "compilerOptions": {
+              "target": "ES2020",
+              "module": "Node16",
+              "moduleResolution": "Node16",
+              "strict": true,
+              "skipLibCheck": false,
+              "noEmit": true,
+              "lib": ["ES2020", "DOM"],
+              "types": []
+            },
+            "include": ["verify.ts"]
+          }
+          EOF
+
+      - name: Verify TypeScript Node16 consumer
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$WORKSPACE"
+          npx tsc --project tsconfig.json
+
+      - name: Verify registry metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(npm view ua-info@2.1.0 name)" = "ua-info"
+          test "$(npm view ua-info@2.1.0 version)" = "2.1.0"
+          test "$(npm view ua-info@2.1.0 repository.url)" = "git+https://github.com/petechatchawan/ua-info.git"
+          test -z "$(npm view ua-info@2.1.0 deprecated 2>/dev/null || true)"
+
+  release:
+    needs: verify
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_COMMIT: 943801452605be799c88f6ce520aeee19ab90c18
+    steps:
+      - name: Create or verify GitHub release
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view v2.1.0 --repo "${{ github.repository }}" >/dev/null 2>&1; then
+            echo "GitHub release v2.1.0 already exists."
+          else
+            cat > release-notes.md <<'EOF'
+          ## ua-info 2.1.0
+
+          Detection accuracy and regression-protection release with no public API expansion.
+
+          ### Highlights
+
+          - Distinguishes explicit Chromium from Chrome.
+          - Adds OAI-SearchBot, OAI-AdsBot, Googlebot Image, and Googlebot Video claims.
+          - Stops treating Google-Extended as an HTTP User-Agent client.
+          - Hardens generic bot boundaries, iPadOS precedence, and Apple mobile CPU inference.
+          - Adds source-backed fixtures and enforced detector coverage gates.
+          - Retains ESM, CommonJS, TypeScript Node16, server, browser, and packed-consumer compatibility.
+
+          User-Agent and Client Hints values remain untrusted claims and are not proof of request origin.
+          EOF
+            gh release create v2.1.0 \
+              --repo "${{ github.repository }}" \
+              --target "$RELEASE_COMMIT" \
+              --title "ua-info v2.1.0" \
+              --notes-file release-notes.md
+          fi
+
+          tag_target=$(gh api "repos/${{ github.repository }}/git/ref/tags/v2.1.0" --jq '.object.sha')
+          test "$tag_target" = "$RELEASE_COMMIT"
+
+  report:
+    needs: [await-registry, verify, release]
+    if: always()
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+    steps:
+      - name: Report live verification
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          title="[live-verification] ua-info@2.1.0"
+          if [ "${{ needs.await-registry.result }}" = "success" ] && \
+             [ "${{ needs.verify.result }}" = "success" ] && \
+             [ "${{ needs.release.result }}" = "success" ]; then
+            status="passed"
+          else
+            status="failed"
+          fi
+
+          body=$(cat <<EOF
+          Live npm registry and GitHub release verification.
+
+          - Package: ua-info@2.1.0
+          - Package release commit: 943801452605be799c88f6ce520aeee19ab90c18
+          - Matrix: Node.js 18, 20, 22
+          - Result: **${status}**
+          - Coverage: clean install, ESM, CommonJS, TypeScript Node16, root, /server, /browser, package metadata, removed /v2 subpath, v2.1 detection behavior, GitHub release tag target
+          - Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          EOF
+          )
+
+          issue_number=$(gh issue list --repo "${{ github.repository }}" --state all --search "${title} in:title" --json number,title --jq ".[] | select(.title == \"${title}\") | .number" | head -n 1)
+          if [ -z "$issue_number" ]; then
+            issue_url=$(gh issue create --repo "${{ github.repository }}" --title "$title" --body "$body")
+            issue_number="${issue_url##*/}"
+          else
+            gh issue edit "$issue_number" --repo "${{ github.repository }}" --body "$body"
+          fi
+
+          if [ "$status" = "passed" ]; then
+            gh issue close "$issue_number" --repo "${{ github.repository }}" --reason completed || true
+          else
+            gh issue reopen "$issue_number" --repo "${{ github.repository }}" || true
+            exit 1
+          fi
