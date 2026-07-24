@@ -27,7 +27,7 @@
 - Consumes: existing package metadata and canonical identity expectations.
 - Produces: matching production Playground homepage values.
 
-- [ ] **Step 1: Verify the old state**
+- [x] **Step 1: Verify the old state**
 
 ```bash
 node -e "const p=require('./package.json'); if (p.homepage !== 'https://github.com/petechatchawan/ua-info#readme') process.exit(1)"
@@ -35,13 +35,13 @@ node -e "const p=require('./package.json'); if (p.homepage !== 'https://github.c
 
 Expected: exit `0` before the patch.
 
-- [ ] **Step 2: Change `package.json`**
+- [x] **Step 2: Change `package.json`**
 
 ```json
 "homepage": "https://petechatchawan.github.io/ua-info/"
 ```
 
-- [ ] **Step 3: Verify the RED identity gate**
+- [x] **Step 3: Verify the RED identity gate**
 
 ```bash
 npm run identity:check
@@ -49,13 +49,13 @@ npm run identity:check
 
 Expected before updating the verifier: FAIL because the new homepage is not yet canonical.
 
-- [ ] **Step 4: Align the identity verifier**
+- [x] **Step 4: Align the identity verifier**
 
 ```js
 homepage: 'https://petechatchawan.github.io/ua-info/',
 ```
 
-- [ ] **Step 5: Verify metadata invariants**
+- [x] **Step 5: Verify metadata invariants**
 
 ```bash
 node - <<'NODE'
@@ -70,7 +70,7 @@ npm run identity:check
 
 Expected: both commands pass.
 
-- [ ] **Step 6: Run full verification**
+- [x] **Step 6: Run full verification**
 
 ```bash
 npm install
@@ -87,7 +87,7 @@ Expected: identity, lint, Jest, ESM/CommonJS build, package-content, and packed-
 - Review: `docs/superpowers/specs/2026-07-24-ua-info-production-acceptance-repository-polish-design.md`
 - Review: `docs/superpowers/plans/2026-07-24-ua-info-production-acceptance-repository-polish.md`
 
-- [ ] **Step 1: Audit scope**
+- [x] **Step 1: Audit scope**
 
 ```bash
 git diff --check master...HEAD
@@ -96,12 +96,22 @@ git diff --name-only master...HEAD
 
 Expected: only the two metadata/verification files and two design/plan documents.
 
-- [ ] **Step 2: Open PR**
+- [x] **Step 2: Open PR**
 
 Title: `docs: point package homepage to playground`
 
 Record production acceptance, metadata invariants, RED identity evidence, and final CI results.
 
-- [ ] **Step 3: Merge after CI passes**
+- [x] **Step 3: Merge after CI passes**
 
 Use squash merge with the expected head SHA.
+
+## Completion record
+
+- PR #29 `docs: point package homepage to playground` was merged on 2026-07-24.
+- Merge commit: `446336e0589344cedbb196be83aafa590ed50dc5`.
+- Final head: `1b57a539529b8d7e8b7ca458e6d2d3a2882fc04d`.
+- CI run `30069383853` completed successfully on Node.js 18, 20, and 22.
+- The Playground packed-consumer boundary, type-check, Vitest, Vite build, and Chromium production smoke gates passed.
+- The repository owner confirmed that `https://petechatchawan.github.io/ua-info/` opens successfully.
+- Package version remained `2.0.3`; runtime source, exports, and publish configuration were unchanged.
