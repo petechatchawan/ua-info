@@ -13,6 +13,18 @@ describe('ua-info 2.0 package root', () => {
         expect(result.device.type).toBe('desktop');
     });
 
+    it('exports the typed predicate helpers', () => {
+        expect(typeof userAgentInfo.isBrowser).toBe('function');
+        expect(typeof userAgentInfo.isBrowserFamily).toBe('function');
+        expect(typeof userAgentInfo.isBrowserMode).toBe('function');
+        expect(typeof userAgentInfo.isEngine).toBe('function');
+        expect(typeof userAgentInfo.isOperatingSystem).toBe('function');
+        expect(typeof userAgentInfo.isDeviceType).toBe('function');
+        expect(typeof userAgentInfo.isCPUArchitecture).toBe('function');
+        expect(typeof userAgentInfo.isClientKind).toBe('function');
+        expect(typeof userAgentInfo.isContextKind).toBe('function');
+    });
+
     it('does not retain the v1 UAInfo class', () => {
         expect('UAInfo' in userAgentInfo).toBe(false);
     });
