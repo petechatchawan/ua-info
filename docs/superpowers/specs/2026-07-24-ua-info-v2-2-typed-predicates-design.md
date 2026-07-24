@@ -1,6 +1,6 @@
 # ua-info v2.2 Typed Predicate Helpers Design
 
-**Status:** Approved for implementation  
+**Status:** Implemented and verified  
 **Date:** 2026-07-24  
 **Repository:** `petechatchawan/ua-info`  
 **Target release:** `ua-info@2.2.0`
@@ -192,7 +192,18 @@ The release does not add:
 - new constants, detector identities, or detection behavior;
 - performance benchmark infrastructure, which belongs to the next performance and bundle-size phase.
 
-## 10. Acceptance Gates
+## 10. Verification Record
+
+- Pull request: `#37 feat: add typed predicate helpers for ua-info 2.2`
+- RED contract head: `55dedd784849be828e260b99fd0c56d885b7eef6`
+- RED CI: run `30099922137` / CI `#199`; lint passed and tests failed before predicate exports existed.
+- Initial GREEN head: `63ae08a5151a0fa42e6e2fa3ad5a36bf1cb24797`
+- Initial GREEN CI: run `30100025324` / CI `#201`; predicate tests, coverage, build, packed consumers, and Node.js 18/20/22 passed.
+- Final verified implementation head: `ec78e27de964fd871f5caf15aeb66500c13c9e13`
+- Final CI: run `30100245895` / CI `#204`; detection coverage, Node.js 18/20/22 tests, build, packed consumers, Playground type-check/tests/build, and production smoke all passed.
+- No runtime dependency, public result model, detector behavior, or package entry-point change was introduced.
+
+## 11. Acceptance Gates
 
 The feature is complete only when:
 

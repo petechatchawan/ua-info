@@ -1,6 +1,11 @@
 # ua-info v2.2 Typed Predicate Helpers Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+**Status:** Implemented and verified  
+**Pull request:** `#37`  
+**Final implementation head:** `ec78e27de964fd871f5caf15aeb66500c13c9e13`  
+**Final CI:** run `30100245895` / CI `#204`
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Add nine tree-shakeable, type-narrowing predicate helpers to the `ua-info` package root without changing `UAResult`, detector behavior, package entry points, or runtime dependencies.
 
@@ -31,7 +36,7 @@
 - Consumes: `UAResult`, `BrowserId`, `BrowserFamily`, `EngineId`, `OSId`, `CPUArchitecture`, `BrowserMode`, `DeviceType`, `ClientKind`, and `ContextKind` from `src/v2`.
 - Produces: executable contracts for `isBrowser`, `isBrowserFamily`, `isBrowserMode`, `isEngine`, `isOperatingSystem`, `isDeviceType`, `isCPUArchitecture`, `isClientKind`, and `isContextKind`.
 
-- [ ] **Step 1: Create the failing predicate test suite**
+- [x] **Step 1: Create the failing predicate test suite**
 
 Create `src/v2/__tests__/predicates.test.ts` with a complete `UAResult` fixture and tests equivalent to:
 
@@ -152,7 +157,7 @@ void assertTypeNarrowing;
 void assertClosedUnionInputs;
 ```
 
-- [ ] **Step 2: Add failing package-root export assertions**
+- [x] **Step 2: Add failing package-root export assertions**
 
 Extend `src/__tests__/root-api.test.ts` with:
 
@@ -170,14 +175,14 @@ it('exports the typed predicate helpers', () => {
 });
 ```
 
-- [ ] **Step 3: Commit the RED tests**
+- [x] **Step 3: Commit the RED tests**
 
 ```bash
 git add src/v2/__tests__/predicates.test.ts src/__tests__/root-api.test.ts
 git commit -m "test: define typed predicate contracts"
 ```
 
-- [ ] **Step 4: Verify RED in CI**
+- [x] **Step 4: Verify RED in CI**
 
 Expected result: TypeScript/Jest fails because the nine predicate exports do not exist. Confirm the failure is limited to missing predicate symbols rather than fixture or syntax errors.
 
@@ -193,7 +198,7 @@ Expected result: TypeScript/Jest fails because the nine predicate exports do not
 - Consumes: public result and dimension types from `src/v2/types.ts`.
 - Produces: all nine public type-predicate functions specified by the design.
 
-- [ ] **Step 1: Add internal narrowing aliases**
+- [x] **Step 1: Add internal narrowing aliases**
 
 Create `src/v2/predicates.ts` with imports and non-exported aliases:
 
@@ -249,7 +254,7 @@ type ContextKindResult<T extends ContextKind> = {
 };
 ```
 
-- [ ] **Step 2: Implement the nine strict-equality predicates**
+- [x] **Step 2: Implement the nine strict-equality predicates**
 
 ```ts
 export function isBrowser<T extends string>(
@@ -316,7 +321,7 @@ export function isContextKind<T extends ContextKind>(
 }
 ```
 
-- [ ] **Step 3: Export the module**
+- [x] **Step 3: Export the module**
 
 Append to `src/v2/index.ts`:
 
@@ -324,14 +329,14 @@ Append to `src/v2/index.ts`:
 export * from './predicates';
 ```
 
-- [ ] **Step 4: Commit the GREEN implementation**
+- [x] **Step 4: Commit the GREEN implementation**
 
 ```bash
 git add src/v2/predicates.ts src/v2/index.ts
 git commit -m "feat: add typed predicate helpers"
 ```
 
-- [ ] **Step 5: Verify focused and full GREEN gates**
+- [x] **Step 5: Verify focused and full GREEN gates**
 
 Run locally or through CI:
 
@@ -356,7 +361,7 @@ Expected: all commands exit `0`; declarations expose all nine predicates and pac
 - Consumes: the nine root exports from Task 2.
 - Produces: discoverable usage guidance without changing runtime behavior.
 
-- [ ] **Step 1: Update Quick Start to demonstrate narrowing**
+- [x] **Step 1: Update Quick Start to demonstrate narrowing**
 
 Replace the browser optional-chain comparison with:
 
@@ -370,7 +375,7 @@ if (isBrowser(details, BrowserId.Chrome)) {
 }
 ```
 
-- [ ] **Step 2: Add a Typed predicate helpers section**
+- [x] **Step 2: Add a Typed predicate helpers section**
 
 Document all nine helpers in one compact example and state:
 
@@ -379,11 +384,11 @@ Document all nine helpers in one compact example and state:
 - closed union helpers catch invalid literals at compile time;
 - matching parsed claims is not origin authentication.
 
-- [ ] **Step 3: Convert relevant recipes**
+- [x] **Step 3: Convert relevant recipes**
 
 Use predicates in browser/version, device class, WebView/headless, in-app context, and crawler/AI-agent recipes while leaving direct field access examples where predicates do not improve clarity.
 
-- [ ] **Step 4: Commit documentation**
+- [x] **Step 4: Commit documentation**
 
 ```bash
 git add README.md
@@ -402,7 +407,7 @@ git commit -m "docs: document typed predicate helpers"
 - Consumes: completed implementation and CI evidence.
 - Produces: reviewable PR with traceable verification status.
 
-- [ ] **Step 1: Run the full package gate**
+- [x] **Step 1: Run the full package gate**
 
 ```bash
 npm run check
@@ -410,7 +415,7 @@ npm run check
 
 Expected: identity, lint, fixture contract, coverage, build, package verification, and consumer checks all exit `0`.
 
-- [ ] **Step 2: Run the full Playground gate**
+- [x] **Step 2: Run the full Playground gate**
 
 ```bash
 npm run playground:check
@@ -418,7 +423,7 @@ npm run playground:check
 
 Expected: setup, boundary check, TypeScript check, tests, browser build, and Playwright smoke all exit `0`.
 
-- [ ] **Step 3: Verify the diff**
+- [x] **Step 3: Verify the diff**
 
 ```bash
 git diff --check master...HEAD
@@ -427,11 +432,11 @@ git diff --stat master...HEAD
 
 Confirm there are no whitespace errors, no generated `dist`, no dependency changes, no package subpath changes, and no `UAResult` changes.
 
-- [ ] **Step 4: Record verified status**
+- [x] **Step 4: Record verified status**
 
 After fresh CI passes, update design status to `Implemented and verified`, mark every plan checkbox complete, and record the exact implementation head and workflow run.
 
-- [ ] **Step 5: Open the implementation PR**
+- [x] **Step 5: Open the implementation PR**
 
 Use title:
 
