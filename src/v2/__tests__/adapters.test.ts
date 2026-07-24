@@ -5,6 +5,11 @@ const REDUCED_CHROME_UA =
     'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 ' +
     '(KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36';
 
+const LINE_LIFF_UA =
+    'Mozilla/5.0 (Linux; Android 16; Pixel 10 Pro Build/BP2A.260705.008; wv) ' +
+    'AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/150.0.0.0 ' +
+    'Mobile Safari/537.36 Line/26.11.0 LIFF';
+
 describe('v2 adapters', () => {
     it('enriches a request with high-entropy Client Hints', () => {
         const result = parseRequest({
@@ -62,6 +67,48 @@ describe('v2 adapters', () => {
             else Reflect.deleteProperty(globalThis, 'navigator');
             if (matchMediaDescriptor) Object.defineProperty(globalThis, 'matchMedia', matchMediaDescriptor);
             else Reflect.deleteProperty(globalThis, 'matchMedia');
+        }
+    });
+
+    it('does not replace an existing host context with PWA context', async () => {
+        const navigatorDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'navigator');
+        Object.defineProperty(globalThis, 'navigator', {
+            configurable: true,
+            value: { userAgent: LINE_LIFF_UA, standalone: true },
+        });
+
+        try {
+            await expect(detectCurrent({ highEntropy: [] })).resolves.toMatchObject({
+                context: { kind: 'mini-app', id: 'liff', host: { id: 'line' } },
+            });
+        } finally {
+            if (navigatorDescriptor) Object.defineProperty(globalThis, 'navigator', navigatorDescriptor);
+            else Reflect.deleteProperty(globalThis, 'navigator');
+        }
+    });
+
+    it('propagates high-entropy permission failures', async () => {
+        const navigatorDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'navigator');
+        Object.defineProperty(globalThis, 'navigator', {
+            configurable: true,
+            value: {
+                userAgent: REDUCED_CHROME_UA,
+                userAgentData: {
+                    brands: [{ brand: 'Google Chrome', version: '150' }],
+                    mobile: true,
+                    platform: 'Android',
+                    getHighEntropyValues: async () => {
+                        throw new Error('permission denied');
+                    },
+                },
+            },
+        });
+
+        try {
+            await expect(detectCurrent()).rejects.toThrow('permission denied');
+        } finally {
+            if (navigatorDescriptor) Object.defineProperty(globalThis, 'navigator', navigatorDescriptor);
+            else Reflect.deleteProperty(globalThis, 'navigator');
         }
     });
 
