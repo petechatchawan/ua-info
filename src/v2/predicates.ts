@@ -1,3 +1,7 @@
+/**
+ * Strict, allocation-free predicates for querying and narrowing a canonical `UAResult`.
+ * Values are compared exactly as supplied; these helpers do not normalize or reparse input.
+ */
 import type {
     BrowserInfo,
     BrowserMode,
