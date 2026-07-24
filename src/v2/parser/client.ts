@@ -12,9 +12,12 @@ const CLIENT_PATTERNS: readonly ClientPattern[] = [
     { regex: /\bGPTBot\/([0-9.]+)/i, kind: 'ai-agent', id: 'gptbot', name: 'GPTBot' },
     { regex: /\bClaudeBot(?:\/([0-9.]+))?/i, kind: 'ai-agent', id: 'claudebot', name: 'ClaudeBot' },
     { regex: /\bPerplexityBot(?:\/([0-9.]+))?/i, kind: 'ai-agent', id: 'perplexitybot', name: 'PerplexityBot' },
-    { regex: /\bGoogle-Extended(?:\/([0-9.]+))?/i, kind: 'ai-agent', id: 'google-extended', name: 'Google-Extended' },
+    { regex: /\bOAI-SearchBot(?:\/([0-9.]+))?/i, kind: 'crawler', id: 'oai-searchbot', name: 'OAI-SearchBot' },
+    { regex: /\bOAI-AdsBot(?:\/([0-9.]+))?/i, kind: 'crawler', id: 'oai-adsbot', name: 'OAI-AdsBot' },
+    { regex: /\bGooglebot-Image\/([0-9.]+)/i, kind: 'crawler', id: 'googlebot-image', name: 'Googlebot Image' },
+    { regex: /\bGooglebot-Video\/([0-9.]+)/i, kind: 'crawler', id: 'googlebot-video', name: 'Googlebot Video' },
+    { regex: /\bGooglebot\/([0-9.]+)/i, kind: 'crawler', id: 'googlebot', name: 'Googlebot' },
     { regex: /\bCCBot\/([0-9.]+)/i, kind: 'crawler', id: 'ccbot', name: 'CCBot' },
-    { regex: /\bGooglebot(?:\/[a-z-]+)?\/([0-9.]+)/i, kind: 'crawler', id: 'googlebot', name: 'Googlebot' },
     { regex: /\bbingbot\/([0-9.]+)/i, kind: 'crawler', id: 'bingbot', name: 'Bingbot' },
     { regex: /\bAhrefsBot\/([0-9.]+)/i, kind: 'crawler', id: 'ahrefsbot', name: 'AhrefsBot' },
     { regex: /\bSemrushBot\/([0-9.]+)/i, kind: 'crawler', id: 'semrushbot', name: 'SemrushBot' },
@@ -34,7 +37,7 @@ const CLIENT_PATTERNS: readonly ClientPattern[] = [
 ];
 
 function genericBot(userAgent: string): ClientInfo | null {
-    const match = /\b([a-z0-9._-]*(?:bot|spider|crawler))[/]?([0-9.]*)/i.exec(userAgent);
+    const match = /\b([a-z0-9._-]*(?:bot|spider|crawler))\b(?:[/ ]?([0-9.]+))?/i.exec(userAgent);
     if (!match?.[1]) return null;
 
     return {
