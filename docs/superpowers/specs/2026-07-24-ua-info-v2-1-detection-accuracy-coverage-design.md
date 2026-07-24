@@ -1,6 +1,6 @@
 # ua-info v2.1 Detection Accuracy & Coverage Design
 
-**Status:** Approved for implementation planning  
+**Status:** Implemented and verified  
 **Date:** 2026-07-24  
 **Repository:** `petechatchawan/ua-info`  
 **Target release:** `ua-info@2.1.0`
@@ -497,3 +497,21 @@ The release is complete only when:
 - public API redesign;
 - browser fingerprinting;
 - analytics or telemetry.
+
+## 17. Implementation and Release Record
+
+The design was implemented and released on 2026-07-24.
+
+- Implementation PR: `#32`
+- Implementation head: `0e5b227dad3ef64d907610b9a4cb44a8c5133aae`
+- Package release commit: `943801452605be799c88f6ce520aeee19ab90c18`
+- Package: `ua-info@2.1.0`
+- npm publication: GitHub Actions OIDC Trusted Publishing with provenance
+- Publication workflow: `30084060242`
+- Final implementation CI: `30083785184`
+- Live registry and consumer verification: `30084326449`
+- Live verification issue: `#35` — passed and closed
+- GitHub release/tag: `v2.1.0`, targeting the exact package release commit
+- Verified runtimes: Node.js 18, 20, and 22
+- Final detector coverage: lines `97.91%`, functions `100%`, branches `86.99%`; all configured thresholds passed
+- Public result model, package entry points, and runtime dependency set remained unchanged

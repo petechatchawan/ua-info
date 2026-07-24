@@ -1,6 +1,11 @@
 # ua-info v2.1 Detection Accuracy & Coverage Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+**Status:** Implemented and verified  
+**Release:** `ua-info@2.1.0`  
+**Package release commit:** `943801452605be799c88f6ce520aeee19ab90c18`  
+**Live verification:** issue `#35`, workflow `30084326449`
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Release `ua-info@2.1.0` with source-backed fixtures, explicit precedence, targeted detector corrections, robustness coverage, and enforced coverage thresholds while preserving the 2.0 public contract.
 
@@ -34,7 +39,7 @@
 
 **Interfaces:** Produces `DeepPartial<T>`, `DetectionFixture`, `RequestFixture`, `PROVENANCE`, and `ALL_DETECTION_FIXTURES`.
 
-- [ ] **Step 1: Write the failing contract test**
+- [x] **Step 1: Write the failing contract test**
 
 ```ts
 // src/v2/__tests__/fixture-contract.test.ts
@@ -59,12 +64,12 @@ it('freezes authoritative sources', () => {
 });
 ```
 
-- [ ] **Step 2: Verify RED**
+- [x] **Step 2: Verify RED**
 
 Run: `npx jest src/v2/__tests__/fixture-contract.test.ts --runInBand`  
 Expected: FAIL because `./fixtures` does not exist.
 
-- [ ] **Step 3: Create distributive fixture types**
+- [x] **Step 3: Create distributive fixture types**
 
 ```ts
 // src/v2/__tests__/fixtures/fixture-types.ts
@@ -97,7 +102,7 @@ export interface RequestFixture extends DetectionFixture {
 }
 ```
 
-- [ ] **Step 4: Create provenance and barrel**
+- [x] **Step 4: Create provenance and barrel**
 
 ```ts
 // src/v2/__tests__/fixtures/provenance.ts
@@ -125,7 +130,7 @@ export { PROVENANCE } from './provenance';
 export type { DeepPartial, DetectionFixture, FixtureSource, RequestFixture } from './fixture-types';
 ```
 
-- [ ] **Step 5: Verify GREEN and commit**
+- [x] **Step 5: Verify GREEN and commit**
 
 ```bash
 npx jest src/v2/__tests__/fixture-contract.test.ts --runInBand
@@ -145,7 +150,7 @@ git commit -m "test: add detection fixture contracts"
 - Modify: `src/v2/__tests__/fixtures/index.ts`
 - Modify: `src/v2/parser/browser.ts`
 
-- [ ] **Step 1: Add fixture runner and browser corpus**
+- [x] **Step 1: Add fixture runner and browser corpus**
 
 ```ts
 // fixture-assertions.ts
@@ -158,7 +163,7 @@ export const assertDetectionFixture = (fixture: DetectionFixture): void => {
 
 `browsers.ts` must include exact fixtures for Chrome, explicit Chromium, Edge, Opera, Samsung Internet, Headless Chrome, Chrome iOS/WebKit, Android WebView, and Safari negative collision. Each fixture carries regression provenance.
 
-- [ ] **Step 2: Write precedence execution**
+- [x] **Step 2: Write precedence execution**
 
 ```ts
 // precedence.test.ts
@@ -170,12 +175,12 @@ describe('browser precedence', () => {
 });
 ```
 
-- [ ] **Step 3: Verify RED**
+- [x] **Step 3: Verify RED**
 
 Run: `npx jest src/v2/__tests__/precedence.test.ts --runInBand`  
 Expected: explicit `Chromium/150.0.0.0` reports `chrome` instead of `chromium`.
 
-- [ ] **Step 4: Split Chromium from Chrome**
+- [x] **Step 4: Split Chromium from Chrome**
 
 ```ts
 // src/v2/parser/browser.ts, after derivative and iOS branches
@@ -202,7 +207,7 @@ if (chrome?.[1]) {
 }
 ```
 
-- [ ] **Step 5: Verify and commit**
+- [x] **Step 5: Verify and commit**
 
 ```bash
 npx jest src/v2/__tests__/precedence.test.ts src/v2/__tests__/parse.test.ts --runInBand
@@ -222,7 +227,7 @@ git commit -m "fix: distinguish Chromium browser identity"
 - Modify: `src/v2/__tests__/precedence.test.ts`
 - Modify: `src/v2/parser/client.ts`
 
-- [ ] **Step 1: Add fixtures**
+- [x] **Step 1: Add fixtures**
 
 `clients.ts` must assert:
 
@@ -241,12 +246,12 @@ RoboticsResearch/1.0    -> client null
 
 Use `PROVENANCE` for provider fixtures and regression provenance for collision fixtures.
 
-- [ ] **Step 2: Verify RED**
+- [x] **Step 2: Verify RED**
 
 Run: `npx jest src/v2/__tests__/precedence.test.ts --runInBand`  
 Expected: missing OAI identities, missing distinct Googlebot products, incorrect Google-Extended claim, and unsafe generic substring matching.
 
-- [ ] **Step 3: Correct explicit patterns**
+- [x] **Step 3: Correct explicit patterns**
 
 Place these before generic crawlers in `CLIENT_PATTERNS`:
 
@@ -260,7 +265,7 @@ Place these before generic crawlers in `CLIENT_PATTERNS`:
 
 Delete the `Google-Extended` entry.
 
-- [ ] **Step 4: Harden generic fallback**
+- [x] **Step 4: Harden generic fallback**
 
 ```ts
 const match = /\b([a-z0-9._-]*(?:bot|spider|crawler))\b(?:[/ ]?([0-9.]+))?/i.exec(userAgent);
@@ -268,7 +273,7 @@ const match = /\b([a-z0-9._-]*(?:bot|spider|crawler))\b(?:[/ ]?([0-9.]+))?/i.exe
 
 Keep the existing returned `ClientInfo` shape.
 
-- [ ] **Step 5: Verify and commit**
+- [x] **Step 5: Verify and commit**
 
 ```bash
 npx jest src/v2/__tests__/precedence.test.ts src/v2/__tests__/parse.test.ts --runInBand
@@ -293,7 +298,7 @@ git commit -m "fix: harden source-backed client detection"
 - Modify: `src/v2/parser/os.ts`
 - Modify: `src/v2/__tests__/adapters.test.ts`
 
-- [ ] **Step 1: Add context fixtures**
+- [x] **Step 1: Add context fixtures**
 
 Cover LINE LIFF, LINE in-app, Facebook, Instagram, TikTok, X, WeChat, Telegram Mini App, Electron, Capacitor, Cordova, standalone Android WebView, context-only with browser null, and headless mode not overwritten.
 
@@ -307,11 +312,11 @@ expect(parse(lineLiffUa)).toMatchObject({
 });
 ```
 
-- [ ] **Step 2: Add OS/device/CPU fixtures**
+- [x] **Step 2: Add OS/device/CPU fixtures**
 
 Cover Windows Phone precedence, iPhone/iPadOS, Android, HarmonyOS, ChromeOS, KaiOS, Tizen, Apple devices, Android mobile/tablet, conservative vendor inference, TV, console, wearable, XR, x86_64, ARM64, and RISC-V 64.
 
-- [ ] **Step 3: Verify and fix iPadOS RED**
+- [x] **Step 3: Verify and fix iPadOS RED**
 
 Run: `npx jest src/v2/__tests__/platform-coverage.test.ts --runInBand`  
 Expected: iPad reports generic iOS.
@@ -323,7 +328,7 @@ const ipadOS = /\biPad\b.*?(?:CPU )?OS[ _/]([0-9_]+)/i.exec(userAgent);
 if (ipadOS?.[1]) return createOS(OSId.IOS, 'iPadOS', ipadOS[1]);
 ```
 
-- [ ] **Step 4: Add Client Hints fixtures**
+- [x] **Step 4: Add Client Hints fixtures**
 
 Assert full-version list over low entropy, Edge over Chrome brand, GREASE ignored, `?0` preserving tablet, unknown platform preserving UA OS, valid brand surviving malformed siblings, frozen headers unchanged, and null-prototype record handling.
 
@@ -334,7 +339,7 @@ expect(parseRequest({
 })).toMatchObject({ browser: { id: 'edge' } });
 ```
 
-- [ ] **Step 5: Add browser-adapter tests**
+- [x] **Step 5: Add browser-adapter tests**
 
 ```ts
 await expect(detectCurrent()).rejects.toThrow('permission denied');
@@ -345,7 +350,7 @@ await expect(detectCurrent()).resolves.toMatchObject({
 
 Use existing navigator cleanup in `adapters.test.ts`.
 
-- [ ] **Step 6: Verify and commit**
+- [x] **Step 6: Verify and commit**
 
 ```bash
 npx jest src/v2/__tests__/context-coverage.test.ts src/v2/__tests__/platform-coverage.test.ts src/v2/__tests__/client-hints-coverage.test.ts src/v2/__tests__/adapters.test.ts --runInBand
@@ -366,7 +371,7 @@ git commit -m "fix: harden context and platform coverage"
 - Modify: `package.json`
 - Modify: `.github/workflows/ci.yml`
 
-- [ ] **Step 1: Add robustness fixtures and tests**
+- [x] **Step 1: Add robustness fixtures and tests**
 
 Cover empty, whitespace, Unicode, control characters, truncated token, duplicated/contradictory tokens, bounded 64 KiB input, determinism, independent returned objects, exact UA preservation, and no input mutation.
 
@@ -378,7 +383,7 @@ expect(first).not.toBe(second);
 expect(first.browser).not.toBe(second.browser);
 ```
 
-- [ ] **Step 2: Configure coverage**
+- [x] **Step 2: Configure coverage**
 
 ```js
 // jest.config.js additions
@@ -392,7 +397,7 @@ coverageThreshold: {
 },
 ```
 
-- [ ] **Step 3: Add scripts**
+- [x] **Step 3: Add scripts**
 
 ```json
 "fixture:check": "jest src/v2/__tests__/fixture-contract.test.ts --runInBand",
@@ -401,12 +406,12 @@ coverageThreshold: {
 "check": "npm run identity:check && npm run lint && npm run detection:check && npm run build && npm run pack:check"
 ```
 
-- [ ] **Step 4: Verify coverage and fill real gaps**
+- [x] **Step 4: Verify coverage and fill real gaps**
 
 Run: `npm run detection:check`  
 Expected: at least 90/90/90/85. Add focused tests for meaningful uncovered branches; do not lower thresholds or exclude production detectors.
 
-- [ ] **Step 5: Add Node 22 CI job**
+- [x] **Step 5: Add Node 22 CI job**
 
 ```yaml
   detection-coverage:
@@ -427,7 +432,7 @@ Expected: at least 90/90/90/85. Add focused tests for meaningful uncovered branc
           if-no-files-found: ignore
 ```
 
-- [ ] **Step 6: Verify and commit**
+- [x] **Step 6: Verify and commit**
 
 ```bash
 npm run detection:check
@@ -444,18 +449,18 @@ git commit -m "ci: enforce detector coverage thresholds"
 - Modify: `apps/playground/src/samples/automation-samples.ts`
 - Modify: `apps/playground/src/samples/samples.test.ts`
 
-- [ ] **Step 1: Write failing sample test**
+- [x] **Step 1: Write failing sample test**
 
 Assert IDs `oai-searchbot`, `googlebot-image`, and `google-extended-control-token` exist.
 
-- [ ] **Step 2: Verify RED**
+- [x] **Step 2: Verify RED**
 
 ```bash
 npm run playground:setup
 npm run test --prefix apps/playground -- samples.test.ts
 ```
 
-- [ ] **Step 3: Add samples**
+- [x] **Step 3: Add samples**
 
 ```ts
 { id: 'oai-searchbot', label: 'OpenAI OAI-SearchBot', category: 'Automation and bots', userAgent: 'OAI-SearchBot/1.0' },
@@ -463,7 +468,7 @@ npm run test --prefix apps/playground -- samples.test.ts
 { id: 'google-extended-control-token', label: 'Google-Extended control token', category: 'Unknown or malformed', userAgent: 'Google-Extended' },
 ```
 
-- [ ] **Step 4: Verify and commit**
+- [x] **Step 4: Verify and commit**
 
 ```bash
 npm run playground:check
@@ -482,7 +487,7 @@ git commit -m "docs: align playground detection samples"
 - Modify: `package.json`
 - Modify: `scripts/verify-package-identity.mjs`
 
-- [ ] **Step 1: Document additions and corrections**
+- [x] **Step 1: Document additions and corrections**
 
 `CHANGELOG.md` records source-backed fixtures, OAI/Google additions, Chromium correction, iPadOS correction, generic bot boundary, Google-Extended removal, coverage gate, and claim-verification warning.
 
@@ -498,12 +503,12 @@ Use provider-documented IP ranges, reverse DNS, signed-agent mechanisms, or anot
 
 Append a v2.1 accuracy/provenance addendum to `docs/v2-design.md`.
 
-- [ ] **Step 2: Cut version and verify RED**
+- [x] **Step 2: Cut version and verify RED**
 
 Change `package.json` version to `2.1.0`, then run `npm run identity:check`.  
 Expected: FAIL because verifier requires `2.0.3`.
 
-- [ ] **Step 3: Update identity verifier**
+- [x] **Step 3: Update identity verifier**
 
 ```js
 version: '2.1.0'
@@ -511,7 +516,7 @@ version: '2.1.0'
 
 Update the final success message to `ua-info@2.1.0`. Do not change repository, homepage, bugs URL, exports, files, or OIDC checks.
 
-- [ ] **Step 4: Run final local gates**
+- [x] **Step 4: Run final local gates**
 
 ```bash
 npm run identity:check
@@ -523,7 +528,7 @@ npm pack --dry-run
 
 Expected tarball contains `dist`, `README.md`, `LICENSE`; excludes source fixtures, coverage, Playground source, and design docs.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add CHANGELOG.md README.md docs/v2-design.md package.json scripts/verify-package-identity.mjs
@@ -534,12 +539,12 @@ git commit -m "release: prepare ua-info 2.1.0"
 
 ### Task 8: PR, Publication, and Live Verification
 
-- [ ] **Step 1: Push implementation branch and open draft PR**
+- [x] **Step 1: Push implementation branch and open draft PR**
 
 Branch: `agent/ua-info-v2-1-detection-accuracy-coverage`  
 Title: `feat: harden detection accuracy for ua-info 2.1`
 
-- [ ] **Step 2: Require successful jobs**
+- [x] **Step 2: Require successful jobs**
 
 ```text
 CI / test (Node.js 18)
@@ -549,7 +554,7 @@ CI / detection-coverage
 CI / playground
 ```
 
-- [ ] **Step 3: Audit final diff**
+- [x] **Step 3: Audit final diff**
 
 ```bash
 git diff --check master...HEAD
@@ -559,11 +564,11 @@ git diff master...HEAD -- package.json src/v2 scripts .github apps/playground RE
 
 Verify no public type expansion, runtime dependency, static npm token, fixture tarball leak, unrelated rewrite, or version other than `2.1.0`.
 
-- [ ] **Step 4: Merge at verified head SHA and verify npm OIDC publication**
+- [x] **Step 4: Merge at verified head SHA and verify npm OIDC publication**
 
 Record PR, head SHA, CI run, merge SHA, release-report issue, and registry verification.
 
-- [ ] **Step 5: Verify live Node.js 18/20/22 consumers**
+- [x] **Step 5: Verify live Node.js 18/20/22 consumers**
 
 ```js
 console.log(parse('Chromium/150.0.0.0').browser?.id); // chromium
@@ -573,7 +578,7 @@ console.log(parseRequest({ userAgent: '', headers: { 'sec-ch-ua': '"Microsoft Ed
 
 Also compile a TypeScript Node16 consumer with `skipLibCheck: false`.
 
-- [ ] **Step 6: Create GitHub release `v2.1.0`**
+- [x] **Step 6: Create GitHub release `v2.1.0`**
 
 The tag must resolve to the exact package release commit. Change design status to `Implemented and verified` only after publication, live consumers, and tag verification pass.
 
@@ -581,19 +586,35 @@ The tag must resolve to the exact package release commit. Change design status t
 
 ## Final Verification Checklist
 
-- [ ] Nullable nested fixture partials compile.
-- [ ] Fixture IDs and provenance validate.
-- [ ] Chromium is distinct from Chrome.
-- [ ] Google-Extended is not an HTTP User-Agent client.
-- [ ] OAI-SearchBot, OAI-AdsBot, Googlebot Image, and Googlebot Video are source-backed.
-- [ ] Perplexity-User is not forced into an inaccurate kind.
-- [ ] Browser/context identity and mode remain separate.
-- [ ] iPadOS precedence is reachable.
-- [ ] Client Hints and malformed inputs are deterministic.
-- [ ] Coverage meets 90/90/90/85.
-- [ ] Node 18/20/22, detection coverage, and Playground jobs pass.
-- [ ] Tarball excludes fixtures and Playground source.
-- [ ] Public contracts remain compatible.
-- [ ] npm OIDC publication and provenance pass.
-- [ ] Clean Node 18/20/22 consumers pass.
-- [ ] `v2.1.0` resolves to the exact release commit.
+- [x] Nullable nested fixture partials compile.
+- [x] Fixture IDs and provenance validate.
+- [x] Chromium is distinct from Chrome.
+- [x] Google-Extended is not an HTTP User-Agent client.
+- [x] OAI-SearchBot, OAI-AdsBot, Googlebot Image, and Googlebot Video are source-backed.
+- [x] Perplexity-User is not forced into an inaccurate kind.
+- [x] Browser/context identity and mode remain separate.
+- [x] iPadOS precedence is reachable.
+- [x] Client Hints and malformed inputs are deterministic.
+- [x] Coverage meets 90/90/90/85.
+- [x] Node 18/20/22, detection coverage, and Playground jobs pass.
+- [x] Tarball excludes fixtures and Playground source.
+- [x] Public contracts remain compatible.
+- [x] npm OIDC publication and provenance pass.
+- [x] Clean Node 18/20/22 consumers pass.
+- [x] `v2.1.0` resolves to the exact release commit.
+
+## Completion Record
+
+All plan tasks and release gates completed on 2026-07-24.
+
+- Approved design and implementation plan: PR `#31`, merge commit `64bb76cf0b604ed16bfed67ef91d74d145a93df0`
+- Implementation and release PR: `#32`, squash merge commit `943801452605be799c88f6ce520aeee19ab90c18`
+- One-time post-publication verifier PR: `#33`, merge commit `bd631e2ee164332757549479bca72e577eaa623d`
+- TDD evidence recorded in PR `#32`, including fixture, browser, client, platform, coverage, Playground, and release-guard RED/GREEN checkpoints
+- Final implementation CI run `30083785184`: Node.js 18/20/22, detector coverage, builds, packed consumers, and Playground production smoke passed
+- npm publication run `30084060242`: OIDC publish step passed
+- Live verification run `30084326449`: clean registry installs and consumers passed on Node.js 18/20/22
+- Live verification issue `#35`: closed as completed
+- Release report issue `#34`: corrected for registry propagation latency and closed as completed
+- GitHub release/tag `v2.1.0`: verified against package release commit `943801452605be799c88f6ce520aeee19ab90c18`
+- Temporary post-release workflow removed after successful verification
