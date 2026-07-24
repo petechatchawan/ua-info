@@ -103,3 +103,47 @@ The package does not export `UAInfo`, `ua-info/v2`, `ua-info/v2/server`, or `ua-
 User-Agent strings and Client Hints are untrusted client claims, not proof of identity.
 
 `ua-parser-js` may be used as a feature and coverage benchmark only. Its v2 regex mappings, fixtures, device data, extension data, and source implementation must not be copied. New detector data must have compatible licensing and documented provenance.
+
+## Version 2.1 accuracy and provenance addendum
+
+Version 2.1 preserves every public interface and entry-point boundary above. It adds a test-only fixture corpus, explicit precedence contracts, and enforced production coverage without adding a runtime dependency.
+
+### Fixture-first detector changes
+
+Every production detector correction begins with a failing fixture. Fixtures have globally unique IDs and record one of three source kinds:
+
+- `official-doc` for provider or standards documentation;
+- `captured` for a documented real User-Agent capture;
+- `regression` for a synthetic collision that protects an established invariant.
+
+Fixture and provenance modules remain under `src/v2/__tests__` and are excluded from emitted builds and npm tarballs.
+
+### Precedence corrections
+
+The v2.1 contract makes these behaviors executable:
+
+- Explicit `Chromium/<version>` identifies Chromium; `Chrome/<version>` identifies Chrome.
+- Product-specific Chromium derivatives continue to win over shared Chrome tokens.
+- Headless, WebView, in-app, mini-app, and embedded modes do not replace browser product identity.
+- Googlebot Image and Googlebot Video remain distinct crawler identities.
+- `OAI-SearchBot` and `OAI-AdsBot` are crawler claims; `GPTBot` remains an AI-agent claim.
+- `Google-Extended` is a robots control token and is not reported as an HTTP User-Agent client.
+- `Perplexity-User` is not forced into an inaccurate autonomous crawler or AI-agent kind.
+- iPad User-Agent strings reach the iPadOS-specific branch.
+
+### Coverage gate
+
+CI enforces these minimums across production `src/v2/**` code:
+
+```text
+statements >= 90%
+lines      >= 90%
+functions  >= 90%
+branches   >= 85%
+```
+
+Thresholds must be met through meaningful behavior coverage. Production detector files may not be excluded and thresholds may not be lowered to make a release pass.
+
+### Identity verification boundary
+
+A detected browser, client, operating system, device, CPU, or context is a parsed claim only. Applications that require origin verification must use provider-documented server-side mechanisms such as IP-range validation, reverse DNS, signed-agent protocols, or equivalent controls.
