@@ -273,8 +273,8 @@ if (details.client?.kind === 'ai-agent') {
 
 Recognized clients include:
 
-- AI agents such as GPTBot, ClaudeBot, PerplexityBot, and Google-Extended.
-- Crawlers such as Googlebot, Bingbot, AhrefsBot, SemrushBot, Applebot, and CCBot.
+- AI agents such as GPTBot, ClaudeBot, and PerplexityBot.
+- Crawlers such as OAI-SearchBot, OAI-AdsBot, Googlebot, Googlebot Image, Googlebot Video, Bingbot, AhrefsBot, SemrushBot, Applebot, and CCBot.
 - Automation tools such as Playwright, Puppeteer, and Selenium.
 - HTTP clients such as curl, Wget, Postman, and HTTPie.
 - Libraries such as Axios, Python Requests, and OkHttp.
@@ -282,6 +282,14 @@ Recognized clients include:
 - Generic `bot`, `spider`, or `crawler` tokens as a fallback.
 
 `client` contains one selected non-browser actor. Ordinary browsers and in-app hosts return `client: null`.
+
+`Google-Extended` is a robots control token rather than a distinct HTTP User-Agent crawler claim, so parsing `Google-Extended` returns `client: null`. User-triggered fetchers such as `Perplexity-User` are not forced into an inaccurate autonomous-client kind.
+
+### Claim detection is not identity verification
+
+`ua-info` parses User-Agent and Client Hints claims. These values can be absent, reduced, malformed, or spoofed. A matching client ID does not prove request origin.
+
+Use provider-documented IP ranges, reverse DNS, signed-agent mechanisms, or another server-side verification process when origin verification is required.
 
 ## Server usage
 
