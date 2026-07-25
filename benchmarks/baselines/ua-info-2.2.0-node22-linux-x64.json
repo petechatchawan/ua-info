@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "policy": "report-only",
-  "generatedAt": "2026-07-25T17:53:34.188Z",
+  "generatedAt": "2026-07-25T18:22:00.588Z",
   "package": {
     "name": "ua-info",
     "version": "2.2.0"
@@ -12,12 +12,12 @@
     "node": "v22.23.1",
     "npm": "10.9.8",
     "esbuild": "0.25.8",
-    "commit": "ed61f8375f213d3bf7ba26da3ca8314f3e0c0ad0"
+    "commit": "446ea52515049d36a54aba7c0acae93912242ce6"
   },
   "sizes": {
     "package": {
-      "tarballBytes": 22960,
-      "unpackedBytes": 120620,
+      "tarballBytes": 23022,
+      "unpackedBytes": 120907,
       "fileCount": 56
     },
     "distributions": [
@@ -69,37 +69,37 @@
         "id": "root-esm",
         "kind": "import",
         "sampleCount": 15,
-        "medianMilliseconds": 6.377762000000001,
-        "p95Milliseconds": 6.752196000000001,
-        "minimumMilliseconds": 6.068180000000002,
-        "maximumMilliseconds": 6.752196000000001
+        "medianMilliseconds": 6.3189530000000005,
+        "p95Milliseconds": 6.575310999999999,
+        "minimumMilliseconds": 5.903988999999999,
+        "maximumMilliseconds": 6.575310999999999
       },
       {
         "id": "root-cjs",
         "kind": "require",
         "sampleCount": 15,
-        "medianMilliseconds": 6.124435999999999,
-        "p95Milliseconds": 6.293654,
-        "minimumMilliseconds": 5.714354,
-        "maximumMilliseconds": 6.293654
+        "medianMilliseconds": 5.859715999999999,
+        "p95Milliseconds": 6.226400999999999,
+        "minimumMilliseconds": 5.7279610000000005,
+        "maximumMilliseconds": 6.226400999999999
       },
       {
         "id": "server-esm",
         "kind": "import",
         "sampleCount": 15,
-        "medianMilliseconds": 6.084050000000001,
-        "p95Milliseconds": 6.310545999999999,
-        "minimumMilliseconds": 5.853717,
-        "maximumMilliseconds": 6.310545999999999
+        "medianMilliseconds": 6.122407000000003,
+        "p95Milliseconds": 6.5602920000000005,
+        "minimumMilliseconds": 5.810575,
+        "maximumMilliseconds": 6.5602920000000005
       },
       {
         "id": "browser-esm",
         "kind": "import",
         "sampleCount": 15,
-        "medianMilliseconds": 6.1291350000000016,
-        "p95Milliseconds": 6.490263000000002,
-        "minimumMilliseconds": 6.004710999999997,
-        "maximumMilliseconds": 6.490263000000002
+        "medianMilliseconds": 6.248531,
+        "p95Milliseconds": 6.5652919999999995,
+        "minimumMilliseconds": 5.922833999999998,
+        "maximumMilliseconds": 6.5652919999999995
       }
     ],
     "parseThroughput": [
@@ -107,58 +107,58 @@
         "id": "desktop-chromium",
         "iterations": 20000,
         "sampleCount": 15,
-        "medianOperationsPerSecond": 142599.2144907999,
-        "p95NanosecondsPerOperation": 7050.081750000027,
+        "medianOperationsPerSecond": 143452.89247295042,
+        "p95NanosecondsPerOperation": 7123.64749999997,
         "checksum": 45600000
       },
       {
         "id": "mobile-safari",
         "iterations": 20000,
         "sampleCount": 15,
-        "medianOperationsPerSecond": 113262.87095338923,
-        "p95NanosecondsPerOperation": 8869.060399999944,
+        "medianOperationsPerSecond": 112837.44248745879,
+        "p95NanosecondsPerOperation": 8906.416750000062,
         "checksum": 49800000
       },
       {
         "id": "line-liff",
         "iterations": 20000,
         "sampleCount": 15,
-        "medianOperationsPerSecond": 88938.85275995088,
-        "p95NanosecondsPerOperation": 11570.063250000021,
+        "medianOperationsPerSecond": 88479.27663378077,
+        "p95NanosecondsPerOperation": 11542.134199999964,
         "checksum": 66000000
       },
       {
         "id": "crawler",
         "iterations": 20000,
         "sampleCount": 15,
-        "medianOperationsPerSecond": 232216.49237057843,
-        "p95NanosecondsPerOperation": 4329.28350000002,
+        "medianOperationsPerSecond": 235190.80800942332,
+        "p95NanosecondsPerOperation": 4572.687799999949,
         "checksum": 18750000
       },
       {
         "id": "malformed",
         "iterations": 20000,
         "sampleCount": 15,
-        "medianOperationsPerSecond": 257544.0909689102,
-        "p95NanosecondsPerOperation": 3978.6198499999955,
+        "medianOperationsPerSecond": 267453.74380814185,
+        "p95NanosecondsPerOperation": 4100.685399999929,
         "checksum": 7800000
       },
       {
         "id": "mixed-corpus",
         "iterations": 24000,
         "sampleCount": 15,
-        "medianOperationsPerSecond": 114892.96023689254,
-        "p95NanosecondsPerOperation": 8766.441708333332,
+        "medianOperationsPerSecond": 118889.69213737239,
+        "p95NanosecondsPerOperation": 8482.090416666628,
         "checksum": 44640000
       }
     ]
   },
   "baselineSource": {
-    "runId": "30168419459",
-    "commit": "7383b39d186a9184820aab937d752ebab302d025",
+    "runId": "30169359345",
+    "commit": "05fd18c3e45931e34d36a1a6f38fd8b40a7080a7",
     "runner": "ubuntu-latest / Node.js 22",
-    "jobId": "89705474319",
-    "artifactId": "8622259216",
+    "jobId": "89707930617",
+    "artifactId": "8622504524",
     "execution": "attempt 2"
   }
 }
