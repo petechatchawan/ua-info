@@ -42,6 +42,16 @@ describe('performance gate policy', () => {
     expect(() => validateGatePolicy(policy(overrides))).toThrow('PERF_GATE_POLICY_INVALID');
   });
 
+  test('rejects unknown nested fields', () => {
+    const blocking = policy();
+    blocking.blocking.unexpected = [];
+    expect(() => validateGatePolicy(blocking)).toThrow('PERF_GATE_POLICY_INVALID');
+
+    const advisory = policy();
+    advisory.advisory.unexpected = 1;
+    expect(() => validateGatePolicy(advisory)).toThrow('PERF_GATE_POLICY_INVALID');
+  });
+
   test('rejects duplicate and unsupported metric names', () => {
     const duplicate = policy();
     duplicate.blocking.package = ['unpackedBytes', 'unpackedBytes'];
@@ -52,12 +62,20 @@ describe('performance gate policy', () => {
     expect(() => validateGatePolicy(unsupported)).toThrow('PERF_GATE_POLICY_INVALID');
   });
 
-  test.each([0, -1, 101, Number.NaN, Number.POSITIVE_INFINITY])(
-    'rejects invalid warning threshold %p',
-    (threshold) => {
-      const value = policy();
-      value.advisory.coldImportSlowdownPercent = threshold;
-      expect(() => validateGatePolicy(value)).toThrow('PERF_GATE_POLICY_INVALID');
-    },
-  );
+  test.each([
+    ['coldImportSlowdownPercent', 0],
+    ['coldImportSlowdownPercent', -1],
+    ['coldImportSlowdownPercent', 101],
+    ['coldImportSlowdownPercent', Number.NaN],
+    ['coldImportSlowdownPercent', Number.POSITIVE_INFINITY],
+    ['parseThroughputDropPercent', 0],
+    ['parseThroughputDropPercent', -1],
+    ['parseThroughputDropPercent', 101],
+    ['parseThroughputDropPercent', Number.NaN],
+    ['parseThroughputDropPercent', Number.POSITIVE_INFINITY],
+  ])('rejects invalid %s threshold %p', (field, threshold) => {
+    const value = policy();
+    value.advisory[field] = threshold;
+    expect(() => validateGatePolicy(value)).toThrow('PERF_GATE_POLICY_INVALID');
+  });
 });
