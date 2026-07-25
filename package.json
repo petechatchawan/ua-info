@@ -50,7 +50,7 @@
     "build:esm": "tsc --project tsconfig.build.json",
     "build:cjs": "tsc --project tsconfig.build.cjs.json",
     "build": "npm run clean && npm run build:esm && npm run build:cjs && node scripts/finalize-build.mjs",
-    "test": "jest --verbose",
+    "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --verbose",
     "fixture:check": "jest src/v2/__tests__/fixture-contract.test.ts --runInBand",
     "test:coverage": "jest --coverage --runInBand",
     "detection:check": "npm run fixture:check && npm run test:coverage",
