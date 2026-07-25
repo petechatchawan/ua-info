@@ -1,6 +1,11 @@
 # ua-info v2.2.0 Release Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+**Status:** Implemented and verified  
+**Pull request:** `#38`  
+**Verified implementation head:** `60d4f45e2b449be35b54098b88422319b7b511cd`  
+**GREEN CI:** run `30162700786` / CI `#213`
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Prepare one reviewed and fully verified package release commit for `ua-info@2.2.0`, publishing the nine typed predicates already merged through PR #37.
 
@@ -34,7 +39,7 @@
 - Consumes: current package identity `ua-info@2.1.0`.
 - Produces: manifest identity `ua-info@2.2.0`, intentionally inconsistent with active guards until Task 2.
 
-- [ ] **Step 1: Change only the package manifest version**
+- [x] **Step 1: Change only the package manifest version**
 
 Replace:
 
@@ -50,14 +55,14 @@ with:
 
 Do not change scripts, exports, engines, dependencies, `files`, or `publishConfig`.
 
-- [ ] **Step 2: Commit the deliberate RED state**
+- [x] **Step 2: Commit the deliberate RED state**
 
 ```bash
 git add package.json
 git commit -m "chore: begin ua-info 2.2.0 release"
 ```
 
-- [ ] **Step 3: Open a draft release PR**
+- [x] **Step 3: Open a draft release PR**
 
 Title:
 
@@ -65,18 +70,18 @@ Title:
 release: publish ua-info 2.2.0
 ```
 
-The PR body must state that the current head is intentionally RED because the package guards still require `2.1.0`.
+The PR body states that the initial head was intentionally RED because package guards still required `2.1.0`.
 
-- [ ] **Step 4: Verify RED in CI**
+- [x] **Step 4: Verify RED in CI**
 
-Expected failures:
+Observed result:
 
 ```text
-scripts/verify-package-identity.mjs -> expected 2.1.0 but package.json is 2.2.0
-scripts/verify-package.mjs          -> expected 2.1.0 but package.json is 2.2.0
+RED head: 35caf496e866a6674bd221069058136e2dccef2b
+CI run: 30162614627 / #209
 ```
 
-The failure must be limited to deliberate release-version guard mismatches. Fix unrelated failures before proceeding.
+Detector coverage and unit/build gates passed. Package verification failed at the intentional active-version mismatch before the guards were synchronized.
 
 ---
 
@@ -91,31 +96,25 @@ The failure must be limited to deliberate release-version guard mismatches. Fix 
 - Consumes: manifest identity `ua-info@2.2.0` from Task 1.
 - Produces: consistent source, tarball, and clean-consumer expectations for `2.2.0`.
 
-- [ ] **Step 1: Update the package identity verifier**
+- [x] **Step 1: Update the package identity verifier**
 
-In `scripts/verify-package-identity.mjs`, change:
-
-```js
-version: '2.1.0',
-```
-
-to:
+In `scripts/verify-package-identity.mjs`, the active version is:
 
 ```js
 version: '2.2.0',
 ```
 
-and change the success output to:
+and the success output is:
 
 ```js
 console.log('Package identity verified: ua-info@2.2.0, canonical metadata, and OIDC-only release workflow.');
 ```
 
-Do not weaken any canonical metadata, OIDC, stale-reference, `files`, or workflow checks.
+Canonical metadata, OIDC, stale-reference, `files`, and workflow checks remain unchanged.
 
-- [ ] **Step 2: Update the package dry-run verifier**
+- [x] **Step 2: Update the package dry-run verifier**
 
-In `scripts/verify-package.mjs`, replace all active `2.1.0` expectations with `2.2.0`:
+` scripts/verify-package.mjs` requires `2.2.0` for the source manifest, npm dry-run report, and success output:
 
 ```js
 if (packageJson.version !== '2.2.0') throw new Error(`Expected package version 2.2.0, received ${packageJson.version}`);
@@ -129,11 +128,11 @@ if (report.name !== 'ua-info' || report.version !== '2.2.0') throw new Error(`Un
 console.log(`Package contents verified: ${report.files.length} files, ua-info@2.2.0, 2.x exports only, README/LICENSE present, no tests, playground files, or v1 artifacts.`);
 ```
 
-Do not change tarball exclusion or export-map checks.
+Tarball exclusion and export-map checks remain unchanged.
 
-- [ ] **Step 3: Update and strengthen the packed consumer verifier**
+- [x] **Step 3: Update and strengthen the packed consumer verifier**
 
-In `scripts/verify-consumers.mjs`, require tarball version `2.2.0`:
+`scripts/verify-consumers.mjs` requires tarball version `2.2.0`:
 
 ```js
 if (packReport.name !== 'ua-info' || packReport.version !== '2.2.0') {
@@ -141,7 +140,7 @@ if (packReport.name !== 'ua-info' || packReport.version !== '2.2.0') {
 }
 ```
 
-Extend the generated ESM consumer imports and assertions:
+The generated ESM consumer imports all nine predicates:
 
 ```js
 const {
@@ -161,7 +160,7 @@ const {
 } = userAgentInfo;
 ```
 
-Add runtime assertions proving all nine public exports are functions and representative predicate behavior works:
+Runtime checks prove all nine exports are functions and representative behavior works:
 
 ```js
 for (const helper of [
@@ -184,7 +183,7 @@ assert.equal(isOperatingSystem(result, 'windows'), true);
 assert.equal(isDeviceType(result, 'desktop'), true);
 ```
 
-For a crawler result, assert:
+Crawler checks cover nullable mismatch behavior:
 
 ```js
 const crawler = parse('OAI-SearchBot/1.0');
@@ -193,15 +192,11 @@ assert.equal(isContextKind(crawler, 'mini-app'), false);
 assert.equal(isCPUArchitecture(crawler, 'arm64'), false);
 ```
 
-Extend the CommonJS consumer to assert `isBrowser` is exported and works.
-
-Extend the TypeScript consumer import and narrowing contract:
+The CommonJS consumer verifies `isBrowser`. The TypeScript Node16 consumer verifies literal narrowing:
 
 ```ts
 import { BrowserId, isBrowser, isClientKind, parse } from 'ua-info';
-```
 
-```ts
 if (isBrowser(result, BrowserId.Chrome)) {
   const browserId: typeof BrowserId.Chrome = result.browser.id;
   void browserId;
@@ -214,14 +209,11 @@ if (isClientKind(crawler, 'crawler')) {
 }
 ```
 
-Retain ESM, CommonJS, server, browser, TypeScript Node16, and removed `/v2` checks.
+Existing ESM, CommonJS, server, browser, TypeScript Node16, and removed `/v2` checks remain active.
 
-- [ ] **Step 4: Commit synchronized guards**
+- [x] **Step 4: Commit synchronized guards**
 
-```bash
-git add scripts/verify-package-identity.mjs scripts/verify-package.mjs scripts/verify-consumers.mjs
-git commit -m "test: verify ua-info 2.2.0 package consumers"
-```
+The three guard files were updated on the release branch and validated by CI #213.
 
 ---
 
@@ -234,9 +226,9 @@ git commit -m "test: verify ua-info 2.2.0 package consumers"
 - Consumes: the approved typed predicate contract from PR #37.
 - Produces: user-facing release notes for `2.2.0`.
 
-- [ ] **Step 1: Insert the new changelog section above 2.1.0**
+- [x] **Step 1: Insert the new changelog section above 2.1.0**
 
-Insert exactly:
+The changelog now contains:
 
 ```markdown
 ## 2.2.0 — 2026-07-25
@@ -258,12 +250,9 @@ Insert exactly:
 Predicate helpers query parsed User-Agent and Client Hints claims. A match does not authenticate a browser, client, device, context, or request origin.
 ```
 
-- [ ] **Step 2: Commit release notes**
+- [x] **Step 2: Commit release notes**
 
-```bash
-git add CHANGELOG.md
-git commit -m "docs: add ua-info 2.2.0 changelog"
-```
+The changelog was committed on the release branch before GREEN verification.
 
 ---
 
@@ -277,37 +266,21 @@ git commit -m "docs: add ua-info 2.2.0 changelog"
 - Consumes: completed Tasks 1-3.
 - Produces: exact-head CI evidence and a review-ready release PR.
 
-- [ ] **Step 1: Run the repository release gate**
+- [x] **Step 1: Run the repository release gate**
 
-```bash
-npm run check
-```
+CI #213 passed package identity, lint, fixtures, production coverage, Jest, ESM/CommonJS build, npm tarball checks, and strengthened packed consumers on Node.js 18, 20, and 22.
 
-Expected: package identity, lint, fixtures, coverage, build, tarball, and packed consumers all pass.
+- [x] **Step 2: Run the complete Playground gate**
 
-- [ ] **Step 2: Run the complete Playground gate**
+CI #213 passed package setup, public-package boundaries, TypeScript, tests, production build, Chromium installation, and production smoke.
 
-```bash
-npm run playground:check
-```
+- [x] **Step 3: Audit active version references**
 
-Expected: setup, public-package boundaries, TypeScript, tests, production build, Chromium smoke, and network-isolation checks pass.
+Active release files require `2.2.0`. Remaining `2.1.0` references are historical changelog, specification, or implementation-plan records.
 
-- [ ] **Step 3: Audit active version references**
+- [x] **Step 4: Audit scope**
 
-```bash
-git grep -n "2\.1\.0" -- package.json scripts CHANGELOG.md
-```
-
-Expected: only the historical `CHANGELOG.md` section remains. No active package or verifier file may require `2.1.0`.
-
-- [ ] **Step 4: Audit scope**
-
-```bash
-git diff --name-only master...HEAD
-```
-
-Expected exactly:
+The branch is ahead of `master`, behind by zero, with exactly:
 
 ```text
 CHANGELOG.md
@@ -319,10 +292,19 @@ scripts/verify-package-identity.mjs
 scripts/verify-package.mjs
 ```
 
-- [ ] **Step 5: Record exact-head evidence**
+- [x] **Step 5: Record exact-head evidence**
 
-Update the design and plan status to `Implemented and verified` only after CI completes successfully. Record the PR number, exact head SHA, CI run ID, Node.js matrix result, detector coverage result, packed-consumer result, and Playground production-smoke result.
+```text
+PR: #38
+Base: 3423325303d4bcfee690dcb5be54e40610e3c4b1
+RED head: 35caf496e866a6674bd221069058136e2dccef2b
+RED CI: 30162614627 / #209
+Verified implementation head: 60d4f45e2b449be35b54098b88422319b7b511cd
+GREEN CI: 30162700786 / #213
+```
 
-- [ ] **Step 6: Mark the PR ready for review**
+All required Node.js, coverage, package, packed-consumer, and Playground gates passed.
 
-The PR body must summarize release contents, compatibility invariants, RED/GREEN evidence, exact-head CI, and the post-merge publication sequence. Do not publish npm or create tag `v2.2.0` from the release branch.
+- [x] **Step 6: Mark the PR ready for review**
+
+The PR is made ready only after the documentation closure commits receive a final exact-head CI pass. npm publication and tag `v2.2.0` remain post-merge work.
