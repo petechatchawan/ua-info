@@ -62,6 +62,7 @@
     "performance:runtime": "npm run build && node scripts/performance/collect-runtime.mjs --output artifacts/performance/runtime.json",
     "performance:report": "node scripts/performance/report.mjs",
     "performance:validate": "node scripts/performance/validate-report.mjs artifacts/performance/performance-report.json",
+    "performance:gate": "node scripts/performance/evaluate-gate.mjs --report artifacts/performance/performance-report.json --policy benchmarks/performance-gate-policy.json --output artifacts/performance/performance-gate.json --summary artifacts/performance/performance-gate-summary.md",
     "playground:install": "node scripts/install-playground-package.mjs",
     "playground:boundaries": "node scripts/verify-playground-boundaries.mjs",
     "playground:setup": "npm ci --prefix apps/playground && npm run build && npm run playground:install",
