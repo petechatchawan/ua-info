@@ -2,6 +2,24 @@
 
 All notable changes to `ua-info` are documented in this file.
 
+## 2.2.0 — 2026-07-25
+
+### Added
+
+- Nine pure, tree-shakeable typed predicate helpers exported from the package root: `isBrowser`, `isBrowserFamily`, `isBrowserMode`, `isEngine`, `isOperatingSystem`, `isDeviceType`, `isCPUArchitecture`, `isClientKind`, and `isContextKind`.
+- Compile-time narrowing for nullable result dimensions and matched literal values.
+- Support for custom or future string IDs in browser, browser-family, engine, operating-system, and CPU-architecture predicates.
+- Closed-union input validation for browser mode, device type, client kind, and context kind.
+
+### Compatibility
+
+- No `UAResult`, detector behavior, package entry-point, or runtime dependency changes.
+- ESM, CommonJS, TypeScript Node16/NodeNext, server, browser, packed-consumer, and Playground contracts remain supported on Node.js 18, 20, and 22.
+
+### Security note
+
+Predicate helpers query parsed User-Agent and Client Hints claims. A match does not authenticate a browser, client, device, context, or request origin.
+
 ## 2.1.0 — 2026-07-24
 
 ### Added
