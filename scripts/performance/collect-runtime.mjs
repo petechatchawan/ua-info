@@ -31,6 +31,24 @@ function parseWorkerResult(stdout, scenarioId) {
   return parsed.milliseconds;
 }
 
+export function summarizeColdImportSamples(scenario, samples) {
+  if (samples.length !== 15) {
+    throw new Error(`Cold import scenario ${scenario.id} requires 15 samples, received ${samples.length}.`);
+  }
+  for (const [index, sample] of samples.entries()) {
+    assertFiniteNonNegative(sample, `${scenario.id}.samples[${index}]`);
+  }
+  return {
+    id: scenario.id,
+    kind: scenario.kind,
+    sampleCount: samples.length,
+    medianMilliseconds: median(samples),
+    p95Milliseconds: percentile(samples, 95),
+    minimumMilliseconds: Math.min(...samples),
+    maximumMilliseconds: Math.max(...samples),
+  };
+}
+
 async function measureColdImport(rootDirectory, scenario) {
   const target = path.join(rootDirectory, scenario.target);
   const samples = [];
@@ -45,15 +63,7 @@ async function measureColdImport(rootDirectory, scenario) {
     const milliseconds = parseWorkerResult(stdout, scenario.id);
     if (index >= 3) samples.push(milliseconds);
   }
-  return {
-    id: scenario.id,
-    kind: scenario.kind,
-    sampleCount: samples.length,
-    medianMilliseconds: median(samples),
-    p95Milliseconds: percentile(samples, 95),
-    minimumMilliseconds: Math.min(...samples),
-    maximumMilliseconds: Math.max(...samples),
-  };
+  return summarizeColdImportSamples(scenario, samples);
 }
 
 function resultChecksum(result) {
@@ -86,15 +96,21 @@ function measureThroughputSample(parse, scenario) {
   return { operationsPerSecond, nanosecondsPerOperation, checksum };
 }
 
-function measureThroughput(parse, scenario) {
-  for (let index = 0; index < 5; index += 1) {
-    measureThroughputSample(parse, scenario);
+export function summarizeThroughputSamples(scenario, samples) {
+  if (samples.length !== 15) {
+    throw new Error(`Throughput scenario ${scenario.id} requires 15 samples, received ${samples.length}.`);
   }
-  const samples = [];
   let checksum = 0;
-  for (let index = 0; index < 15; index += 1) {
-    const sample = measureThroughputSample(parse, scenario);
-    samples.push(sample);
+  for (const [index, sample] of samples.entries()) {
+    assertFiniteNonNegative(
+      sample.operationsPerSecond,
+      `${scenario.id}.samples[${index}].operationsPerSecond`,
+    );
+    assertFiniteNonNegative(
+      sample.nanosecondsPerOperation,
+      `${scenario.id}.samples[${index}].nanosecondsPerOperation`,
+    );
+    assertFiniteNonNegative(sample.checksum, `${scenario.id}.samples[${index}].checksum`);
     checksum += sample.checksum;
   }
   if (!Number.isFinite(checksum) || checksum <= 0) {
@@ -111,6 +127,17 @@ function measureThroughput(parse, scenario) {
     ),
     checksum,
   };
+}
+
+function measureThroughput(parse, scenario) {
+  for (let index = 0; index < 5; index += 1) {
+    measureThroughputSample(parse, scenario);
+  }
+  const samples = [];
+  for (let index = 0; index < 15; index += 1) {
+    samples.push(measureThroughputSample(parse, scenario));
+  }
+  return summarizeThroughputSamples(scenario, samples);
 }
 
 export async function collectRuntime({ rootDirectory = defaultRootDirectory } = {}) {
