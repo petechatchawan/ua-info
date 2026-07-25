@@ -1,6 +1,6 @@
 # ua-info v2.2.0 Release Design
 
-**Status:** Approved for implementation  
+**Status:** Implemented and verified  
 **Date:** 2026-07-25  
 **Repository:** `petechatchawan/ua-info`  
 **Target release:** `ua-info@2.2.0`
@@ -59,7 +59,7 @@ No root lockfile exists. The private Playground lockfile is not changed because 
 
 ## 5. Version and Guard Synchronization
 
-Every active release guard must require `2.2.0`:
+Every active release guard requires `2.2.0`:
 
 - `package.json` manifest version;
 - package identity verifier expected version and success output;
@@ -70,7 +70,7 @@ Historical design and implementation documents retain their recorded `2.1.0` ref
 
 ## 6. Changelog
 
-Add a new top section dated `2026-07-25`.
+The changelog has a top section dated `2026-07-25`.
 
 ### Added
 
@@ -90,7 +90,7 @@ Predicates query parsed User-Agent and Client Hints claims. They do not authenti
 
 ## 7. Verification Gates
 
-Before the release PR is ready for review, the exact head must pass:
+Before the release PR is ready for review, the exact implementation head must pass:
 
 1. package identity verification;
 2. lint;
@@ -125,6 +125,20 @@ After the release PR is squash-merged:
 - Automatic npm publication before release PR approval and merge.
 - Rewriting historical version references in archived plans and specifications.
 
-## 10. Acceptance Criteria
+## 10. Verification Record
 
-The release PR is complete when all release surfaces require `2.2.0`, the changelog accurately describes the typed predicate API, final CI is green on the exact head, and the diff contains only the seven files listed in this design.
+- Pull request: `#38 release: publish ua-info 2.2.0`.
+- Base commit: `3423325303d4bcfee690dcb5be54e40610e3c4b1`.
+- RED head: `35caf496e866a6674bd221069058136e2dccef2b`.
+- RED CI: run `30162614627` / CI `#209`; detector coverage and unit/build gates passed, while package verification failed at the intentional `2.1.0` guard mismatch.
+- Verified implementation head: `60d4f45e2b449be35b54098b88422319b7b511cd`.
+- GREEN CI: run `30162700786` / CI `#213`.
+- Node.js 18, 20, and 22 passed lint, Jest, ESM/CommonJS build, package checks, and packed-consumer verification.
+- Packed consumers verified all nine predicate exports, representative runtime behavior, CommonJS access, and TypeScript Node16 narrowing.
+- Detector fixture and production coverage gates passed.
+- Playground package preparation, boundary validation, type-check, tests, production build, Chromium installation, and production smoke passed.
+- Scope audit: seven expected release files only; branch was ahead of `master` and behind by zero.
+
+## 11. Acceptance Criteria
+
+The release PR is complete when all release surfaces require `2.2.0`, the changelog accurately describes the typed predicate API, final CI is green on the closure head, and the diff contains only the seven files listed in this design.
