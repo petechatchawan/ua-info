@@ -52,7 +52,7 @@
     "build": "npm run clean && npm run build:esm && npm run build:cjs && node scripts/finalize-build.mjs",
     "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --verbose",
     "fixture:check": "jest src/v2/__tests__/fixture-contract.test.ts --runInBand",
-    "test:coverage": "jest --coverage --runInBand",
+    "test:coverage": "jest src/v2 --coverage --runInBand",
     "detection:check": "npm run fixture:check && npm run test:coverage",
     "identity:check": "node scripts/verify-package-identity.mjs",
     "consumer:check": "node scripts/verify-consumers.mjs",
