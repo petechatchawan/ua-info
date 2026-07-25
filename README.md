@@ -58,11 +58,11 @@ Try the [UA Info Interactive Playground](https://petechatchawan.github.io/ua-inf
 ### TypeScript / ESM
 
 ```ts
-import { BrowserId, parse } from 'ua-info';
+import { BrowserId, isBrowser, parse } from 'ua-info';
 
 const details = parse(navigator.userAgent);
 
-if (details.browser?.id === BrowserId.Chrome) {
+if (isBrowser(details, BrowserId.Chrome)) {
   console.log(details.browser.version?.raw);
 }
 ```
@@ -172,6 +172,58 @@ console.log(details.client?.version?.raw);
 
 A selected non-browser actor is returned in `client`; `browser` is normally `null` for a standalone bot or HTTP client.
 
+## Typed predicate helpers
+
+Predicate helpers query a canonical `UAResult` and narrow the matching field at compile time:
+
+```ts
+import {
+  BrowserFamily,
+  BrowserId,
+  CPUArchitecture,
+  EngineId,
+  OSId,
+  isBrowser,
+  isBrowserFamily,
+  isBrowserMode,
+  isCPUArchitecture,
+  isClientKind,
+  isContextKind,
+  isDeviceType,
+  isEngine,
+  isOperatingSystem,
+  parse,
+} from 'ua-info';
+
+const details = parse(userAgent);
+
+isBrowser(details, BrowserId.Chrome);
+isBrowserFamily(details, BrowserFamily.Chromium);
+isBrowserMode(details, 'webview');
+isEngine(details, EngineId.Blink);
+isOperatingSystem(details, OSId.Android);
+isDeviceType(details, 'mobile');
+isCPUArchitecture(details, CPUArchitecture.ARM64);
+isClientKind(details, 'crawler');
+isContextKind(details, 'mini-app');
+```
+
+A successful check removes the nullable container and narrows the compared property to its literal value:
+
+```ts
+if (isBrowser(details, BrowserId.Chrome)) {
+  details.browser.version;
+}
+
+if (isClientKind(details, 'crawler')) {
+  details.client.name;
+}
+```
+
+Browser, browser-family, engine, operating-system, and CPU-architecture predicates accept custom or future string IDs. Browser mode, device type, client kind, and context kind use their closed TypeScript unions so invalid literals are rejected during compilation.
+
+Comparisons are strict and case-sensitive. Predicate matches describe parsed User-Agent and Client Hints claims; they do not authenticate a browser, bot, or request origin.
+
 ## Common recipes
 
 ### Check a browser version
@@ -179,13 +231,14 @@ A selected non-browser actor is returned in `client`; `browser` is normally `nul
 ```ts
 import {
   BrowserId,
+  isBrowser,
   parse,
   satisfiesVersion,
 } from 'ua-info';
 
 const details = parse(userAgent);
 const supported =
-  details.browser?.id === BrowserId.Chrome &&
+  isBrowser(details, BrowserId.Chrome) &&
   satisfiesVersion(details.browser.version, '>=120');
 ```
 
@@ -194,11 +247,13 @@ Use stable IDs for program logic and names for display.
 ### Read the device class
 
 ```ts
+import { isDeviceType, parse } from 'ua-info';
+
 const details = parse(userAgent);
 
 const isTouchDevice =
-  details.device.type === 'mobile' ||
-  details.device.type === 'tablet';
+  isDeviceType(details, 'mobile') ||
+  isDeviceType(details, 'tablet');
 ```
 
 Other device types are `desktop`, `smart-tv`, `console`, `wearable`, `xr`, `embedded`, and `unknown`.
@@ -216,10 +271,12 @@ Other device types are `desktop`, `smart-tv`, `console`, `wearable`, `xr`, `embe
 ### Detect a WebView or headless browser
 
 ```ts
+import { isBrowserMode, parse } from 'ua-info';
+
 const details = parse(userAgent);
 
-const isWebView = details.browser?.mode === 'webview';
-const isHeadless = details.browser?.mode === 'headless';
+const isWebView = isBrowserMode(details, 'webview');
+const isHeadless = isBrowserMode(details, 'headless');
 ```
 
 Browser modes are:
@@ -236,11 +293,12 @@ type BrowserMode =
 ### Detect an in-app browser
 
 ```ts
-const details = parse(userAgent);
-const host = details.context?.host;
+import { isContextKind, parse } from 'ua-info';
 
-if (details.context?.kind === 'in-app-browser' && host) {
-  console.log(`Opened inside ${host.name}`);
+const details = parse(userAgent);
+
+if (isContextKind(details, 'in-app-browser') && details.context.host) {
+  console.log(`Opened inside ${details.context.host.name}`);
 }
 ```
 
@@ -260,13 +318,15 @@ LINE stays in `context.host`; the underlying browser stays in `browser`.
 ### Detect bots, crawlers, and AI agents
 
 ```ts
+import { isClientKind, parse } from 'ua-info';
+
 const details = parse(request.headers.get('user-agent') ?? '');
 
-if (details.client?.kind === 'crawler') {
+if (isClientKind(details, 'crawler')) {
   console.log(`Crawler: ${details.client.name}`);
 }
 
-if (details.client?.kind === 'ai-agent') {
+if (isClientKind(details, 'ai-agent')) {
   console.log(`AI agent: ${details.client.name}`);
 }
 ```
