@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "mode": "static-hard-gate",
+  "baseline": "benchmarks/baselines/ua-info-2.2.0-node22-linux-x64.json",
+  "requiredEsbuild": "0.25.8",
+  "blocking": {
+    "package": ["unpackedBytes", "fileCount"],
+    "distributions": ["rawBytes", "fileCount"],
+    "bundles": ["rawBytes"]
+  },
+  "advisory": {
+    "package": ["tarballBytes"],
+    "bundles": ["gzipBytes", "brotliBytes"],
+    "coldImportSlowdownPercent": 25,
+    "parseThroughputDropPercent": 15
+  }
+}
