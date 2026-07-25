@@ -11,7 +11,7 @@ module.exports = {
   moduleFileExtensions: ['ts', 'js', 'cjs', 'mjs', 'json'],
   testMatch: [
     '**/__tests__/**/*.test.ts',
-    'scripts/performance/__tests__/**/*.test.cjs',
+    '<rootDir>/scripts/performance/__tests__/**/*.test.cjs',
   ],
   collectCoverageFrom: [
     'src/v2/**/*.ts',
