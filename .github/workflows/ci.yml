@@ -60,15 +60,22 @@ jobs:
         run: npm run performance:report
       - name: Validate performance report
         run: npm run performance:validate
-      - name: Publish performance summary
+      - name: Evaluate performance hard gate
+        run: npm run performance:gate
+      - name: Publish performance summaries
         if: always()
         shell: bash
         run: |
-          if [ -f artifacts/performance/performance-summary.md ]; then
-            cat artifacts/performance/performance-summary.md >> "$GITHUB_STEP_SUMMARY"
-          else
-            echo "Performance summary was not generated." >> "$GITHUB_STEP_SUMMARY"
-          fi
+          for summary in \
+            artifacts/performance/performance-summary.md \
+            artifacts/performance/performance-gate-summary.md
+          do
+            if [ -f "$summary" ]; then
+              cat "$summary" >> "$GITHUB_STEP_SUMMARY"
+            else
+              echo "$(basename "$summary") was not generated." >> "$GITHUB_STEP_SUMMARY"
+            fi
+          done
       - name: Upload performance report
         if: always()
         uses: actions/upload-artifact@v4
