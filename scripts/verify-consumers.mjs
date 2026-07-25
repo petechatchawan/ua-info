@@ -21,7 +21,7 @@ try {
   );
   const [packReport] = JSON.parse(packOutput);
 
-  if (packReport.name !== 'ua-info' || packReport.version !== '2.1.0') {
+  if (packReport.name !== 'ua-info' || packReport.version !== '2.2.0') {
     throw new Error(`Unexpected packed identity: ${packReport.name}@${packReport.version}`);
   }
 
@@ -44,12 +44,23 @@ try {
       `import * as userAgentInfo from 'ua-info';\n` +
       `import { parseRequest } from 'ua-info/server';\n` +
       `import { detectCurrent } from 'ua-info/browser';\n` +
-      `const { BrowserId, parse, parseVersion, satisfiesVersion } = userAgentInfo;\n` +
+      `const { BrowserId, isBrowser, isBrowserFamily, isBrowserMode, isCPUArchitecture, isClientKind, isContextKind, isDeviceType, isEngine, isOperatingSystem, parse, parseVersion, satisfiesVersion } = userAgentInfo;\n` +
       `const result = parse(${JSON.stringify(chromeUA)});\n` +
       `assert.equal('UAInfo' in userAgentInfo, false);\n` +
+      `for (const helper of [isBrowser, isBrowserFamily, isBrowserMode, isCPUArchitecture, isClientKind, isContextKind, isDeviceType, isEngine, isOperatingSystem]) assert.equal(typeof helper, 'function');\n` +
       `assert.equal(result.browser?.id, BrowserId.Chrome);\n` +
+      `assert.equal(isBrowser(result, BrowserId.Chrome), true);\n` +
+      `assert.equal(isBrowserFamily(result, 'chromium'), true);\n` +
+      `assert.equal(isBrowserMode(result, 'browser'), true);\n` +
+      `assert.equal(isEngine(result, 'blink'), true);\n` +
+      `assert.equal(isOperatingSystem(result, 'windows'), true);\n` +
+      `assert.equal(isDeviceType(result, 'desktop'), true);\n` +
       `assert.equal(result.os?.id, 'windows');\n` +
       `assert.equal(result.device.type, 'desktop');\n` +
+      `const crawler = parse('OAI-SearchBot/1.0');\n` +
+      `assert.equal(isClientKind(crawler, 'crawler'), true);\n` +
+      `assert.equal(isContextKind(crawler, 'mini-app'), false);\n` +
+      `assert.equal(isCPUArchitecture(crawler, 'arm64'), false);\n` +
       `const requestResult = parseRequest({ headers: { 'user-agent': ${JSON.stringify(chromeUA)}, 'sec-ch-ua': '\"Google Chrome\";v=\"121\"' } });\n` +
       `assert.equal(requestResult.browser?.version?.major, 121);\n` +
       `Object.defineProperty(globalThis, 'navigator', { configurable: true, value: { userAgent: ${JSON.stringify(chromeUA)} } });\n` +
@@ -63,26 +74,34 @@ try {
     cjsConsumer,
     `const assert = require('node:assert/strict');\n` +
       `const userAgentInfo = require('ua-info');\n` +
-      `const { BrowserId, parse } = userAgentInfo;\n` +
+      `const { BrowserId, isBrowser, parse } = userAgentInfo;\n` +
       `const { parseRequest } = require('ua-info/server');\n` +
       `const result = parse(${JSON.stringify(chromeUA)});\n` +
       `assert.equal('UAInfo' in userAgentInfo, false);\n` +
+      `assert.equal(typeof isBrowser, 'function');\n` +
       `assert.equal(result.browser?.id, BrowserId.Chrome);\n` +
+      `assert.equal(isBrowser(result, BrowserId.Chrome), true);\n` +
       `assert.equal(parseRequest({ headers: { 'user-agent': ${JSON.stringify(chromeUA)} } }).os?.id, 'windows');\n`,
   );
 
   const typescriptConsumer = path.join(workspace, 'consumer.ts');
   await writeFile(
     typescriptConsumer,
-    `import { BrowserId, parse } from 'ua-info';\n` +
+    `import { BrowserId, isBrowser, isClientKind, parse } from 'ua-info';\n` +
       `import { parseRequest } from 'ua-info/server';\n` +
       `import { detectCurrent } from 'ua-info/browser';\n` +
       `const result = parse(${JSON.stringify(chromeUA)});\n` +
-      `const browserId = result.browser?.id;\n` +
+      `if (isBrowser(result, BrowserId.Chrome)) {\n` +
+      `  const browserId: typeof BrowserId.Chrome = result.browser.id;\n` +
+      `  void browserId;\n` +
+      `}\n` +
+      `const crawler = parse('OAI-SearchBot/1.0');\n` +
+      `if (isClientKind(crawler, 'crawler')) {\n` +
+      `  const kind: 'crawler' = crawler.client.kind;\n` +
+      `  void kind;\n` +
+      `}\n` +
       `const requestResult = parseRequest({ headers: { 'user-agent': result.ua } });\n` +
       `const detector: typeof detectCurrent = detectCurrent;\n` +
-      `void BrowserId;\n` +
-      `void browserId;\n` +
       `void requestResult;\n` +
       `void detector;\n`,
   );
@@ -124,7 +143,7 @@ try {
   execFileSync(nodeCommand, [removedV2SubpathConsumer], { cwd: workspace, stdio: 'inherit' });
 
   console.log(
-    'Package consumer verification passed for ua-info root, server, browser, ESM, CommonJS, and TypeScript Node16 APIs.',
+    'Package consumer verification passed for ua-info root predicates, server, browser, ESM, CommonJS, and TypeScript Node16 APIs.',
   );
 } finally {
   await rm(workspace, { recursive: true, force: true });
