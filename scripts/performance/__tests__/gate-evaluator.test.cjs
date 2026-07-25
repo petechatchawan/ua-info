@@ -89,23 +89,41 @@ describe('performance gate evaluator', () => {
 
   test('passes equality and deterministic decreases', () => {
     const baseline = createReport();
-    const equal = evaluatePerformanceGate({ report: structuredClone(baseline), baseline, policy: createPolicy() });
+    const equal = evaluatePerformanceGate({
+      report: structuredClone(baseline),
+      baseline,
+      policy: createPolicy(),
+    });
     expect(equal.status).toBe('pass');
     expect(equal.blockingViolations).toEqual([]);
 
     const smaller = structuredClone(baseline);
     smaller.sizes.package.unpackedBytes -= 1;
+    smaller.sizes.package.fileCount -= 1;
     smaller.sizes.distributions[0].rawBytes -= 1;
-    smaller.sizes.bundles[0].rawBytes -= 1;
-    expect(evaluatePerformanceGate({ report: smaller, baseline, policy: createPolicy() }).status).toBe('pass');
+    smaller.sizes.distributions[0].fileCount -= 1;
+    smaller.sizes.distributions[1].rawBytes -= 1;
+    smaller.sizes.distributions[1].fileCount -= 1;
+    for (const bundle of smaller.sizes.bundles) bundle.rawBytes -= 1;
+
+    expect(evaluatePerformanceGate({
+      report: smaller,
+      baseline,
+      policy: createPolicy(),
+    }).status).toBe('pass');
   });
 
   test.each([
     ['sizes.package.unpackedBytes', (report) => { report.sizes.package.unpackedBytes += 1; }],
     ['sizes.package.fileCount', (report) => { report.sizes.package.fileCount += 1; }],
     ['sizes.distributions.esm.rawBytes', (report) => { report.sizes.distributions[0].rawBytes += 1; }],
+    ['sizes.distributions.esm.fileCount', (report) => { report.sizes.distributions[0].fileCount += 1; }],
+    ['sizes.distributions.cjs.rawBytes', (report) => { report.sizes.distributions[1].rawBytes += 1; }],
     ['sizes.distributions.cjs.fileCount', (report) => { report.sizes.distributions[1].fileCount += 1; }],
+    ['sizes.bundles.root-parse.rawBytes', (report) => { report.sizes.bundles[0].rawBytes += 1; }],
     ['sizes.bundles.root-predicate.rawBytes', (report) => { report.sizes.bundles[1].rawBytes += 1; }],
+    ['sizes.bundles.server-parse-request.rawBytes', (report) => { report.sizes.bundles[2].rawBytes += 1; }],
+    ['sizes.bundles.browser-detect-current.rawBytes', (report) => { report.sizes.bundles[3].rawBytes += 1; }],
   ])('blocks growth for %s', (path, mutate) => {
     const baseline = createReport();
     const report = structuredClone(baseline);
@@ -167,17 +185,51 @@ describe('performance gate evaluator', () => {
     expect(evaluatePerformanceGate({ report, baseline, policy: createPolicy() }).warnings).toEqual([]);
   });
 
-  test('rejects package and toolchain mismatches', () => {
+  test('rejects current and baseline package mismatches', () => {
     const baseline = createReport();
 
-    const wrongPackage = createReport();
-    wrongPackage.package.version = '2.2.1';
-    expect(() => evaluatePerformanceGate({ report: wrongPackage, baseline, policy: createPolicy() }))
-      .toThrow('PERF_GATE_REPORT_INVALID');
+    const wrongCurrentVersion = createReport();
+    wrongCurrentVersion.package.version = '2.2.1';
+    expect(() => evaluatePerformanceGate({
+      report: wrongCurrentVersion,
+      baseline,
+      policy: createPolicy(),
+    })).toThrow('PERF_GATE_REPORT_INVALID');
 
-    const wrongToolchain = createReport();
-    wrongToolchain.environment.esbuild = '0.25.9';
-    expect(() => evaluatePerformanceGate({ report: wrongToolchain, baseline, policy: createPolicy() }))
-      .toThrow('PERF_GATE_TOOLCHAIN_MISMATCH');
+    const wrongBaselineVersion = createReport();
+    wrongBaselineVersion.package.version = '2.1.0';
+    expect(() => evaluatePerformanceGate({
+      report: createReport(),
+      baseline: wrongBaselineVersion,
+      policy: createPolicy(),
+    })).toThrow('PERF_GATE_REPORT_INVALID');
+
+    const wrongCurrentName = createReport();
+    wrongCurrentName.package.name = 'other-package';
+    expect(() => evaluatePerformanceGate({
+      report: wrongCurrentName,
+      baseline,
+      policy: createPolicy(),
+    })).toThrow('PERF_GATE_REPORT_INVALID');
+  });
+
+  test('rejects current and baseline esbuild mismatches', () => {
+    const baseline = createReport();
+
+    const wrongCurrent = createReport();
+    wrongCurrent.environment.esbuild = '0.25.9';
+    expect(() => evaluatePerformanceGate({
+      report: wrongCurrent,
+      baseline,
+      policy: createPolicy(),
+    })).toThrow('PERF_GATE_TOOLCHAIN_MISMATCH');
+
+    const wrongBaseline = createReport();
+    wrongBaseline.environment.esbuild = '0.25.7';
+    expect(() => evaluatePerformanceGate({
+      report: createReport(),
+      baseline: wrongBaseline,
+      policy: createPolicy(),
+    })).toThrow('PERF_GATE_TOOLCHAIN_MISMATCH');
   });
 });
