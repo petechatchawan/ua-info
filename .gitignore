@@ -5,6 +5,7 @@ node_modules/
 dist/lib
 lib/
 coverage/
+artifacts/performance/
 
 # Logs
 logs
