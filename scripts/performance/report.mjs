@@ -34,13 +34,14 @@ export async function createPerformanceReport() {
   await mkdir(outputDirectory, { recursive: true });
 
   await run('npm', ['run', 'build'], { cwd: rootDirectory });
-  const [packageJson, npmVersion, commit, sizes, runtime] = await Promise.all([
+  const [packageJson, npmVersion, commit] = await Promise.all([
     readJson(path.join(rootDirectory, 'package.json')),
     run('npm', ['--version'], { cwd: rootDirectory }).then(({ stdout }) => stdout),
     resolveCommit(),
-    collectSizes({ rootDirectory }),
-    collectRuntime({ rootDirectory }),
   ]);
+
+  const sizes = await collectSizes({ rootDirectory });
+  const runtime = await collectRuntime({ rootDirectory });
 
   const report = {
     schemaVersion: 1,
