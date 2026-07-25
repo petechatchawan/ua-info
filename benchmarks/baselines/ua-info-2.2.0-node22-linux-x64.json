@@ -43,7 +43,7 @@
       {
         "id": "root-predicate",
         "platform": "node",
-        "rawBytes": 1888,
+        "rawBytes": 1887,
         "gzipBytes": 571,
         "brotliBytes": 517
       },
