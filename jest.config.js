@@ -8,8 +8,11 @@ module.exports = {
       diagnostics: true,
     }],
   },
-  moduleFileExtensions: ['ts', 'js', 'json'],
-  testMatch: ['**/__tests__/**/*.test.ts'],
+  moduleFileExtensions: ['ts', 'js', 'cjs', 'mjs', 'json'],
+  testMatch: [
+    '**/__tests__/**/*.test.ts',
+    'scripts/performance/__tests__/**/*.test.cjs',
+  ],
   collectCoverageFrom: [
     'src/v2/**/*.ts',
     '!src/v2/**/__tests__/**',
