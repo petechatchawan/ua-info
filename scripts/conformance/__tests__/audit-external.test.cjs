@@ -1,4 +1,4 @@
-const { mkdtemp, mkdir, readFile, stat, writeFile, rm } = require('node:fs/promises');
+const { mkdtemp, mkdir, readFile, stat, symlink, writeFile, rm } = require('node:fs/promises');
 const { spawnSync } = require('node:child_process');
 const os = require('node:os');
 const path = require('node:path');
@@ -31,18 +31,22 @@ function parseSynthetic(userAgent) {
   return { browser: null, os: null, device: { type: 'unknown', vendor: null, model: null }, context: null };
 }
 
-test('valid audit writes privacy-safe JSON and Markdown and succeeds with unsupported observations', async () => {
-  const { sourceRoot, sentinels } = await createSyntheticExternalSource(tempRoot);
-  const browserFile = path.join(sourceRoot, 'test/data/ua/browser/browser-all.json');
-  const before = await stat(browserFile);
-  const result = await audit.runExternalConformanceAudit({
-    argv: ['--profile', 'ua-parser-js', '--source-dir', sourceRoot],
+function runAudit(sourceRoot, additionalArguments = []) {
+  return audit.runExternalConformanceAudit({
+    argv: ['--profile', 'ua-parser-js', '--source-dir', sourceRoot, ...additionalArguments],
     worktreeRoot,
     parseUserAgent: parseSynthetic,
     packageInfo: { name: 'ua-info', version: '2.2.0' },
     packageCommit: 'abc123',
     now: () => new Date('2026-07-26T00:00:00.000Z'),
   });
+}
+
+test('valid audit writes privacy-safe JSON and Markdown and succeeds with unsupported observations', async () => {
+  const { sourceRoot, sentinels } = await createSyntheticExternalSource(tempRoot);
+  const browserFile = path.join(sourceRoot, 'test/data/ua/browser/browser-all.json');
+  const before = await stat(browserFile);
+  const result = await runAudit(sourceRoot);
   const json = await readFile(result.outputPath, 'utf8');
   const markdown = await readFile(result.summaryPath, 'utf8');
   expect(result.report.totals.unsupported).toBeGreaterThan(0);
@@ -54,6 +58,30 @@ test('valid audit writes privacy-safe JSON and Markdown and succeeds with unsupp
   const after = await stat(browserFile);
   expect(after.size).toBe(before.size);
   expect(after.mtimeMs).toBe(before.mtimeMs);
+});
+
+test('rejects an output directory symlink that resolves into the external source', async () => {
+  const { sourceRoot } = await createSyntheticExternalSource(tempRoot);
+  const sourceOutputDirectory = path.join(sourceRoot, 'generated');
+  const outputLink = path.join(worktreeRoot, 'output-link');
+  await mkdir(sourceOutputDirectory);
+  await symlink(sourceOutputDirectory, outputLink, 'dir');
+  await expect(runAudit(sourceRoot, ['--output', 'output-link/report.json']))
+    .rejects.toThrow('CONFORMANCE_OUTPUT_UNSAFE');
+  await expect(readFile(path.join(sourceOutputDirectory, 'report.json'), 'utf8'))
+    .rejects.toMatchObject({ code: 'ENOENT' });
+});
+
+test('rejects an output file symlink that resolves into the external source', async () => {
+  const { sourceRoot } = await createSyntheticExternalSource(tempRoot);
+  const protectedTarget = path.join(sourceRoot, 'protected.txt');
+  const outputDirectory = path.join(worktreeRoot, 'artifacts/conformance');
+  const outputLink = path.join(outputDirectory, 'external-conformance.json');
+  await writeFile(protectedTarget, 'protected');
+  await mkdir(outputDirectory, { recursive: true });
+  await symlink(protectedTarget, outputLink, 'file');
+  await expect(runAudit(sourceRoot)).rejects.toThrow('CONFORMANCE_OUTPUT_UNSAFE');
+  await expect(readFile(protectedTarget, 'utf8')).resolves.toBe('protected');
 });
 
 test.each([
@@ -69,13 +97,7 @@ test.each([
 test('malformed source rejects with a stable source error', async () => {
   const { sourceRoot } = await createSyntheticExternalSource(tempRoot);
   await writeFile(path.join(sourceRoot, 'test/data/ua/browser/browser-all.json'), '{');
-  await expect(audit.runExternalConformanceAudit({
-    argv: ['--profile', 'ua-parser-js', '--source-dir', sourceRoot],
-    worktreeRoot,
-    parseUserAgent: parseSynthetic,
-    packageInfo: { name: 'ua-info', version: '2.2.0' },
-    now: () => new Date('2026-07-26T00:00:00.000Z'),
-  })).rejects.toThrow('CONFORMANCE_SOURCE_INVALID');
+  await expect(runAudit(sourceRoot)).rejects.toThrow('CONFORMANCE_SOURCE_INVALID');
 });
 
 test('direct process invocation without arguments exits 2 before importing the build', () => {
