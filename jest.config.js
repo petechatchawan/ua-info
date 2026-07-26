@@ -12,6 +12,7 @@ module.exports = {
   testMatch: [
     '**/__tests__/**/*.test.ts',
     '<rootDir>/scripts/performance/__tests__/**/*.test.cjs',
+    '<rootDir>/scripts/conformance/__tests__/**/*.test.cjs',
   ],
   collectCoverageFrom: [
     'src/v2/**/*.ts',
