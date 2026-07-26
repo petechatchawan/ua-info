@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build an opt-in, report-only external conformance audit that measures how `ua-info` interprets browser, operating-system, and device fixtures from an operator-supplied external checkout without copying third-party fixtures, regexes, expected records, or implementation logic into this repository.
+**Goal:** Build an opt-in, report-only external conformance audit that measures how `ua-info` interprets browser, operating-system, and device examples from an operator-supplied external checkout without copying third-party fixtures, regexes, expected records, or implementation logic into this repository.
 
-**Architecture:** A guarded CLI reads an external checkout through one narrow layout profile, converts records into transient in-memory cases, calls the built public `parse()` API, classifies results using `ua-info` semantics, and persists aggregate privacy-safe JSON and Markdown only. Standard CI exercises the entire audit using synthetic temporary fixtures authored for this repository; no CI job fetches or retains a third-party corpus.
+**Architecture:** A guarded CLI reads one known external directory layout, converts records into transient in-memory cases, calls the built public `parse()` API, classifies results under `ua-info` semantics, and persists aggregate privacy-safe JSON and Markdown only. Standard CI exercises the complete tool with invented temporary fixtures; it never fetches or retains a third-party corpus.
 
 **Tech Stack:** Node.js `>=18`, native ESM `.mjs`, CommonJS Jest tests `.test.cjs`, existing Jest 30 runner, native `fs/promises`, `path`, `child_process`, built `dist/esm/index.js`, no new dependency.
 
@@ -12,10 +12,10 @@
 
 - No third-party fixture JSON, descriptions, expected objects, User-Agent strings, regexes, parser tables, detector ordering, or implementation code may be committed, transformed, generated, cached, or vendored into this repository.
 - The audit performs no network request and never clones or downloads an upstream repository.
-- The operator supplies `--source-dir`; its real path must resolve outside the `ua-info` Git worktree.
+- The operator supplies `--source-dir`; its real path and every consumed directory/file real path must resolve outside the `ua-info` Git worktree.
 - The audit never writes to the supplied external checkout.
 - Persisted JSON and Markdown contain no raw User-Agent strings, complete expected records, full external descriptions, absolute paths, regexes, or fixture bodies.
-- Standard CI uses synthetic fixtures created in temporary directories only.
+- Standard CI uses invented fixtures created in temporary directories only.
 - `ua-info` semantics remain authoritative: `browser`, `context`, `os`, and `device` are not remapped to imitate another parser.
 - External observations alone may not justify a production detector change; remediation requires an independently sourced `ua-info` fixture with provenance.
 - No `src/` production detector, `UAResult`, public type, package export, runtime dependency, Node.js floor, or Playground behavior changes in this milestone.
@@ -26,52 +26,45 @@
 
 ## File and Interface Map
 
-### New runtime-development tooling
+### New tooling
 
 - `scripts/conformance/external-source-guard.mjs`
-  - Owns real-path containment checks and read-only local Git metadata.
-  - Exports `resolveExternalSource()` and `readLocalGitState()`.
+  - Real-path containment, child-path symlink protection, and read-only local Git metadata.
+  - Exports `resolveExternalSource()`, `assertExternalPath()`, and `readLocalGitState()`.
 - `scripts/conformance/profiles/ua-parser-js-layout.mjs`
-  - Owns the external directory layout and transient fixture validation.
+  - External layout loading and transient record validation.
   - Exports `loadUaParserJsCases()`.
 - `scripts/conformance/classify-result.mjs`
-  - Owns normalization and domain-specific classification.
-  - Exports `classifyExternalCase()` and `normalizeIdentity()`.
+  - Generic normalization and domain-specific classification under `ua-info` semantics.
+  - Exports `normalizeIdentity()` and `classifyExternalCase()`.
 - `scripts/conformance/report-schema.mjs`
-  - Owns aggregate report construction, gap grouping, strict validation, and privacy assertions.
+  - Aggregate report creation, grouping, strict validation, and privacy assertions.
   - Exports `createExternalConformanceReport()`, `validateExternalConformanceReport()`, and `assertPrivacySafeOutput()`.
 - `scripts/conformance/render-summary.mjs`
-  - Owns Markdown rendering from a validated aggregate report.
+  - Deterministic Markdown rendering from an aggregate report.
   - Exports `renderExternalConformanceSummary()`.
 - `scripts/conformance/audit-external.mjs`
-  - Owns CLI arguments, orchestration, file output, and exit codes.
+  - CLI arguments, orchestration, file writing, and exit codes.
   - Exports `parseAuditArguments()` and `runExternalConformanceAudit()`.
 
 ### New tests
 
+- `scripts/conformance/__tests__/synthetic-source.cjs`
 - `scripts/conformance/__tests__/external-source-guard.test.cjs`
 - `scripts/conformance/__tests__/ua-parser-js-layout.test.cjs`
 - `scripts/conformance/__tests__/classify-result.test.cjs`
 - `scripts/conformance/__tests__/report-schema.test.cjs`
 - `scripts/conformance/__tests__/render-summary.test.cjs`
 - `scripts/conformance/__tests__/audit-external.test.cjs`
-- `scripts/conformance/__tests__/synthetic-source.cjs`
-  - Test-only helper that creates invented browser/OS/device records in a temporary external directory.
 
 ### Modified project files
 
-- `jest.config.js`
-  - Discover conformance CommonJS tests without adding them to detector coverage collection.
-- `package.json`
-  - Add `conformance:external`; no dependency or export changes.
-- `.gitignore`
-  - Ignore `artifacts/conformance/`.
-- `docs/external-conformance.md`
-  - Operator workflow, interpretation, privacy boundary, and independent remediation policy.
-- `benchmarks/baselines/ua-info-2.2.0-node22-linux-x64.json`
-  - Update only if the npm script changes deterministic packed metadata size and two exact-head reports agree.
-- `docs/superpowers/closures/2026-07-26-ua-info-external-conformance-audit.md`
-  - Record RED/GREEN evidence, independence audit, live external run aggregate only, final CI, and compatibility.
+- `jest.config.js` — discover conformance `.test.cjs` files without changing detector coverage scope.
+- `package.json` — add `conformance:external`; no dependency or export changes.
+- `.gitignore` — ignore `artifacts/conformance/`.
+- `docs/external-conformance.md` — operator workflow, interpretation, privacy boundary, and independent remediation policy.
+- `benchmarks/baselines/ua-info-2.2.0-node22-linux-x64.json` — update only if the new npm script changes deterministic package metadata size and two exact-head reports agree.
+- `docs/superpowers/closures/2026-07-26-ua-info-external-conformance-audit.md` — record verification and independence evidence.
 
 ---
 
@@ -82,14 +75,21 @@
 - Test: `scripts/conformance/__tests__/external-source-guard.test.cjs`
 
 **Interfaces:**
-- Consumes: filesystem paths supplied by the CLI and repository root from `fileURLToPath(import.meta.url)`.
-- Produces:
-  - `resolveExternalSource({ sourceDir, worktreeRoot }): Promise<{ sourceRoot: string }>`
-  - `readLocalGitState(sourceRoot): Promise<{ revision: string | null, dirty: boolean | null }>`
 
-- [ ] **Step 1: Write failing containment and Git-state tests**
+```js
+export async function resolveExternalSource({ sourceDir, worktreeRoot })
+// Promise<{ sourceRoot: string, worktreeRoot: string }>
 
-Create tests that use `mkdtemp()`, `mkdir()`, `symlink()`, and an invented directory tree. The test matrix must include:
+export async function assertExternalPath({ candidatePath, worktreeRoot, label })
+// Promise<string> resolved real path
+
+export async function readLocalGitState(sourceRoot)
+// Promise<{ revision: string | null, dirty: boolean | null }>
+```
+
+- [ ] **Step 1: Write failing boundary tests**
+
+Use `mkdtemp()`, `mkdir()`, and `symlink()` to cover:
 
 ```js
 const cases = [
@@ -100,11 +100,14 @@ const cases = [
 ];
 ```
 
-Add a symlink test where `outside/link` resolves to a directory inside the worktree and assert rejection. Add a non-Git-directory test asserting `{ revision: null, dirty: null }`.
+Also assert:
 
-- [ ] **Step 2: Run the focused tests and verify RED**
+- a root symlink outside the repository that resolves inside is rejected;
+- a child JSON symlink under an otherwise safe source that resolves inside is rejected by `assertExternalPath()`;
+- a safe sibling child path passes;
+- a non-Git source returns `{ revision: null, dirty: null }`.
 
-Run:
+- [ ] **Step 2: Run the focused test and verify RED**
 
 ```bash
 node --experimental-vm-modules ./node_modules/jest/bin/jest.js \
@@ -113,40 +116,50 @@ node --experimental-vm-modules ./node_modules/jest/bin/jest.js \
 
 Expected: FAIL because `external-source-guard.mjs` does not exist.
 
-- [ ] **Step 3: Implement real-path containment and read-only Git inspection**
+- [ ] **Step 3: Implement real-path checks with stable errors**
 
-Use `realpath()` for both roots, `path.relative()` for containment, and `execFile()` with argument arrays only:
+Use one containment predicate for root and child paths:
 
 ```js
-export async function resolveExternalSource({ sourceDir, worktreeRoot }) {
-  const [sourceRoot, repositoryRoot] = await Promise.all([
-    realpath(sourceDir),
-    realpath(worktreeRoot),
-  ]);
-  const relative = path.relative(repositoryRoot, sourceRoot);
-  if (relative === '' || (!relative.startsWith('..') && !path.isAbsolute(relative))) {
-    throw new Error('CONFORMANCE_SOURCE_UNSAFE: source directory must resolve outside the ua-info worktree.');
+function isWithin(root, candidate) {
+  const relative = path.relative(root, candidate);
+  return relative === '' || (!relative.startsWith('..') && !path.isAbsolute(relative));
+}
+
+export async function assertExternalPath({ candidatePath, worktreeRoot, label }) {
+  let resolvedCandidate;
+  let resolvedWorktree;
+  try {
+    [resolvedCandidate, resolvedWorktree] = await Promise.all([
+      realpath(candidatePath),
+      realpath(worktreeRoot),
+    ]);
+  } catch (error) {
+    throw new Error(`CONFORMANCE_SOURCE_INVALID: unable to resolve ${label}.`, { cause: error });
   }
-  return { sourceRoot };
+  if (isWithin(resolvedWorktree, resolvedCandidate)) {
+    throw new Error(`CONFORMANCE_SOURCE_UNSAFE: ${label} resolves inside the ua-info worktree.`);
+  }
+  return resolvedCandidate;
 }
 ```
 
-`readLocalGitState()` must execute only:
+`resolveExternalSource()` calls `assertExternalPath()` for the root and returns both resolved roots. `readLocalGitState()` executes only:
 
 ```text
 git -C <sourceRoot> rev-parse HEAD
 git -C <sourceRoot> status --porcelain
 ```
 
-Treat command failure as a non-Git source, not an audit failure.
+Use `execFile()` with argument arrays. Treat command failure as a non-Git source.
 
-- [ ] **Step 4: Run the focused tests and verify GREEN**
+- [ ] **Step 4: Run the focused test and verify GREEN**
 
 Run the command from Step 2.
 
-Expected: PASS; source-inside-worktree and symlink-back-inside cases fail with the intended codes, sibling source passes, and non-Git metadata is null.
+Expected: PASS for root containment, nested child symlink protection, and Git-state behavior.
 
-- [ ] **Step 5: Commit the boundary component**
+- [ ] **Step 5: Commit**
 
 ```bash
 git add scripts/conformance/external-source-guard.mjs \
@@ -164,8 +177,6 @@ git commit -m "feat: guard external conformance sources"
 - Test: `scripts/conformance/__tests__/ua-parser-js-layout.test.cjs`
 
 **Interfaces:**
-- Consumes: validated external `sourceRoot` from Task 1.
-- Produces:
 
 ```js
 /** @typedef {'browser'|'os'|'device'} ExternalDomain */
@@ -176,13 +187,15 @@ git commit -m "feat: guard external conformance sources"
  * expected: Readonly<Record<string, unknown>>
  * }} ExternalCase */
 
-export async function loadUaParserJsCases(sourceRoot)
+export async function loadUaParserJsCases({ sourceRoot, worktreeRoot })
 // Promise<readonly ExternalCase[]>
 ```
 
-- [ ] **Step 1: Create the synthetic external-source helper**
+Consumes `assertExternalPath()` from Task 1 for every directory and JSON file before reading it.
 
-The helper must create this invented layout outside the repository worktree:
+- [ ] **Step 1: Create the synthetic source helper**
+
+Create this invented layout in a temporary sibling directory:
 
 ```text
 test/data/ua/browser/browser-all.json
@@ -192,27 +205,28 @@ test/data/ua/device/alpha.json
 test/data/ua/device/zeta.json
 ```
 
-Use invented tokens such as `IndependentBrowser/7.4`, `ExampleOS 3.2`, and `ExamplePhone Q1`; do not copy recognizable upstream fixture strings.
-
-Export:
+Use invented tokens such as `IndependentBrowser/7.4`, `ExampleOS 3.2`, and `ExamplePhone Q1`. Export:
 
 ```js
 async function createSyntheticExternalSource(root, overrides = {})
-// returns { sourceRoot, sentinels: { userAgents, descriptions } }
+// { sourceRoot, sentinels: { userAgents, descriptions } }
 ```
 
-- [ ] **Step 2: Write failing profile-loader tests**
+- [ ] **Step 2: Write failing loader tests**
 
 Verify:
 
-- browser file loads first;
+- browser loads first;
 - OS and device files load in lexicographic filename order;
-- each locator is repository-relative and index-based, for example `test/data/ua/os/alpha.json#0`;
-- only `desc`, `ua`, and `expect` are read transiently;
-- missing required paths, malformed JSON, a non-array file, missing `ua`, or non-object `expect` throws `CONFORMANCE_SOURCE_INVALID`;
-- no output file is created in the source checkout.
+- locators use relative file plus array index, for example `test/data/ua/os/alpha.json#0`;
+- required directories and every consumed JSON file pass `assertExternalPath()`;
+- a symlinked OS directory resolving inside the worktree is rejected;
+- a symlinked JSON file resolving inside the worktree is rejected;
+- malformed JSON, non-array root, missing `ua`, and non-object `expect` throw `CONFORMANCE_SOURCE_INVALID`;
+- `desc` never leaves the loader;
+- nothing is written to the source checkout.
 
-- [ ] **Step 3: Run the focused tests and verify RED**
+- [ ] **Step 3: Run the focused test and verify RED**
 
 ```bash
 node --experimental-vm-modules ./node_modules/jest/bin/jest.js \
@@ -221,9 +235,9 @@ node --experimental-vm-modules ./node_modules/jest/bin/jest.js \
 
 Expected: FAIL because the profile module does not exist.
 
-- [ ] **Step 4: Implement deterministic loading and minimal validation**
+- [ ] **Step 4: Implement deterministic loading**
 
-Read browser first, then sorted `.json` files immediately inside `os/` and `device/`. Convert every record in memory:
+Read browser first, then sorted `.json` files immediately inside `os/` and `device/`. Resolve and guard each directory and file before reading. Convert records only in memory:
 
 ```js
 function toCase(domain, relativeFile, index, record) {
@@ -245,15 +259,15 @@ function toCase(domain, relativeFile, index, record) {
 }
 ```
 
-Do not expose `desc` outside the loader and do not write transformed records.
+Do not persist or return `desc`.
 
-- [ ] **Step 5: Run the focused tests and verify GREEN**
+- [ ] **Step 5: Run the focused test and verify GREEN**
 
 Run the command from Step 3.
 
-Expected: PASS with deterministic case order and all malformed-source checks.
+Expected: PASS with deterministic order and child symlink protection.
 
-- [ ] **Step 6: Commit the profile component**
+- [ ] **Step 6: Commit**
 
 ```bash
 git add scripts/conformance/profiles/ua-parser-js-layout.mjs \
@@ -264,15 +278,13 @@ git commit -m "feat: load external conformance layout"
 
 ---
 
-### Task 3: Classify Results Using ua-info Semantics
+### Task 3: Classify Results Under ua-info Semantics
 
 **Files:**
 - Create: `scripts/conformance/classify-result.mjs`
 - Test: `scripts/conformance/__tests__/classify-result.test.cjs`
 
 **Interfaces:**
-- Consumes: one `ExternalCase` and one public `UAResult`.
-- Produces:
 
 ```js
 /** @typedef {'exact'|'semantic-equivalent'|'partial'|'unsupported'} Classification */
@@ -287,24 +299,25 @@ export function normalizeIdentity(value)
 export function classifyExternalCase(externalCase, actualResult)
 ```
 
-- [ ] **Step 1: Write failing normalization and classification tests**
+- [ ] **Step 1: Write failing classifier tests using invented inputs**
 
-Use invented cases and manually authored `UAResult` objects. Cover:
+Cover:
 
-1. Browser exact: name/version/major match.
-2. Browser unsupported: expected derivative identity but actual browser is generic Chrome.
-3. Browser semantic-equivalent: external `type: 'inapp'`, expected host name matches `actual.context.host`, while `actual.browser` remains the underlying browser.
-4. Browser partial: product identity matches but asserted version differs.
-5. OS exact: family and version match after underscore-to-dot normalization.
-6. OS partial: specific distribution expected, generic Linux actual.
-7. OS unsupported: unrelated platform identity.
-8. Device exact: asserted type/vendor/model all match.
-9. Device partial: type and model match while vendor is null.
-10. Device unsupported: wrong class.
-11. Literal external values `undefined`, `'undefined'`, and absent fields are treated as unasserted.
-12. `expectedIdentity` is normalized, printable, and capped at 120 characters.
+1. Browser exact: product/version/major match.
+2. Browser unsupported: distinguishable derivative expected but generic Chrome actual.
+3. Browser semantic-equivalent: external `type: 'inapp'` host matches `actual.context.host`, while `actual.browser` remains underlying runtime.
+4. Browser partial: product matches but asserted version differs.
+5. OS exact after underscore-to-dot normalization.
+6. OS partial when a specific Linux distribution falls back to generic Linux.
+7. OS unsupported for unrelated identity.
+8. Device exact for all asserted type/vendor/model.
+9. Device partial when type and model match but vendor is null.
+10. Device partial for correct type only.
+11. Device unsupported for wrong class.
+12. `undefined`, literal `'undefined'`, and absent expected fields are unasserted.
+13. Expected identity is printable and capped at 120 characters.
 
-- [ ] **Step 2: Run the focused tests and verify RED**
+- [ ] **Step 2: Run the focused test and verify RED**
 
 ```bash
 node --experimental-vm-modules ./node_modules/jest/bin/jest.js \
@@ -313,9 +326,7 @@ node --experimental-vm-modules ./node_modules/jest/bin/jest.js \
 
 Expected: FAIL because `classify-result.mjs` does not exist.
 
-- [ ] **Step 3: Implement independent normalization helpers**
-
-Use generic normalization owned by this project:
+- [ ] **Step 3: Implement generic normalization**
 
 ```js
 export function normalizeIdentity(value) {
@@ -331,46 +342,46 @@ export function normalizeIdentity(value) {
 }
 ```
 
-Define only narrowly justified generic aliases in this file, such as `smarttv -> smart-tv`; do not import or reproduce an upstream product catalog.
+Allow only generic type aliases owned by this project, such as `smarttv -> smart-tv`; do not reproduce an upstream product catalog.
 
-- [ ] **Step 4: Implement deterministic domain classifiers**
+- [ ] **Step 4: Implement deterministic domain rules**
 
-Browser rules:
+Browser:
 
 ```text
 same product + all asserted direct fields match -> exact
-inapp expected host matches context.host -> semantic-equivalent
-same product but version/type mismatch -> partial
-distinguishable product falls through to another product -> unsupported
+inapp expected identity matches context.host -> semantic-equivalent
+same product with asserted version/type mismatch -> partial
+different or absent product identity -> unsupported
 ```
 
-OS rules:
+OS:
 
 ```text
 same OS + asserted version match -> exact
-Linux distribution expected + generic Linux actual -> partial
+specific Linux identity + generic Linux actual -> partial
 same OS + version mismatch -> partial
-unrelated or absent OS -> unsupported
+different or absent OS -> unsupported
 ```
 
-Device rules:
+Device:
 
 ```text
-all asserted type/vendor/model match -> exact
-at least type plus one other asserted field matches -> partial
+all asserted fields match -> exact
+correct type plus model/vendor subset -> partial
 correct type only -> partial
 wrong or unknown class -> unsupported
 ```
 
-Return sorted `matchedFields` and `mismatchedFields` for internal aggregation only.
+Return sorted matched and mismatched field arrays for in-memory aggregation only.
 
-- [ ] **Step 5: Run the focused tests and verify GREEN**
+- [ ] **Step 5: Run the focused test and verify GREEN**
 
 Run the command from Step 2.
 
 Expected: PASS for all four statuses and all three domains.
 
-- [ ] **Step 6: Commit the classifier**
+- [ ] **Step 6: Commit**
 
 ```bash
 git add scripts/conformance/classify-result.mjs \
@@ -380,15 +391,13 @@ git commit -m "feat: classify external conformance results"
 
 ---
 
-### Task 4: Build a Strict Privacy-Safe Aggregate Report
+### Task 4: Create and Validate the Privacy-Safe Aggregate Report
 
 **Files:**
 - Create: `scripts/conformance/report-schema.mjs`
 - Test: `scripts/conformance/__tests__/report-schema.test.cjs`
 
 **Interfaces:**
-- Consumes: package metadata, local source state, transient cases, and classification results.
-- Produces:
 
 ```js
 export function createExternalConformanceReport({
@@ -413,9 +422,9 @@ Observation shape:
 }
 ```
 
-- [ ] **Step 1: Write failing aggregation, strict-schema, and privacy tests**
+- [ ] **Step 1: Write failing report tests**
 
-Verify the report contains:
+Require this aggregate shape:
 
 ```js
 {
@@ -426,21 +435,24 @@ Verify the report contains:
   package: { name: 'ua-info', version: '2.2.0', commit: 'def456' },
   domains: {
     browser: { total: 4, exact: 1, semanticEquivalent: 1, partial: 1, unsupported: 1 },
-    os: { /* same keys */ },
-    device: { /* same keys */ },
+    os: { total: 0, exact: 0, semanticEquivalent: 0, partial: 0, unsupported: 0 },
+    device: { total: 0, exact: 0, semanticEquivalent: 0, partial: 0, unsupported: 0 },
   },
-  totals: { /* same keys */ },
-  gapGroups: [/* deterministic groups */],
+  totals: { total: 4, exact: 1, semanticEquivalent: 1, partial: 1, unsupported: 1 },
+  gapGroups: [],
 }
 ```
 
-Test that each gap group stores at most five relative locators and never stores exact cases. Assert deterministic sorting by domain, classification severity (`unsupported`, `partial`, `semantic-equivalent`), occurrence count descending, then identity.
+Verify:
 
-Strict validation must reject unknown keys, negative or non-integer counts, totals that do not reconcile, invalid locators, overlong identity strings, and more than five locators.
+- exact observations are not gap groups;
+- non-exact groups use domain + status + normalized expected identity;
+- each group stores occurrence count and at most five sorted relative locators;
+- ordering is domain, severity (`unsupported`, `partial`, `semantic-equivalent`), count descending, identity;
+- strict validation rejects unknown keys, negative/non-integer counts, unreconciled totals, invalid locators, identity longer than 120 characters, or more than five locators;
+- privacy checks reject keys `ua`, `userAgent`, `expect`, `description`, `sourceDir`, absolute paths, and supplied sentinel strings.
 
-Privacy tests must reject any object containing keys such as `ua`, `userAgent`, `expect`, `description`, `sourceDir`, or an absolute path. Serialize the final report and assert none of the synthetic sentinel User-Agent strings/descriptions occurs.
-
-- [ ] **Step 2: Run the focused tests and verify RED**
+- [ ] **Step 2: Run the focused test and verify RED**
 
 ```bash
 node --experimental-vm-modules ./node_modules/jest/bin/jest.js \
@@ -449,9 +461,9 @@ node --experimental-vm-modules ./node_modules/jest/bin/jest.js \
 
 Expected: FAIL because `report-schema.mjs` does not exist.
 
-- [ ] **Step 3: Implement aggregate counting and gap grouping**
+- [ ] **Step 3: Implement aggregation**
 
-Use immutable data and explicit status-key mapping:
+Use explicit count mapping:
 
 ```js
 const COUNT_KEY = Object.freeze({
@@ -462,25 +474,25 @@ const COUNT_KEY = Object.freeze({
 });
 ```
 
-Group only non-exact observations by:
+Group non-exact observations with:
 
 ```text
 <domain>\u0000<classification>\u0000<expectedIdentity>
 ```
 
-Store `occurrences` and the first five sorted locators only.
+Store only aggregate count and first five sorted locators.
 
-- [ ] **Step 4: Implement strict validation and recursive privacy assertions**
+- [ ] **Step 4: Implement strict schema and recursive privacy checks**
 
-`validateExternalConformanceReport()` must require exact keys at every level. `assertPrivacySafeOutput()` must traverse arrays and objects, reject forbidden key names case-insensitively, reject absolute paths, and scan the serialized value for test-provided sentinels.
+Require exact keys at every report level. Traverse objects and arrays recursively; reject forbidden key names case-insensitively, absolute path strings, and test-provided sentinels. Validate immediately before each write.
 
-- [ ] **Step 5: Run the focused tests and verify GREEN**
+- [ ] **Step 5: Run the focused test and verify GREEN**
 
 Run the command from Step 2.
 
-Expected: PASS with reconciled counts, deterministic groups, strict schema, and sentinel absence.
+Expected: PASS with deterministic grouping and zero raw-corpus leakage.
 
-- [ ] **Step 6: Commit the report contract**
+- [ ] **Step 6: Commit**
 
 ```bash
 git add scripts/conformance/report-schema.mjs \
@@ -490,30 +502,33 @@ git commit -m "feat: aggregate privacy-safe conformance reports"
 
 ---
 
-### Task 5: Render the Human-Readable Summary
+### Task 5: Render the Markdown Summary
 
 **Files:**
 - Create: `scripts/conformance/render-summary.mjs`
 - Test: `scripts/conformance/__tests__/render-summary.test.cjs`
 
 **Interfaces:**
-- Consumes: a validated external conformance report from Task 4.
-- Produces: `renderExternalConformanceSummary(report): string`.
 
-- [ ] **Step 1: Write failing Markdown rendering tests**
+```js
+export function renderExternalConformanceSummary(report)
+// string
+```
 
-Require the summary to include:
+- [ ] **Step 1: Write failing renderer tests**
+
+Require:
 
 - title `# ua-info External Conformance Audit`;
 - package version and source revision;
-- explicit disclaimer: `Interoperability observations are not implementation requirements.`;
-- one percentage table for browser, OS, device, and total;
+- exact disclaimer `Interoperability observations are not implementation requirements.`;
+- browser, OS, device, and total percentage table;
 - highest-frequency non-exact gap groups;
-- no raw User-Agent, source absolute path, full description, or expected object;
-- dirty-source marker when `sourceRevision` includes `(dirty)`;
-- stable output for identical input.
+- visible dirty marker when revision contains `(dirty)`;
+- no raw UA, absolute path, description, or expected object;
+- byte-identical output for identical input.
 
-- [ ] **Step 2: Run the focused tests and verify RED**
+- [ ] **Step 2: Run the focused test and verify RED**
 
 ```bash
 node --experimental-vm-modules ./node_modules/jest/bin/jest.js \
@@ -522,9 +537,7 @@ node --experimental-vm-modules ./node_modules/jest/bin/jest.js \
 
 Expected: FAIL because `render-summary.mjs` does not exist.
 
-- [ ] **Step 3: Implement deterministic percentage and gap rendering**
-
-Use two decimal places and avoid divide-by-zero:
+- [ ] **Step 3: Implement deterministic rendering**
 
 ```js
 function percentage(count, total) {
@@ -532,15 +545,15 @@ function percentage(count, total) {
 }
 ```
 
-Render only fields already present in the validated report. Do not accept transient cases as renderer input.
+Render only fields from a validated report. The renderer must never accept transient cases.
 
-- [ ] **Step 4: Run the focused tests and verify GREEN**
+- [ ] **Step 4: Run the focused test and verify GREEN**
 
 Run the command from Step 2.
 
-Expected: PASS and byte-identical Markdown for identical reports.
+Expected: PASS.
 
-- [ ] **Step 5: Commit the renderer**
+- [ ] **Step 5: Commit**
 
 ```bash
 git add scripts/conformance/render-summary.mjs \
@@ -550,15 +563,13 @@ git commit -m "feat: render external conformance summaries"
 
 ---
 
-### Task 6: Orchestrate the Audit CLI and Exit Codes
+### Task 6: Build the Audit CLI
 
 **Files:**
 - Create: `scripts/conformance/audit-external.mjs`
 - Test: `scripts/conformance/__tests__/audit-external.test.cjs`
 
 **Interfaces:**
-- Consumes: components from Tasks 1–5 and the built public `parse()` API.
-- Produces:
 
 ```js
 export function parseAuditArguments(argv)
@@ -571,33 +582,32 @@ export async function runExternalConformanceAudit({
   packageCommit,
   now,
 })
-// returns { report, summary, outputPath, summaryPath }
+// { report, summary, outputPath, summaryPath }
 ```
 
-- [ ] **Step 1: Write failing argument and end-to-end synthetic CLI tests**
+- [ ] **Step 1: Write failing argument and end-to-end synthetic tests**
 
-Test argument rules:
+Argument contract:
 
 ```text
 required: --profile ua-parser-js, --source-dir <path>
 optional defaults:
   --output artifacts/conformance/external-conformance.json
   --summary artifacts/conformance/external-conformance.md
-unsupported, duplicate, missing-value, or odd argument pairs -> exit 2
+unsupported, duplicate, missing-value, or odd pairs -> exit 2
 ```
 
-Use the synthetic source helper and an injected deterministic `parseUserAgent()` stub. Verify:
+Use the synthetic source and an injected deterministic parser. Assert:
 
-- completed audit writes both files and returns status data;
-- unsupported cases still resolve successfully;
-- malformed source exits `2`;
-- unsafe source exits `2`;
-- output JSON validates;
-- report and summary contain none of the helper sentinels or source absolute path;
-- no file in the external checkout changes;
-- direct process invocation with no arguments exits `2` and prints a `CONFORMANCE_ARGUMENT_INVALID` code.
+- valid audit writes JSON and Markdown;
+- unsupported observations still exit `0`;
+- malformed or unsafe source exits `2`;
+- report validates;
+- neither output contains synthetic User-Agent/description sentinels or absolute source path;
+- external source tree contents and mtimes are unchanged;
+- direct process invocation without arguments exits `2` and prints `CONFORMANCE_ARGUMENT_INVALID`.
 
-- [ ] **Step 2: Run the focused tests and verify RED**
+- [ ] **Step 2: Run the focused test and verify RED**
 
 ```bash
 node --experimental-vm-modules ./node_modules/jest/bin/jest.js \
@@ -606,19 +616,16 @@ node --experimental-vm-modules ./node_modules/jest/bin/jest.js \
 
 Expected: FAIL because `audit-external.mjs` does not exist.
 
-- [ ] **Step 3: Implement pure argument parsing and orchestration**
-
-The orchestration order must be:
+- [ ] **Step 3: Implement orchestration in this exact order**
 
 ```text
 parse arguments
-→ resolve external source
-→ verify profile
-→ load transient cases
+→ resolve and guard source root
+→ load and guard all profile directories/files
 → read local source revision/dirty state
 → call parseUserAgent(case.userAgent)
 → classify each result
-→ discard transient raw cases after observations are built
+→ create aggregate observations and release transient case references
 → create and validate aggregate report
 → assert privacy-safe JSON
 → render and privacy-check Markdown
@@ -635,32 +642,28 @@ const sourceRevision = revision === null
     : revision;
 ```
 
-- [ ] **Step 4: Implement direct CLI execution through the built public API**
+- [ ] **Step 4: Implement direct CLI execution with the built public API**
 
-When invoked as a program, lazily import:
+Lazily import:
 
 ```js
 const { parse } = await import('../../dist/esm/index.js');
 ```
 
-Read `package.json` for name/version and use a read-only local `git rev-parse HEAD` for package commit. All operational errors must be wrapped with stable codes and set `process.exitCode = 2`. Successful completion sets `0`.
+Read package name/version from `package.json`; obtain package commit through read-only `git rev-parse HEAD`. Wrap operational errors with stable codes and set `process.exitCode = 2`. Successful completion sets `0`.
 
-- [ ] **Step 5: Run the focused tests and verify GREEN**
-
-Run the command from Step 2.
-
-Expected: PASS, including direct-process exit code assertions.
-
-- [ ] **Step 6: Run all conformance tests together**
+- [ ] **Step 5: Run focused and complete conformance tests**
 
 ```bash
+node --experimental-vm-modules ./node_modules/jest/bin/jest.js \
+  scripts/conformance/__tests__/audit-external.test.cjs --runInBand
 node --experimental-vm-modules ./node_modules/jest/bin/jest.js \
   scripts/conformance/__tests__ --runInBand
 ```
 
-Expected: PASS with no network and only synthetic external data.
+Expected: PASS with no network and invented temporary data only.
 
-- [ ] **Step 7: Commit the CLI**
+- [ ] **Step 6: Commit**
 
 ```bash
 git add scripts/conformance/audit-external.mjs \
@@ -670,7 +673,7 @@ git commit -m "feat: add external conformance audit CLI"
 
 ---
 
-### Task 7: Integrate Tests, Command, Ignore Rules, and Operator Documentation
+### Task 7: Integrate Command, Test Discovery, Ignore Rule, and Documentation
 
 **Files:**
 - Modify: `jest.config.js:14-17`
@@ -678,24 +681,17 @@ git commit -m "feat: add external conformance audit CLI"
 - Modify: `.gitignore:6-11`
 - Create: `docs/external-conformance.md`
 
-**Interfaces:**
-- Consumes: executable CLI from Task 6.
-- Produces:
-  - npm command `conformance:external`;
-  - standard Jest discovery of synthetic conformance tests;
-  - documented manual operator workflow.
+- [ ] **Step 1: Add Jest discovery**
 
-- [ ] **Step 1: Add conformance test discovery**
-
-Update `testMatch` to include:
+Add:
 
 ```js
 '<rootDir>/scripts/conformance/__tests__/**/*.test.cjs',
 ```
 
-Do not change `collectCoverageFrom`; detector coverage must remain scoped to `src/v2/**/*.ts`.
+Do not change `collectCoverageFrom`; detector coverage remains `src/v2/**/*.ts`.
 
-- [ ] **Step 2: Add the npm command and generated-output ignore rule**
+- [ ] **Step 2: Add the npm command and ignore rule**
 
 Add exactly:
 
@@ -703,20 +699,19 @@ Add exactly:
 "conformance:external": "npm run build && node scripts/conformance/audit-external.mjs"
 ```
 
-Add to `.gitignore`:
+Add:
 
 ```text
 artifacts/conformance/
 ```
 
-Do not add a dependency, package export, prepack hook, or automatic upstream fetch.
+Do not add a dependency, export, prepack hook, or automatic fetch.
 
 - [ ] **Step 3: Write operator documentation**
 
-`docs/external-conformance.md` must include these commands:
+Include:
 
 ```bash
-# The operator prepares a sibling checkout manually.
 cd /path/to/ua-info
 npm ci
 npm run conformance:external -- \
@@ -724,29 +719,29 @@ npm run conformance:external -- \
   --source-dir ../ua-parser-js
 ```
 
-Document:
+Document that:
 
-- source checkout remains external and is never modified;
-- command performs no network access;
-- outputs are aggregate and privacy-safe;
-- meanings of exact, semantic-equivalent, partial, unsupported;
+- the operator prepares the sibling checkout manually;
+- the tool performs no network request and never modifies the source;
+- output is aggregate and privacy-safe;
+- classifications mean exact, semantic-equivalent, partial, unsupported;
 - gaps do not automatically become features;
-- independent remediation flow using official documentation or owned captures;
-- generated reports must not be committed or attached publicly without review;
+- remediation requires independent official documentation or an owned capture;
+- generated outputs must not be committed or published without review;
 - no conformance threshold exists.
 
-- [ ] **Step 4: Run package tests and confirm integration GREEN before baseline handling**
+- [ ] **Step 4: Run package integration gates**
 
 ```bash
-npm test -- --runInBand
 npm run lint
+npm test -- --runInBand
 npm run build
 npm run pack:check
 ```
 
-Expected: all commands pass. A later performance hard-gate run may fail only because the new package script increases deterministic packed metadata size.
+Expected: all pass. A later performance hard gate may fail only because the new script increases packed metadata size.
 
-- [ ] **Step 5: Commit integration and documentation**
+- [ ] **Step 5: Commit**
 
 ```bash
 git add jest.config.js package.json .gitignore docs/external-conformance.md
@@ -755,17 +750,13 @@ git commit -m "docs: integrate external conformance audit"
 
 ---
 
-### Task 8: Verify a Live External Checkout Without Retaining Its Corpus
+### Task 8: Run a Live External Audit Without Retaining the Corpus
 
 **Files:**
-- No repository file change unless a defect is found.
-- Generated local files: `artifacts/conformance/external-conformance.json`, `artifacts/conformance/external-conformance.md` (ignored).
+- Generated and ignored: `artifacts/conformance/external-conformance.json`
+- Generated and ignored: `artifacts/conformance/external-conformance.md`
 
-**Interfaces:**
-- Consumes: an operator-supplied sibling checkout outside the worktree.
-- Produces: aggregate local evidence only.
-
-- [ ] **Step 1: Confirm source boundary before running**
+- [ ] **Step 1: Confirm the supplied checkout is external**
 
 ```bash
 UA_INFO_ROOT="$(pwd -P)"
@@ -775,9 +766,7 @@ case "$EXTERNAL_ROOT" in
 esac
 ```
 
-Expected: the external root is outside the repository.
-
-- [ ] **Step 2: Run the audit against the supplied checkout**
+- [ ] **Step 2: Run the audit**
 
 ```bash
 npm run conformance:external -- \
@@ -785,11 +774,9 @@ npm run conformance:external -- \
   --source-dir "$EXTERNAL_ROOT"
 ```
 
-Expected: exit `0` even when partial or unsupported observations exist.
+Expected: exit `0` even when partial or unsupported cases exist.
 
-- [ ] **Step 3: Validate privacy and retention manually**
-
-Run:
+- [ ] **Step 3: Verify output privacy**
 
 ```bash
 node -e '
@@ -806,30 +793,18 @@ for (const token of forbidden) {
 
 Expected: exit `0`.
 
-- [ ] **Step 4: Record aggregate evidence only**
+- [ ] **Step 4: Retain aggregate evidence only**
 
-Capture in working notes:
-
-- upstream local revision and dirty marker;
-- total case counts by domain;
-- counts for exact, semantic-equivalent, partial, unsupported;
-- top normalized gap-group identities and counts.
-
-Do not paste raw fixtures, User-Agent strings, descriptions, complete expected records, or external file bodies into commits, PR comments, closure documents, or public artifacts.
+Record local source revision/dirty marker, totals by domain and classification, and top normalized gap identities/counts. Do not paste raw fixtures, User-Agent strings, descriptions, expected records, or source file bodies into commits, PR comments, closure documents, or public artifacts.
 
 ---
 
-### Task 9: Refresh the Performance Baseline Only When Required
+### Task 9: Apply the Existing Performance Baseline Protocol When Needed
 
 **Files:**
-- Modify only when required: `benchmarks/baselines/ua-info-2.2.0-node22-linux-x64.json`
-- Existing policy remains unchanged: `benchmarks/performance-gate-policy.json`
+- Modify only if required: `benchmarks/baselines/ua-info-2.2.0-node22-linux-x64.json`
 
-**Interfaces:**
-- Consumes: exact implementation head after Tasks 1–8.
-- Produces: reviewed deterministic maximums with provenance only if package metadata grew.
-
-- [ ] **Step 1: Run the normal performance workflow on the exact implementation head**
+- [ ] **Step 1: Run the performance workflow on the exact implementation head**
 
 ```bash
 npm run performance:report
@@ -837,19 +812,17 @@ npm run performance:validate
 npm run performance:gate
 ```
 
-Expected outcomes:
+Interpretation:
 
-- PASS: no baseline update; continue to Task 10.
-- FAIL only on `sizes.package.unpackedBytes` and possibly advisory tarball size, while distribution and bundle raw sizes remain unchanged: proceed with the baseline protocol.
-- Any distribution or consumer bundle raw-byte increase: stop and investigate; this tooling must not enter runtime output.
+- PASS: skip the baseline update.
+- FAIL only on package unpacked bytes, with distribution and consumer bundle raw bytes unchanged: continue.
+- Any distribution or bundle raw-byte increase: stop and investigate because tooling must not enter runtime output.
 
-- [ ] **Step 2: Execute two Node.js 22 performance jobs on the same exact source head**
+- [ ] **Step 2: Execute two Node.js 22 performance jobs on the same exact head**
 
-Use GitHub Actions rerun or equivalent exact-head executions. Record run ID, job ID, artifact ID, Node, npm, esbuild, and source head for both executions.
+Record source head, run ID, job ID, artifact ID, Node, npm, and esbuild for both.
 
-- [ ] **Step 3: Compare all blocking static metrics byte-for-byte**
-
-Required equality across both executions:
+- [ ] **Step 3: Require byte-for-byte equality across both runs**
 
 ```text
 sizes.package.unpackedBytes
@@ -859,13 +832,11 @@ sizes.distributions[*].fileCount
 sizes.bundles[*].rawBytes
 ```
 
-Expected: every value is identical. If any differs, do not update the baseline.
+Do not update the baseline if any blocking static value differs.
 
-- [ ] **Step 4: Update the baseline from the second exact-head artifact**
+- [ ] **Step 4: Refresh from the second exact-head artifact and re-run the gate**
 
-Change only measured values and `baselineSource` provenance. Preserve `schemaVersion`, package identity, and performance policy.
-
-- [ ] **Step 5: Re-run report, validation, and hard gate**
+Update only measured values and `baselineSource` provenance, then run:
 
 ```bash
 npm run performance:report
@@ -873,16 +844,14 @@ npm run performance:validate
 npm run performance:gate
 ```
 
-Expected: PASS against the reviewed refreshed maximums.
+Expected: PASS.
 
-- [ ] **Step 6: Commit the justified baseline refresh**
+- [ ] **Step 5: Commit only when a refresh was required**
 
 ```bash
 git add benchmarks/baselines/ua-info-2.2.0-node22-linux-x64.json
 git commit -m "chore: refresh conformance tooling size baseline"
 ```
-
-Skip this commit entirely when Step 1 passes without a baseline change.
 
 ---
 
@@ -891,27 +860,26 @@ Skip this commit entirely when Step 1 passes without a baseline change.
 **Files:**
 - Create: `docs/superpowers/closures/2026-07-26-ua-info-external-conformance-audit.md`
 
-**Interfaces:**
-- Consumes: final exact implementation head and all prior evidence.
-- Produces: merge-ready PR with traceable evidence and no upstream corpus content.
-
-- [ ] **Step 1: Audit the repository diff for prohibited content**
+- [ ] **Step 1: Audit the diff for prohibited content**
 
 ```bash
 git diff --name-only master...HEAD
 git diff --stat master...HEAD
-git grep -nE 'browser-all\.json|test/data/ua/(browser|os|device)' -- ':!docs/external-conformance.md' ':!docs/superpowers/specs/*' ':!docs/superpowers/plans/*'
+git grep -nE 'browser-all\.json|test/data/ua/(browser|os|device)' -- \
+  . \
+  ':(exclude)docs/external-conformance.md' \
+  ':(exclude)docs/superpowers/specs/**' \
+  ':(exclude)docs/superpowers/plans/**'
 ```
 
 Expected:
 
-- no third-party JSON file exists;
-- no external fixture directory exists;
-- only the profile layout strings appear in tooling/documentation;
+- no third-party JSON or fixture directory exists;
+- only profile layout strings occur in tooling/documentation where necessary;
 - no `src/` production file changed;
 - no dependency or export changed.
 
-- [ ] **Step 2: Run the complete package and audit test gates**
+- [ ] **Step 2: Run all final gates**
 
 ```bash
 npm run identity:check
@@ -928,7 +896,7 @@ npm run performance:gate
 
 Expected: every command exits `0`.
 
-- [ ] **Step 3: Verify CLI failure and success semantics explicitly**
+- [ ] **Step 3: Verify CLI exit semantics**
 
 ```bash
 node scripts/conformance/audit-external.mjs; test "$?" -eq 2
@@ -937,38 +905,38 @@ npm run conformance:external -- \
   --source-dir "$EXTERNAL_ROOT"
 ```
 
-Expected: missing arguments exit `2`; valid external source exits `0` regardless of unsupported observations.
+Expected: missing arguments exit `2`; valid audit exits `0` regardless of unsupported observations.
 
-- [ ] **Step 4: Write the closure document**
+- [ ] **Step 4: Write closure evidence**
 
 Record:
 
 - design and plan paths;
-- TDD RED and GREEN commit/run evidence;
-- synthetic-only test statement;
-- list of new tooling files;
-- live external run revision and aggregate counts only;
-- privacy assertion result;
-- source-boundary and symlink test evidence;
+- TDD RED and GREEN commits/runs;
+- synthetic-only CI statement;
+- new tooling files;
+- child symlink protection evidence;
+- live source revision and aggregate counts only;
+- output privacy assertion;
 - baseline refresh evidence or explicit statement that none was needed;
-- final exact-head CI run and artifact IDs;
-- compatibility audit: package remains `ua-info@2.2.0`, Node remains `>=18`, public exports unchanged, no runtime dependency, no `src/` changes, no npm release required;
+- final exact-head CI and artifacts;
+- compatibility: `ua-info@2.2.0`, Node `>=18`, exports unchanged, no runtime dependency, no `src/` changes, no npm release required;
 - explicit statement that no third-party fixture, regex, expected record, or implementation content was committed.
 
-- [ ] **Step 5: Commit closure evidence**
+- [ ] **Step 5: Commit closure**
 
 ```bash
 git add docs/superpowers/closures/2026-07-26-ua-info-external-conformance-audit.md
 git commit -m "docs: close external conformance audit milestone"
 ```
 
-- [ ] **Step 6: Run final exact-head CI and review the PR diff**
+- [ ] **Step 6: Run final exact-head CI and review every changed file**
 
-The final CI must run on the closure commit. Confirm Node 18/20/22, detector coverage, packed consumers, Playground Chromium smoke, performance report/schema/hard gate, and all conformance synthetic tests pass. Review every changed file before marking the PR ready.
+Confirm Node 18/20/22, detector coverage, packed consumers, Playground Chromium smoke, performance report/schema/hard gate, and all synthetic conformance tests pass on the closure head.
 
-- [ ] **Step 7: Squash-merge with the expected head SHA**
+- [ ] **Step 7: Squash-merge with expected head protection**
 
-Use the final closure head as `expected_head_sha`. Suggested title:
+Suggested title:
 
 ```text
 feat: add independent external conformance audit
