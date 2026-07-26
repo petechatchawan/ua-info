@@ -1,6 +1,6 @@
 # ua-info External Conformance Audit Design
 
-**Status:** Approved for implementation planning  
+**Status:** Approved for implementation  
 **Date:** 2026-07-26  
 **Repository:** `petechatchawan/ua-info`  
 **Scope:** Development tooling only; no runtime or public API change
@@ -19,9 +19,9 @@ The implementation must satisfy all of the following:
 2. No third-party regular expression, parser table, detector ordering, or implementation code is copied or mechanically translated.
 3. The tool performs no network request and does not clone or download an upstream repository.
 4. The operator supplies an already-existing external checkout through `--source-dir`.
-5. `--source-dir` must resolve outside the `ua-info` Git worktree. An in-repository source path is rejected.
+5. `--source-dir` and every consumed directory/file real path must resolve outside the `ua-info` Git worktree. An in-repository path or symbolic-link escape is rejected.
 6. The audit never writes to the external checkout.
-7. Persisted reports contain no raw User-Agent strings, complete expected records, absolute source paths, or copied fixture bodies.
+7. Persisted reports contain no raw User-Agent strings, complete expected records, full upstream descriptions, absolute source paths, regular expressions, or copied fixture bodies.
 8. Standard CI does not fetch or execute third-party corpora. The audit remains an explicit local or separately authorized workflow.
 9. Production detector changes may not cite this audit alone. Every accepted gap requires an independently sourced `ua-info` fixture with provenance before implementation.
 10. `ua-info` keeps its own result model. Semantic differences are classified rather than forced into field-for-field parity.
@@ -81,7 +81,10 @@ scripts/conformance/
     ├── audit-external.test.cjs
     ├── classify-result.test.cjs
     ├── external-source-guard.test.cjs
-    └── report-schema.test.cjs
+    ├── render-summary.test.cjs
+    ├── report-schema.test.cjs
+    ├── synthetic-source.cjs
+    └── ua-parser-js-layout.test.cjs
 ```
 
 ### 5.1 CLI orchestrator
@@ -109,11 +112,11 @@ Optional output arguments use the default paths shown above.
 
 The source guard:
 
-- resolves real paths;
+- resolves the source and worktree real paths;
 - rejects missing directories;
-- rejects paths inside the `ua-info` worktree;
-- verifies the required browser, OS, and device paths;
-- rejects symbolic-link escapes that resolve back into the worktree;
+- rejects a source root inside the `ua-info` worktree;
+- verifies every required browser, OS, device directory and every consumed JSON file by real path;
+- rejects root or child symbolic-link escapes that resolve back into the worktree;
 - never modifies the supplied source.
 
 ### 5.3 Layout profile
@@ -124,9 +127,9 @@ The profile:
 - reads every `.json` file immediately under `os/` and `device/` in deterministic filename order;
 - validates only the minimal fields required for comparison;
 - assigns a transient locator of `relative-file + array index`;
-- never exports raw fixture records to the report layer.
+- never exports descriptions or raw fixture records to the report layer.
 
-Malformed records are counted as source errors and cause exit code `2`; they are not silently skipped.
+Malformed records cause exit code `2`; they are not silently skipped.
 
 ### 5.4 Classifier
 
@@ -149,7 +152,7 @@ Direct browser comparison uses normalized product name, version, major version, 
 
 Rules:
 
-- known aliases may normalize punctuation and documented product naming only;
+- aliases may normalize generic punctuation and documented naming only;
 - a fallback to Chrome for a distinguishable unsupported derivative is `unsupported`, not `partial`;
 - an upstream `inapp` browser identity may be `semantic-equivalent` when `ua-info` preserves the underlying browser and identifies the same host in `context`;
 - an unidentifiable product that intentionally exposes no distinct token is not upgraded through runtime assumptions;
@@ -161,7 +164,7 @@ Direct OS comparison uses normalized OS family/name and version.
 
 Rules:
 
-- equivalent naming such as platform punctuation may normalize;
+- equivalent punctuation may normalize;
 - a specific Linux distribution falling back to generic Linux is `partial`;
 - a platform with no corresponding `ua-info` OS identity is `unsupported`;
 - version mismatch with correct OS identity is `partial` unless the external version is undefined.
@@ -203,10 +206,12 @@ interface ExternalConformanceReport {
 }
 ```
 
+A dirty external checkout is represented by appending ` (dirty)` to `sourceRevision`.
+
 A `GapGroup` contains only:
 
 - domain;
-- normalized expected identity;
+- normalized expected identity capped at 120 characters;
 - classification;
 - occurrence count;
 - up to five transient source locators using relative path and index.
@@ -220,7 +225,7 @@ The report must not contain:
 - regular expressions;
 - external source file contents.
 
-The Markdown summary presents percentages and highest-frequency gap groups. It includes an explicit statement that results are interoperability observations, not implementation requirements.
+The Markdown summary presents percentages and highest-frequency gap groups. It includes the exact disclaimer: `Interoperability observations are not implementation requirements.`
 
 ## 8. Source revision and reproducibility
 
@@ -236,7 +241,7 @@ Deterministic ordering is:
 1. domain: browser, OS, device;
 2. source-relative filename;
 3. array index;
-4. gap group key.
+4. gap group severity, occurrence count, and identity.
 
 Given identical `ua-info` code, external checkout, Node.js version, and profile version, aggregate static results must be identical.
 
@@ -249,20 +254,21 @@ There is no conformance threshold and no exit code `1` in the initial version. T
 
 ## 10. Testing strategy
 
-All committed tests use synthetic fixture files created in temporary directories. They must not copy recognizable upstream User-Agent strings or expected records.
+All committed tests use invented fixture files created in temporary directories. They must not copy recognizable upstream User-Agent strings or expected records.
 
 Required tests:
 
 1. Reject a source directory inside the repository worktree.
-2. Reject a symbolic link that resolves inside the worktree.
+2. Reject root and child symbolic links that resolve inside the worktree.
 3. Load browser, OS, and device files in deterministic order.
-4. Classify one synthetic case for each of `exact`, `semantic-equivalent`, `partial`, and `unsupported`.
+4. Classify invented cases for `exact`, `semantic-equivalent`, `partial`, and `unsupported`.
 5. Verify in-app context semantic mapping without changing browser identity.
 6. Verify malformed source JSON exits with code `2`.
-7. Verify reports contain no raw User-Agent string, absolute path, or complete expected record.
-8. Verify report-schema strictness and deterministic gap ordering.
+7. Verify reports and summaries contain no raw User-Agent, description, absolute path, or complete expected record.
+8. Verify strict report-schema reconciliation and deterministic gap ordering.
 9. Verify unsupported cases still exit `0`.
-10. Run the existing full package, packed-consumer, detection-coverage, Playground, and performance hard gates unchanged.
+10. Verify the external source tree remains unchanged.
+11. Run the existing package, packed-consumer, detection-coverage, Playground, and performance hard gates unchanged.
 
 No production detector test may use an external fixture copied by this tool.
 
@@ -275,6 +281,7 @@ Add `docs/external-conformance.md` covering:
 - how to run the command;
 - how to interpret the four classifications;
 - why audit gaps do not automatically become features;
+- why generated reports must not be committed or published without review;
 - the independent remediation workflow.
 
 Independent remediation remains:
@@ -295,9 +302,10 @@ The initial implementation does not add an upstream-fetching CI job.
 
 Standard CI validates only:
 
-- synthetic audit unit tests;
+- invented audit unit tests;
 - CLI and report-schema behavior;
-- source-boundary protections;
+- root and child source-boundary protections;
+- output privacy assertions;
 - absence of runtime/package regressions through existing jobs.
 
 Generated audit artifacts remain ignored by Git.
@@ -316,6 +324,8 @@ This work must not change:
 
 The audit is development tooling. It does not require an npm release by itself.
 
+If the npm script changes the deterministic packed package size, baseline refresh requires two successful Node.js 22 performance executions on the same exact head with identical blocking static metrics and complete run/job/artifact provenance.
+
 ## 14. Acceptance criteria
 
 The milestone is complete when:
@@ -323,10 +333,10 @@ The milestone is complete when:
 1. the external audit runs against an operator-supplied sibling checkout without network access;
 2. no upstream fixture or implementation content is added to the repository or npm package;
 3. reports expose aggregate classifications and locators but no raw corpus content;
-4. all classifications are covered by synthetic tests;
-5. source path and symlink protections are verified;
+4. all classifications are covered by invented tests;
+5. root path, child path, and symbolic-link protections are verified;
 6. unsupported results do not fail the command;
 7. malformed or unsafe inputs fail with exit code `2`;
 8. existing package, detection, Playground, and performance gates pass;
-9. a closure document records scope, verification, and independence evidence;
+9. a closure document records scope, verification, privacy, and independence evidence;
 10. no production detection rule is added as part of this milestone.
