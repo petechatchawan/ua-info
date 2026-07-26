@@ -19,6 +19,12 @@ function validateCounts(value, label) {
   for (const key of Object.keys(value)) validCount(value[key], `${label}.${key}`);
   if (value.total !== value.exact + value.semanticEquivalent + value.partial + value.unsupported) throw new Error(`CONFORMANCE_REPORT_INVALID: ${label} totals do not reconcile.`);
 }
+function compareGapGroups(left, right) {
+  return DOMAINS.indexOf(left.domain) - DOMAINS.indexOf(right.domain)
+    || GAP_SEVERITY[left.classification] - GAP_SEVERITY[right.classification]
+    || right.count - left.count
+    || left.expectedIdentity.localeCompare(right.expectedIdentity, 'en');
+}
 
 export function assertPrivacySafeOutput(value, forbiddenSentinels = []) {
   const visit = (current) => {
@@ -52,12 +58,28 @@ export function validateExternalConformanceReport(report) {
     if (report.totals[key] !== sum) throw new Error(`CONFORMANCE_REPORT_INVALID: totals.${key} does not reconcile.`);
   }
   if (!Array.isArray(report.gapGroups)) throw new Error('CONFORMANCE_REPORT_INVALID: gapGroups must be an array.');
+  const groupedCounts = Object.fromEntries(DOMAINS.map((domain) => [domain, { semanticEquivalent: 0, partial: 0, unsupported: 0 }]));
+  const groupKeys = new Set();
+  let previousGroup = null;
   for (const [index, group] of report.gapGroups.entries()) {
     exactKeys(group, ['domain', 'classification', 'expectedIdentity', 'count', 'locators'], `gapGroups[${index}]`);
     if (!DOMAINS.includes(group.domain) || !['semantic-equivalent', 'partial', 'unsupported'].includes(group.classification)) throw new Error('CONFORMANCE_REPORT_INVALID: invalid gap group domain or classification.');
     if (typeof group.expectedIdentity !== 'string' || group.expectedIdentity.length === 0 || group.expectedIdentity.length > 120) throw new Error('CONFORMANCE_REPORT_INVALID: invalid expected identity.');
     validCount(group.count, 'gap group count');
-    if (group.count === 0 || !Array.isArray(group.locators) || group.locators.length > 5 || group.locators.some((locator) => !validLocator(locator))) throw new Error('CONFORMANCE_REPORT_INVALID: invalid gap group locators.');
+    if (group.count === 0 || !Array.isArray(group.locators) || group.locators.length > 5 || group.locators.length > group.count || group.locators.some((locator) => !validLocator(locator))) throw new Error('CONFORMANCE_REPORT_INVALID: invalid gap group locators.');
+    const sortedLocators = [...new Set(group.locators)].sort();
+    if (sortedLocators.length !== group.locators.length || sortedLocators.some((locator, locatorIndex) => locator !== group.locators[locatorIndex])) throw new Error('CONFORMANCE_REPORT_INVALID: gap group locators must be unique and sorted.');
+    const groupKey = `${group.domain}\0${group.classification}\0${group.expectedIdentity}`;
+    if (groupKeys.has(groupKey)) throw new Error('CONFORMANCE_REPORT_INVALID: duplicate gap group.');
+    groupKeys.add(groupKey);
+    if (previousGroup && compareGapGroups(previousGroup, group) > 0) throw new Error('CONFORMANCE_REPORT_INVALID: gap groups are not deterministically ordered.');
+    previousGroup = group;
+    groupedCounts[group.domain][COUNT_KEY[group.classification]] += group.count;
+  }
+  for (const domain of DOMAINS) {
+    for (const countKey of ['semanticEquivalent', 'partial', 'unsupported']) {
+      if (groupedCounts[domain][countKey] !== report.domains[domain][countKey]) throw new Error(`CONFORMANCE_REPORT_INVALID: gap groups do not reconcile with domains.${domain}.${countKey}.`);
+    }
   }
   assertPrivacySafeOutput(report); return report;
 }
@@ -72,7 +94,7 @@ export function createExternalConformanceReport({ generatedAt, sourceRevision, p
     const group = groups.get(groupKey) || { domain: observation.domain, classification: observation.classification, expectedIdentity: observation.expectedIdentity, count: 0, locators: [] };
     group.count += 1; group.locators.push(observation.locator); groups.set(groupKey, group);
   }
-  const gapGroups = [...groups.values()].map((group) => ({ ...group, locators: [...new Set(group.locators)].sort().slice(0, 5) })).sort((left, right) => DOMAINS.indexOf(left.domain) - DOMAINS.indexOf(right.domain) || GAP_SEVERITY[left.classification] - GAP_SEVERITY[right.classification] || right.count - left.count || left.expectedIdentity.localeCompare(right.expectedIdentity, 'en'));
+  const gapGroups = [...groups.values()].map((group) => ({ ...group, locators: [...new Set(group.locators)].sort().slice(0, 5) })).sort(compareGapGroups);
   const report = { schemaVersion: 1, profile: 'ua-parser-js', generatedAt, sourceRevision, package: { name: packageInfo.name, version: packageInfo.version, commit: packageInfo.commit ?? null }, domains, totals, gapGroups };
   validateExternalConformanceReport(report); return report;
 }
