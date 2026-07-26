@@ -1,6 +1,6 @@
 # ua-info External Conformance Audit Design
 
-**Status:** Approved direction; pending written-spec review  
+**Status:** Approved for implementation planning  
 **Date:** 2026-07-26  
 **Repository:** `petechatchawan/ua-info`  
 **Scope:** Development tooling only; no runtime or public API change
@@ -21,7 +21,7 @@ The implementation must satisfy all of the following:
 4. The operator supplies an already-existing external checkout through `--source-dir`.
 5. `--source-dir` must resolve outside the `ua-info` Git worktree. An in-repository source path is rejected.
 6. The audit never writes to the external checkout.
-7. Persisted reports contain no raw User-Agent strings, complete expected records, absolute source paths, copied fixture bodies, or upstream descriptions.
+7. Persisted reports contain no raw User-Agent strings, complete expected records, absolute source paths, or copied fixture bodies.
 8. Standard CI does not fetch or execute third-party corpora. The audit remains an explicit local or separately authorized workflow.
 9. Production detector changes may not cite this audit alone. Every accepted gap requires an independently sourced `ua-info` fixture with provenance before implementation.
 10. `ua-info` keeps its own result model. Semantic differences are classified rather than forced into field-for-field parity.
@@ -60,7 +60,7 @@ A committed snapshot would create unnecessary licensing and authorship ambiguity
 
 ### Rejected: automatically clone upstream in GitHub Actions
 
-Automatic fetching would turn third-party data into a routine project dependency, create moving-target results, and make authorship boundaries less obvious.
+Automatic fetching would turn third-party data into a routine project dependency, create moving-target results, and make licensing boundaries less obvious.
 
 ### Deferred: universal conformance manifest framework
 
@@ -126,7 +126,7 @@ The profile:
 - assigns a transient locator of `relative-file + array index`;
 - never exports raw fixture records to the report layer.
 
-Malformed records cause exit code `2`; they are not silently skipped.
+Malformed records are counted as source errors and cause exit code `2`; they are not silently skipped.
 
 ### 5.4 Classifier
 
@@ -188,7 +188,6 @@ interface ExternalConformanceReport {
   readonly profile: 'ua-parser-js';
   readonly generatedAt: string;
   readonly sourceRevision: string | null;
-  readonly sourceDirty: boolean | null;
   readonly package: {
     readonly name: 'ua-info';
     readonly version: string;
@@ -207,7 +206,7 @@ interface ExternalConformanceReport {
 A `GapGroup` contains only:
 
 - domain;
-- normalized expected identity, sanitized and bounded to 128 characters;
+- normalized expected identity;
 - classification;
 - occurrence count;
 - up to five transient source locators using relative path and index.
@@ -221,9 +220,7 @@ The report must not contain:
 - regular expressions;
 - external source file contents.
 
-A privacy assertion walks the complete generated JSON and Markdown output and proves synthetic raw User-Agent values and absolute source paths are absent.
-
-The Markdown summary presents percentages and highest-frequency gap groups. It states that results are interoperability observations, not implementation requirements.
+The Markdown summary presents percentages and highest-frequency gap groups. It includes an explicit statement that results are interoperability observations, not implementation requirements.
 
 ## 8. Source revision and reproducibility
 
@@ -262,8 +259,8 @@ Required tests:
 4. Classify one synthetic case for each of `exact`, `semantic-equivalent`, `partial`, and `unsupported`.
 5. Verify in-app context semantic mapping without changing browser identity.
 6. Verify malformed source JSON exits with code `2`.
-7. Verify reports contain no raw User-Agent string, absolute path, full description, or complete expected record.
-8. Verify expected-identity sanitization, length limits, report-schema strictness, and deterministic gap ordering.
+7. Verify reports contain no raw User-Agent string, absolute path, or complete expected record.
+8. Verify report-schema strictness and deterministic gap ordering.
 9. Verify unsupported cases still exit `0`.
 10. Run the existing full package, packed-consumer, detection-coverage, Playground, and performance hard gates unchanged.
 
@@ -300,7 +297,7 @@ Standard CI validates only:
 
 - synthetic audit unit tests;
 - CLI and report-schema behavior;
-- source-boundary and output-privacy protections;
+- source-boundary protections;
 - absence of runtime/package regressions through existing jobs.
 
 Generated audit artifacts remain ignored by Git.
@@ -314,24 +311,10 @@ This work must not change:
 - package exports;
 - runtime dependencies;
 - Node.js support;
+- npm publication contents, except for an unavoidable reviewed `package.json` script-size change;
 - Playground behavior.
 
-Use Node.js built-ins only; do not add a runtime or development dependency for the audit.
-
 The audit is development tooling. It does not require an npm release by itself.
-
-### 13.1 Performance hard-gate interaction
-
-Adding `conformance:external` to the published `package.json` metadata can legitimately increase npm unpacked and tarball bytes even though runtime output is unchanged.
-
-The implementation must not relax a budget or edit the baseline merely to silence the gate. When the script changes package size:
-
-1. capture the failing hard-gate evidence;
-2. verify ESM, CommonJS, and all consumer-bundle raw bytes remain unchanged;
-3. execute the performance job twice on the same exact implementation head;
-4. confirm all blocking static metrics match across both executions;
-5. refresh only the reviewed package-size baseline with run, job, artifact, commit, Node.js, npm, and esbuild provenance;
-6. restore a passing hard gate before merge.
 
 ## 14. Acceptance criteria
 
@@ -339,12 +322,11 @@ The milestone is complete when:
 
 1. the external audit runs against an operator-supplied sibling checkout without network access;
 2. no upstream fixture or implementation content is added to the repository or npm package;
-3. reports expose aggregate classifications and bounded locators but no raw corpus content;
+3. reports expose aggregate classifications and locators but no raw corpus content;
 4. all classifications are covered by synthetic tests;
-5. source path, symlink, and output-privacy protections are verified;
+5. source path and symlink protections are verified;
 6. unsupported results do not fail the command;
 7. malformed or unsafe inputs fail with exit code `2`;
 8. existing package, detection, Playground, and performance gates pass;
-9. any package-size baseline change follows the exact-head two-run protocol;
-10. a closure document records scope, verification, and independence evidence;
-11. no production detection rule is added as part of this milestone.
+9. a closure document records scope, verification, and independence evidence;
+10. no production detection rule is added as part of this milestone.
