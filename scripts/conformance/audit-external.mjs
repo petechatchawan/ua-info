@@ -1,5 +1,5 @@
 import { execFile as execFileCallback } from 'node:child_process';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, realpath, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { promisify } from 'node:util';
@@ -17,6 +17,35 @@ const ALLOWED = new Set(['--profile', '--source-dir', '--output', '--summary']);
 function argumentError(message) { return new Error(`CONFORMANCE_ARGUMENT_INVALID: ${message}`); }
 function isWithin(root, candidate) { const relative = path.relative(root, candidate); return relative === '' || (!relative.startsWith('..') && !path.isAbsolute(relative)); }
 function resolveOutputPath(worktreeRoot, value) { return path.isAbsolute(value) ? path.normalize(value) : path.resolve(worktreeRoot, value); }
+
+async function resolvePotentialRealPath(candidatePath, label) {
+  let current = path.resolve(candidatePath);
+  const missingSegments = [];
+  while (true) {
+    try {
+      const resolvedExistingPath = await realpath(current);
+      return path.join(resolvedExistingPath, ...missingSegments);
+    } catch (error) {
+      if (error?.code !== 'ENOENT' && error?.code !== 'ENOTDIR') {
+        throw new Error(`CONFORMANCE_OUTPUT_INVALID: unable to resolve ${label}.`, { cause: error });
+      }
+      const parent = path.dirname(current);
+      if (parent === current) {
+        throw new Error(`CONFORMANCE_OUTPUT_INVALID: unable to resolve ${label}.`, { cause: error });
+      }
+      missingSegments.unshift(path.basename(current));
+      current = parent;
+    }
+  }
+}
+
+async function assertOutputOutsideSource({ candidatePath, sourceRoot, label }) {
+  const resolvedCandidate = await resolvePotentialRealPath(candidatePath, label);
+  if (isWithin(sourceRoot, resolvedCandidate)) {
+    throw new Error(`CONFORMANCE_OUTPUT_UNSAFE: ${label} resolves inside the external source.`);
+  }
+  return resolvedCandidate;
+}
 
 export function parseAuditArguments(argv) {
   if (!Array.isArray(argv) || argv.length === 0 || argv.length % 2 !== 0) throw argumentError('arguments must be flag/value pairs.');
@@ -61,12 +90,25 @@ export async function runExternalConformanceAudit({ argv, worktreeRoot, parseUse
   assertPrivacySafeOutput(summary, forbiddenSentinels);
   const outputPath = resolveOutputPath(resolvedWorktreeRoot, args.output);
   const summaryPath = resolveOutputPath(resolvedWorktreeRoot, args.summary);
-  if (outputPath === summaryPath) throw argumentError('--output and --summary must be different paths.');
-  if (isWithin(sourceRoot, outputPath) || isWithin(sourceRoot, summaryPath)) throw new Error('CONFORMANCE_OUTPUT_UNSAFE: output paths must not be inside the external source.');
-  await mkdir(path.dirname(outputPath), { recursive: true });
-  await mkdir(path.dirname(summaryPath), { recursive: true });
-  await writeFile(outputPath, json, 'utf8');
-  await writeFile(summaryPath, summary, 'utf8');
+  const [resolvedOutputPath, resolvedSummaryPath] = await Promise.all([
+    assertOutputOutsideSource({ candidatePath: outputPath, sourceRoot, label: 'JSON output path' }),
+    assertOutputOutsideSource({ candidatePath: summaryPath, sourceRoot, label: 'Markdown summary path' }),
+  ]);
+  if (resolvedOutputPath === resolvedSummaryPath) throw argumentError('--output and --summary must resolve to different paths.');
+  try {
+    await mkdir(path.dirname(outputPath), { recursive: true });
+    await mkdir(path.dirname(summaryPath), { recursive: true });
+    const [recheckedOutputPath, recheckedSummaryPath] = await Promise.all([
+      assertOutputOutsideSource({ candidatePath: outputPath, sourceRoot, label: 'JSON output path' }),
+      assertOutputOutsideSource({ candidatePath: summaryPath, sourceRoot, label: 'Markdown summary path' }),
+    ]);
+    if (recheckedOutputPath === recheckedSummaryPath) throw argumentError('--output and --summary must resolve to different paths.');
+    await writeFile(outputPath, json, 'utf8');
+    await writeFile(summaryPath, summary, 'utf8');
+  } catch (error) {
+    if (error instanceof Error && error.message.startsWith('CONFORMANCE_')) throw error;
+    throw new Error('CONFORMANCE_OUTPUT_INVALID: unable to write audit outputs.', { cause: error });
+  }
   return Object.freeze({ report, summary, outputPath, summaryPath });
 }
 
