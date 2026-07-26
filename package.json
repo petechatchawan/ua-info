@@ -58,6 +58,7 @@
     "consumer:check": "node scripts/verify-consumers.mjs",
     "check": "npm run identity:check && npm run lint && npm run detection:check && npm run build && npm run pack:check",
     "pack:check": "node scripts/verify-package.mjs && npm run consumer:check",
+    "conformance:external": "npm run build && node scripts/conformance/audit-external.mjs",
     "performance:sizes": "npm run build && node scripts/performance/collect-sizes.mjs --output artifacts/performance/sizes.json",
     "performance:runtime": "npm run build && node scripts/performance/collect-runtime.mjs --output artifacts/performance/runtime.json",
     "performance:report": "node scripts/performance/report.mjs",
