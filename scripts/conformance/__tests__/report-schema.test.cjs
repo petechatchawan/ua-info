@@ -44,9 +44,12 @@ test.each([
   ['unknown key', (report) => { report.extra = true; }],
   ['negative count', (report) => { report.totals.total = -1; }],
   ['unreconciled totals', (report) => { report.totals.total += 1; }],
+  ['unreconciled gap groups', (report) => { report.gapGroups[0].count += 1; }],
   ['invalid locator', (report) => { report.gapGroups[0].locators = ['/absolute/path#0']; }],
   ['long identity', (report) => { report.gapGroups[0].expectedIdentity = 'x'.repeat(121); }],
   ['too many locators', (report) => { report.gapGroups[0].locators = Array.from({ length: 6 }, (_, index) => `a.json#${index}`); }],
+  ['duplicate locator', (report) => { report.gapGroups[0].count = 2; report.domains.browser.unsupported = 2; report.domains.browser.total = 5; report.totals.unsupported = 2; report.totals.total = 5; report.gapGroups[0].locators = ['a.json#0', 'a.json#0']; }],
+  ['non-deterministic gap ordering', (report) => { report.gapGroups.reverse(); }],
 ])('strict validation rejects %s', (_name, mutate) => {
   const report = structuredClone(schema.createExternalConformanceReport(baseInput()));
   mutate(report);
