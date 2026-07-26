@@ -6,6 +6,7 @@ dist/lib
 lib/
 coverage/
 artifacts/performance/
+artifacts/conformance/
 
 # Logs
 logs
