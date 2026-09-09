@@ -67,8 +67,8 @@ function createPolicy() {
     baseline: 'benchmarks/baselines/ua-info-2.2.0-node22-linux-x64.json',
     requiredEsbuild: '0.25.8',
     blocking: {
-      package: ['unpackedBytes', 'fileCount'],
-      distributions: ['rawBytes', 'fileCount'],
+      package: [],
+      distributions: [],
       bundles: ['rawBytes'],
     },
     advisory: {
@@ -114,17 +114,11 @@ describe('performance gate evaluator', () => {
   });
 
   test.each([
-    ['sizes.package.unpackedBytes', (report) => { report.sizes.package.unpackedBytes += 1; }],
-    ['sizes.package.fileCount', (report) => { report.sizes.package.fileCount += 1; }],
-    ['sizes.distributions.esm.rawBytes', (report) => { report.sizes.distributions[0].rawBytes += 1; }],
-    ['sizes.distributions.esm.fileCount', (report) => { report.sizes.distributions[0].fileCount += 1; }],
-    ['sizes.distributions.cjs.rawBytes', (report) => { report.sizes.distributions[1].rawBytes += 1; }],
-    ['sizes.distributions.cjs.fileCount', (report) => { report.sizes.distributions[1].fileCount += 1; }],
     ['sizes.bundles.root-parse.rawBytes', (report) => { report.sizes.bundles[0].rawBytes += 1; }],
     ['sizes.bundles.root-predicate.rawBytes', (report) => { report.sizes.bundles[1].rawBytes += 1; }],
     ['sizes.bundles.server-parse-request.rawBytes', (report) => { report.sizes.bundles[2].rawBytes += 1; }],
     ['sizes.bundles.browser-detect-current.rawBytes', (report) => { report.sizes.bundles[3].rawBytes += 1; }],
-  ])('blocks growth for %s', (path, mutate) => {
+  ])('blocks bundle growth for %s', (path, mutate) => {
     const baseline = createReport();
     const report = structuredClone(baseline);
     mutate(report);
@@ -139,18 +133,29 @@ describe('performance gate evaluator', () => {
     ]);
   });
 
-  test('returns all blocking violations in deterministic order', () => {
+  test('does not block package or distribution growth', () => {
     const baseline = createReport();
     const report = structuredClone(baseline);
-    report.sizes.package.unpackedBytes += 3;
-    report.sizes.distributions[1].rawBytes += 2;
+    report.sizes.package.unpackedBytes += 100;
+    report.sizes.package.fileCount += 10;
+    report.sizes.distributions[0].rawBytes += 100;
+    report.sizes.distributions[0].fileCount += 10;
+    report.sizes.distributions[1].rawBytes += 100;
+    report.sizes.distributions[1].fileCount += 10;
+
+    const result = evaluatePerformanceGate({ report, baseline, policy: createPolicy() });
+    expect(result.status).toBe('pass');
+    expect(result.blockingViolations).toEqual([]);
+  });
+
+  test('returns all blocking bundle violations in deterministic order', () => {
+    const baseline = createReport();
+    const report = structuredClone(baseline);
     report.sizes.bundles[0].rawBytes += 1;
     report.sizes.bundles[2].rawBytes += 4;
 
     const result = evaluatePerformanceGate({ report, baseline, policy: createPolicy() });
     expect(result.blockingViolations.map((item) => item.path)).toEqual([
-      'sizes.package.unpackedBytes',
-      'sizes.distributions.cjs.rawBytes',
       'sizes.bundles.root-parse.rawBytes',
       'sizes.bundles.server-parse-request.rawBytes',
     ]);
@@ -185,27 +190,23 @@ describe('performance gate evaluator', () => {
     expect(evaluatePerformanceGate({ report, baseline, policy: createPolicy() }).warnings).toEqual([]);
   });
 
-  test('rejects current and baseline package mismatches', () => {
+  test('allows version changes for the same package baseline', () => {
     const baseline = createReport();
+    const report = createReport();
+    report.package.version = '3.0.0';
 
-    const wrongCurrentVersion = createReport();
-    wrongCurrentVersion.package.version = '2.2.1';
     expect(() => evaluatePerformanceGate({
-      report: wrongCurrentVersion,
+      report,
       baseline,
       policy: createPolicy(),
-    })).toThrow('PERF_GATE_REPORT_INVALID');
+    })).not.toThrow();
+  });
 
-    const wrongBaselineVersion = createReport();
-    wrongBaselineVersion.package.version = '2.1.0';
-    expect(() => evaluatePerformanceGate({
-      report: createReport(),
-      baseline: wrongBaselineVersion,
-      policy: createPolicy(),
-    })).toThrow('PERF_GATE_REPORT_INVALID');
-
+  test('rejects package name mismatches', () => {
+    const baseline = createReport();
     const wrongCurrentName = createReport();
     wrongCurrentName.package.name = 'other-package';
+
     expect(() => evaluatePerformanceGate({
       report: wrongCurrentName,
       baseline,

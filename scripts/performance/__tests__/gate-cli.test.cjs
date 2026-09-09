@@ -63,8 +63,8 @@ function createPolicy(baselinePath) {
     baseline: baselinePath,
     requiredEsbuild: '0.25.8',
     blocking: {
-      package: ['unpackedBytes', 'fileCount'],
-      distributions: ['rawBytes', 'fileCount'],
+      package: [],
+      distributions: [],
       bundles: ['rawBytes'],
     },
     advisory: {

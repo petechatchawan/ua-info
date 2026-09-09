@@ -4,8 +4,8 @@ const VALID_POLICY = Object.freeze({
   baseline: 'benchmarks/baselines/ua-info-2.2.0-node22-linux-x64.json',
   requiredEsbuild: '0.25.8',
   blocking: {
-    package: ['unpackedBytes', 'fileCount'],
-    distributions: ['rawBytes', 'fileCount'],
+    package: [],
+    distributions: [],
     bundles: ['rawBytes'],
   },
   advisory: {
@@ -54,7 +54,7 @@ describe('performance gate policy', () => {
 
   test('rejects duplicate and unsupported metric names', () => {
     const duplicate = policy();
-    duplicate.blocking.package = ['unpackedBytes', 'unpackedBytes'];
+    duplicate.blocking.bundles = ['rawBytes', 'rawBytes'];
     expect(() => validateGatePolicy(duplicate)).toThrow('PERF_GATE_POLICY_INVALID');
 
     const unsupported = policy();

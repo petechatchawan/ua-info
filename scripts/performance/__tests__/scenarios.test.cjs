@@ -45,6 +45,12 @@ describe('performance scenario catalog', () => {
     ]);
   });
 
+  test('keeps the predicate bundle scenario predicate-only', () => {
+    const scenario = scenarios.BUNDLE_SCENARIOS.find(({ id }) => id === 'root-predicate');
+    expect(scenario.source).toContain("from 'ua-info/check'");
+    expect(scenario.source).not.toContain('parse(');
+  });
+
   test('requires unique scenario IDs and positive iterations', () => {
     expect(() => scenarios.assertUniqueScenarioIds([{ id: 'x' }, { id: 'x' }])).toThrow(
       'Duplicate scenario id: x',

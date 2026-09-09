@@ -11,6 +11,7 @@ const allowedUaImportOwners = new Set([
 const allowedUaSpecifiers = new Set([
   'ua-info',
   'ua-info/browser',
+  'ua-info/check',
   'ua-info/server',
 ]);
 const forbiddenText = [

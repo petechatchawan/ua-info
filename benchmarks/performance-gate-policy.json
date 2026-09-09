@@ -4,8 +4,8 @@
   "baseline": "benchmarks/baselines/ua-info-2.2.0-node22-linux-x64.json",
   "requiredEsbuild": "0.25.8",
   "blocking": {
-    "package": ["unpackedBytes", "fileCount"],
-    "distributions": ["rawBytes", "fileCount"],
+    "package": [],
+    "distributions": [],
     "bundles": ["rawBytes"]
   },
   "advisory": {

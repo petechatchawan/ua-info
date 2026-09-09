@@ -4,7 +4,7 @@ The UA Info Playground is a private Vite application deployed at <https://petech
 
 ## Package boundary
 
-The playground imports only `ua-info`, `ua-info/browser`, and the dynamically loaded `ua-info/server` entry. Verification builds the root library, creates an `npm pack` tarball, installs that tarball into this application, and then type-checks, tests, bundles, and browser-smokes the consumer. Source aliases and private dist paths are forbidden.
+The playground imports only the public `ua-info`, `ua-info/check`, `ua-info/browser`, and `ua-info/server` entries. Verification builds the root library, creates an `npm pack` tarball, installs that tarball into this application, and then type-checks, tests, bundles, and browser-smokes the consumer. Source aliases and private dist paths are forbidden.
 
 ## Local setup
 

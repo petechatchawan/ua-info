@@ -2,6 +2,38 @@
 
 All notable changes to `ua-info` are documented in this file.
 
+## 3.0.0 — 2026-09-09
+
+### Breaking
+
+- Replaced `UAResult` with fixed-shape `UAInfo`; top-level dimensions always exist and unknown fields use `null` instead of nullable containers or `"unknown"` sentinels.
+- Stable machine identities now live in `name` fields, and `Version.raw` is replaced by `Version.full`.
+- Browser runtime detection is now `detect()` from `ua-info/browser`; `detectCurrent()` was removed.
+- Predicate helpers moved from the package root to `ua-info/check`.
+- Removed the generic embedded-application browser/context classification from the initial v3 contract; `DeviceType.'embedded'` remains only a hardware class.
+
+### Added
+
+- Named predicates for current browser, OS, device, client, and context checks, including Chrome, Safari, Firefox, Edge, Opera, Samsung Internet, Brave, Vivaldi, Mi Browser, Huawei Browser, UC Browser, Yandex Browser, and Arc where reliable evidence exists.
+- Structured Client Hints normalization and field-level evidence merging shared by server and browser adapters.
+- Conservative LINE/LIFF handling: pure User-Agent parsing may identify LINE, while LIFF requires runtime `liff.isInClient()` evidence.
+- Browser runtime high-entropy Client Hints opt-in with `detect({ highEntropy: true })`.
+- `MIGRATION.md` as part of the published package.
+
+### Changed
+
+- `parseRequest()` consumes supported `Sec-CH-UA-*` headers already present in a request without managing Client Hints negotiation.
+- Chromium product identity and Chromium-family lineage now have distinct predicate semantics.
+- Mi Browser uses the stable ID `mi-browser`.
+- Package verification uses one packed tarball for content and ESM/CommonJS/TypeScript consumer checks, with absolute package size/file-count ceilings.
+- Playground, benchmark scenarios, and release/performance documentation now use the v3 public API.
+
+### Compatibility
+
+- ESM, CommonJS, TypeScript, root, `/check`, `/server`, and `/browser` consumers are verified from the packed artifact.
+- Node.js 18 or newer remains required for server-side usage.
+- User-Agent and Client Hints values remain untrusted claims; detection is not authentication.
+
 ## 2.2.0 — 2026-07-25
 
 ### Added

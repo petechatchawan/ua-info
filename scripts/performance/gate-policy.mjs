@@ -10,8 +10,8 @@ const EXPECTED = Object.freeze({
     'parseThroughputDropPercent',
   ],
   metrics: {
-    blockingPackage: ['unpackedBytes', 'fileCount'],
-    blockingDistributions: ['rawBytes', 'fileCount'],
+    blockingPackage: [],
+    blockingDistributions: [],
     blockingBundles: ['rawBytes'],
     advisoryPackage: ['tarballBytes'],
     advisoryBundles: ['gzipBytes', 'brotliBytes'],

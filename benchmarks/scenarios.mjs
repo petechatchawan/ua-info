@@ -60,30 +60,30 @@ export const BUNDLE_SCENARIOS = Object.freeze([
   Object.freeze({
     id: 'root-parse',
     platform: 'node',
-    source: `import { parse } from 'ua-info';\nconst result = parse(${JSON.stringify(CHROME_DESKTOP)});\nconsole.log(result.browser?.id ?? 'unknown');\n`,
+    source: `import { parse } from 'ua-info';\nconst result = parse(${JSON.stringify(CHROME_DESKTOP)});\nconsole.log(result.browser.name ?? 'unknown');\n`,
   }),
   Object.freeze({
     id: 'root-predicate',
     platform: 'node',
-    source: `import { BrowserId, isBrowser } from 'ua-info';\nconst result = { browser: { id: BrowserId.Chrome } };\nconsole.log(isBrowser(result, BrowserId.Chrome));\n`,
+    source: `import { isChrome } from 'ua-info/check';\nconst result = { browser: { name: 'chrome' } };\nconsole.log(isChrome(result));\n`,
   }),
   Object.freeze({
     id: 'server-parse-request',
     platform: 'node',
-    source: `import { parseRequest } from 'ua-info/server';\nconst result = parseRequest({ headers: { 'user-agent': ${JSON.stringify(CHROME_DESKTOP)} } });\nconsole.log(result.browser?.id ?? 'unknown');\n`,
+    source: `import { parseRequest } from 'ua-info/server';\nconst result = parseRequest({ headers: { 'user-agent': ${JSON.stringify(CHROME_DESKTOP)} } });\nconsole.log(result.browser.name ?? 'unknown');\n`,
   }),
   Object.freeze({
     id: 'browser-detect-current',
     platform: 'browser',
-    source: `import { detectCurrent } from 'ua-info/browser';\nglobalThis.__uaInfoDetectCurrent = detectCurrent;\nconsole.log(typeof globalThis.__uaInfoDetectCurrent);\n`,
+    source: `import { detect } from 'ua-info/browser';\nglobalThis.__uaInfoDetect = detect;\nconsole.log(typeof globalThis.__uaInfoDetect);\n`,
   }),
 ]);
 
 export const COLD_IMPORT_SCENARIOS = Object.freeze([
   Object.freeze({ id: 'root-esm', kind: 'import', target: 'dist/esm/index.js' }),
   Object.freeze({ id: 'root-cjs', kind: 'require', target: 'dist/cjs/index.js' }),
-  Object.freeze({ id: 'server-esm', kind: 'import', target: 'dist/esm/v2/server.js' }),
-  Object.freeze({ id: 'browser-esm', kind: 'import', target: 'dist/esm/v2/browser.js' }),
+  Object.freeze({ id: 'server-esm', kind: 'import', target: 'dist/esm/v3/server.js' }),
+  Object.freeze({ id: 'browser-esm', kind: 'import', target: 'dist/esm/v3/browser.js' }),
 ]);
 
 export const THROUGHPUT_SCENARIOS = Object.freeze([

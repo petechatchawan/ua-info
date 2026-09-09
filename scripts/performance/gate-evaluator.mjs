@@ -123,12 +123,9 @@ function compareThroughputWarning({ path, current, baseline, thresholdPercent, c
 }
 
 function assertCompatibleIdentity(report, baseline, policy) {
-  if (
-    report.package.name !== baseline.package.name ||
-    report.package.version !== baseline.package.version
-  ) {
+  if (report.package.name !== baseline.package.name) {
     throw new Error(
-      `PERF_GATE_REPORT_INVALID: Current package ${report.package.name}@${report.package.version} must match baseline ${baseline.package.name}@${baseline.package.version}.`,
+      `PERF_GATE_REPORT_INVALID: Current package name ${report.package.name} must match baseline package name ${baseline.package.name}.`,
     );
   }
   for (const [label, value] of [
