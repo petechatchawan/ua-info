@@ -1,3 +1,4 @@
+import { isValidBrandVersion } from './client-hints';
 import { enrich } from './enrich';
 import type { BrandVersion, ClientHints, RuntimeEvidence } from './input';
 import { parse } from './parse';
@@ -44,7 +45,11 @@ function normalizeBrands(value: unknown): readonly BrandVersion[] | null {
   const brands = value.filter((item): item is BrandVersion => {
     if (!item || typeof item !== 'object') return false;
     const candidate = item as { brand?: unknown; version?: unknown };
-    return typeof candidate.brand === 'string' && typeof candidate.version === 'string';
+    return (
+      typeof candidate.brand === 'string' &&
+      typeof candidate.version === 'string' &&
+      isValidBrandVersion(candidate.version)
+    );
   });
   return brands.length > 0 ? brands : null;
 }

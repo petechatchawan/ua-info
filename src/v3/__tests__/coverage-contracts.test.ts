@@ -255,9 +255,9 @@ describe('supported contract matrix', () => {
     expect(normalizePlatform('Plan9')).toBeNull();
 
     expect(normalizeArchitecture(null, null)).toBeNull();
-    expect(normalizeArchitecture('arm', null)).toEqual({ architecture: CPUArchitecture.ARM, bitness: 32 });
+    expect(normalizeArchitecture('arm', null)).toEqual({ architecture: CPUArchitecture.ARM, bitness: null });
     expect(normalizeArchitecture('armv8', 64)).toEqual({ architecture: CPUArchitecture.ARM, bitness: 64 });
-    expect(normalizeArchitecture('x86', null)).toEqual({ architecture: CPUArchitecture.X86, bitness: 32 });
+    expect(normalizeArchitecture('x86', null)).toEqual({ architecture: CPUArchitecture.X86, bitness: null });
     expect(normalizeArchitecture('i386', 32)).toEqual({ architecture: CPUArchitecture.X86, bitness: 32 });
     expect(normalizeArchitecture('m68k', null)).toBeNull();
   });

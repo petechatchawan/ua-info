@@ -1,4 +1,4 @@
-import { BrowserId, ContextId } from './constants';
+import { BrowserId, ContextId, CPUArchitecture } from './constants';
 import { hasChromiumBrand, normalizeArchitecture, normalizePlatform, selectBrowserBrand } from './client-hints';
 import type { ClientHints, DetectionInput, RuntimeEvidence } from './input';
 import type { BrowserInfo, CPUInfo, DeviceInfo, OSInfo, UAInfo } from './types';
@@ -48,7 +48,15 @@ function mergeDevice(base: DeviceInfo, hints: ClientHints): DeviceInfo {
 
 function mergeCPU(base: CPUInfo, hints: ClientHints): CPUInfo {
   const architecture = normalizeArchitecture(hints.architecture, hints.bitness);
-  if (architecture) return architecture;
+  if (architecture) {
+    const weakerCompatible = architecture.bitness === null && (
+      architecture.architecture === base.architecture ||
+      (architecture.architecture === CPUArchitecture.ARM && base.architecture === CPUArchitecture.ARM64) ||
+      (architecture.architecture === CPUArchitecture.X86 && base.architecture === CPUArchitecture.X86_64)
+    );
+    if (weakerCompatible) return base;
+    return architecture;
+  }
   if (hints.bitness !== null) {
     return { ...base, bitness: hints.bitness };
   }

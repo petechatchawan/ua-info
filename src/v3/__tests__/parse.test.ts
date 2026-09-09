@@ -51,6 +51,18 @@ describe('parse', () => {
     });
   });
 
+  it('preserves standalone Gecko engine evidence for non-browser clients', () => {
+    const result = parse(
+      'Mozilla/5.0 (X11; Linux x86_64; rv:140.0) Gecko/20100101 Thunderbird/140.0',
+    );
+    expect(result.client).toMatchObject({ type: 'email-client', name: 'thunderbird' });
+    expect(result.browser.name).toBeNull();
+    expect(result.engine).toEqual({
+      name: 'gecko',
+      version: { full: '140.0', major: 140 },
+    });
+  });
+
   it('does not create a generic embedded application context', () => {
     expect(parse('Mozilla/5.0 Electron/39.0.0').context).toEqual({
       type: null,

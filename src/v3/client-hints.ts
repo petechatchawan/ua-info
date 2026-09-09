@@ -56,9 +56,8 @@ export function normalizeArchitecture(
     case 'aarch64':
       return { architecture: CPUArchitecture.ARM64, bitness: 64 };
     case 'arm':
-      return bitness === 64
-        ? { architecture: CPUArchitecture.ARM64, bitness: 64 }
-        : { architecture: CPUArchitecture.ARM, bitness: bitness ?? 32 };
+      if (bitness === 64) return { architecture: CPUArchitecture.ARM64, bitness: 64 };
+      return { architecture: CPUArchitecture.ARM, bitness };
     case 'armv7':
     case 'armv8':
       return { architecture: CPUArchitecture.ARM, bitness: bitness ?? 32 };
@@ -67,9 +66,8 @@ export function normalizeArchitecture(
     case 'amd64':
       return { architecture: CPUArchitecture.X86_64, bitness: 64 };
     case 'x86':
-      return bitness === 64
-        ? { architecture: CPUArchitecture.X86_64, bitness: 64 }
-        : { architecture: CPUArchitecture.X86, bitness: bitness ?? 32 };
+      if (bitness === 64) return { architecture: CPUArchitecture.X86_64, bitness: 64 };
+      return { architecture: CPUArchitecture.X86, bitness };
     case 'i386':
     case 'i686':
       return { architecture: CPUArchitecture.X86, bitness: bitness ?? 32 };
@@ -94,6 +92,10 @@ function isGreaseBrand(brand: string): boolean {
   return normalized.includes('not') && normalized.includes('brand');
 }
 
+export function isValidBrandVersion(value: string): boolean {
+  return /^\d+(?:\.\d+)*$/.test(value);
+}
+
 export function parseBrandList(value: string | null): readonly BrandVersion[] {
   if (!value) return [];
   const brands: BrandVersion[] = [];
@@ -101,7 +103,7 @@ export function parseBrandList(value: string | null): readonly BrandVersion[] {
   for (const match of value.matchAll(regex)) {
     const brand = match[1];
     const version = match[2];
-    if (!brand || !/^\d+(?:\.\d+)*$/.test(version) || isGreaseBrand(brand)) continue;
+    if (!brand || !isValidBrandVersion(version) || isGreaseBrand(brand)) continue;
     brands.push({ brand, version });
   }
   return brands;

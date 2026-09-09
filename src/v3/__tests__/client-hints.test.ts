@@ -166,6 +166,28 @@ describe('Client Hints enrichment', () => {
     expect(result.cpu).toEqual({ architecture, bitness: 64 });
   });
 
+  it('preserves stronger compatible CPU evidence when an architecture hint omits bitness', () => {
+    const base = parse(
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/150.0.0.0 Safari/537.36',
+    );
+    const result = enrich(base, {
+      ua: base.ua,
+      clientHints: hints({ architecture: 'x86' }),
+      runtime: null,
+    });
+    expect(result.cpu).toEqual({ architecture: 'x86_64', bitness: 64 });
+  });
+
+  it('keeps generic architecture bitness unknown without stronger evidence', () => {
+    const base = parse('CustomAgent/1.0');
+    const result = enrich(base, {
+      ua: base.ua,
+      clientHints: hints({ architecture: 'x86' }),
+      runtime: null,
+    });
+    expect(result.cpu).toEqual({ architecture: 'x86', bitness: null });
+  });
+
   it('preserves bitness when architecture remains unknown', () => {
     const base = parse('CustomAgent/1.0');
     const result = enrich(base, {

@@ -71,6 +71,18 @@ describe('detect', () => {
     expect(result.cpu).toEqual({ architecture: 'arm64', bitness: 64 });
   });
 
+  it('ignores malformed high-entropy browser versions', async () => {
+    const getHighEntropyValues = jest.fn().mockResolvedValue({
+      fullVersionList: [{ brand: 'Google Chrome', version: 'garbage' }],
+    });
+    installNavigator(chromeUA, getHighEntropyValues);
+    installStandalone(false);
+
+    const result = await detect({ highEntropy: true });
+    expect(result.browser.name).toBe('chrome');
+    expect(result.browser.version).toEqual({ full: '150', major: 150 });
+  });
+
   it('falls back when high entropy access rejects', async () => {
     installNavigator(chromeUA, jest.fn().mockRejectedValue(new Error('denied')));
     installStandalone(false);

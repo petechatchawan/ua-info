@@ -24,6 +24,9 @@ export function detectEngine(
       version: readVersion(userAgent, /\bAppleWebKit\/([0-9]+(?:\.[0-9]+)*)/i),
     };
   }
+  if (/\bGecko\/[0-9]/i.test(userAgent)) {
+    return { name: EngineId.Gecko, version: readVersion(userAgent, /\brv:([0-9]+(?:\.[0-9]+)*)/i) };
+  }
   const webKitVersion = readVersion(userAgent, /\bAppleWebKit\/([0-9]+(?:\.[0-9]+)*)/i);
   if (webKitVersion) return { name: EngineId.WebKit, version: webKitVersion };
   return { name: null, version: null };
