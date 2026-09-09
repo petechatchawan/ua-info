@@ -166,6 +166,16 @@ describe('Client Hints enrichment', () => {
     expect(result.cpu).toEqual({ architecture, bitness: 64 });
   });
 
+  it('preserves bitness when architecture remains unknown', () => {
+    const base = parse('CustomAgent/1.0');
+    const result = enrich(base, {
+      ua: base.ua,
+      clientHints: hints({ bitness: 64 }),
+      runtime: null,
+    });
+    expect(result.cpu).toEqual({ architecture: null, bitness: 64 });
+  });
+
   it('generic Chromium evidence can establish family without inventing a product', () => {
     const base = parse('CustomAgent/1.0');
     const result = enrich(base, {

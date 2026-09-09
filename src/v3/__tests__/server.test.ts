@@ -39,6 +39,16 @@ describe('parseRequest', () => {
     expect(result.browser.version).toEqual({ full: '150.0.7339.80', major: 150 });
   });
 
+  it('falls back to significant versions when the full-version list is malformed', () => {
+    const result = parseRequest({
+      'user-agent': chromeUA,
+      'sec-ch-ua': '"Chromium";v="150", "Google Chrome";v="150"',
+      'sec-ch-ua-full-version-list': '"Google Chrome";v="oops"',
+    });
+    expect(result.browser.name).toBe('chrome');
+    expect(result.browser.version).toEqual({ full: '150', major: 150 });
+  });
+
   it('decodes every supported request hint', () => {
     const result = parseRequest({
       'user-agent': 'Mozilla/5.0 AppleWebKit/537.36 Chrome/150.0.0.0 Safari/537.36',

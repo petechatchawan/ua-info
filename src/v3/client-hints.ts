@@ -101,7 +101,7 @@ export function parseBrandList(value: string | null): readonly BrandVersion[] {
   for (const match of value.matchAll(regex)) {
     const brand = match[1];
     const version = match[2];
-    if (!brand || !version || isGreaseBrand(brand)) continue;
+    if (!brand || !/^\d+(?:\.\d+)*$/.test(version) || isGreaseBrand(brand)) continue;
     brands.push({ brand, version });
   }
   return brands;

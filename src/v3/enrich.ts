@@ -49,7 +49,7 @@ function mergeDevice(base: DeviceInfo, hints: ClientHints): DeviceInfo {
 function mergeCPU(base: CPUInfo, hints: ClientHints): CPUInfo {
   const architecture = normalizeArchitecture(hints.architecture, hints.bitness);
   if (architecture) return architecture;
-  if (hints.bitness !== null && base.architecture !== null) {
+  if (hints.bitness !== null) {
     return { ...base, bitness: hints.bitness };
   }
   return base;
