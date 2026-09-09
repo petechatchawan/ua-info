@@ -10,13 +10,16 @@ const lineUA =
 function installNavigator(
   userAgent = chromeUA,
   getHighEntropyValues: jest.Mock | undefined = undefined,
+  brands: readonly { readonly brand: string; readonly version: string }[] = [
+    { brand: 'Google Chrome', version: '150' },
+  ],
 ): void {
   Object.defineProperty(globalThis, 'navigator', {
     configurable: true,
     value: {
       userAgent,
       userAgentData: {
-        brands: [{ brand: 'Google Chrome', version: '150' }],
+        brands,
         mobile: false,
         platform: 'macOS',
         getHighEntropyValues,
@@ -69,6 +72,19 @@ describe('detect', () => {
     ]);
     expect(result.browser.version?.full).toBe('150.0.7339.80');
     expect(result.cpu).toEqual({ architecture: 'arm64', bitness: 64 });
+  });
+
+  it('ignores malformed low-entropy browser versions', async () => {
+    installNavigator(
+      chromeUA,
+      undefined,
+      [{ brand: 'Google Chrome', version: 'garbage' }],
+    );
+    installStandalone(false);
+
+    const result = await detect();
+    expect(result.browser.name).toBe('chrome');
+    expect(result.browser.version).toEqual({ full: '150.0.0.0', major: 150 });
   });
 
   it('ignores malformed high-entropy browser versions', async () => {

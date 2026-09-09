@@ -67,8 +67,9 @@ async function readClientHints(data: UserAgentDataLike | undefined, highEntropy:
   }
 
   const fullBrands = normalizeBrands(values?.fullVersionList);
+  const lowEntropyBrands = normalizeBrands(data.brands);
   return {
-    brands: fullBrands ?? data.brands ?? [],
+    brands: fullBrands ?? lowEntropyBrands ?? [],
     mobile: typeof data.mobile === 'boolean' ? data.mobile : null,
     platform: typeof data.platform === 'string' ? data.platform : null,
     platformVersion: typeof values?.platformVersion === 'string' ? values.platformVersion : null,

@@ -198,6 +198,20 @@ describe('Client Hints enrichment', () => {
     expect(result.cpu).toEqual({ architecture: null, bitness: 64 });
   });
 
+  it('enriches an established Chromium product from matching Chromium hints', () => {
+    const ua =
+      'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 ' +
+      '(KHTML, like Gecko) Chromium/150.0.0.0 Safari/537.36';
+    const base = parse(ua);
+    const result = enrich(base, {
+      ua,
+      clientHints: hints({ brands: [{ brand: 'Chromium', version: '150.0.7339.80' }] }),
+      runtime: null,
+    });
+    expect(result.browser.name).toBe('chromium');
+    expect(result.browser.version).toEqual({ full: '150.0.7339.80', major: 150 });
+  });
+
   it('generic Chromium evidence can establish family without inventing a product', () => {
     const base = parse('CustomAgent/1.0');
     const result = enrich(base, {

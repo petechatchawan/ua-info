@@ -20,6 +20,11 @@ function mergeBrowser(base: BrowserInfo, hints: ClientHints): BrowserInfo {
     };
   }
 
+  const chromium = hints.brands.find((item) => item.brand.toLowerCase() === 'chromium');
+  if (base.name === BrowserId.Chromium && chromium) {
+    return { ...base, family: 'chromium', version: parseVersion(chromium.version) };
+  }
+
   if (hasChromiumBrand(hints.brands) && base.family === null) {
     return { ...base, family: 'chromium' };
   }
