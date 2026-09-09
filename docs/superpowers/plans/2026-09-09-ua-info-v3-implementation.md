@@ -13,6 +13,7 @@
 ## Global Constraints
 
 - v3 is intentionally breaking; do not keep v2 public aliases merely to reduce migration work.
+- Public and internal symbol names must not use `V3` or `v3` suffixes/prefixes; use canonical names such as `UAInfo`, `BrowserInfo`, `parse`, `detect`, and `parseRequest`.
 - Keep `parse(userAgent: string): UAInfo` synchronous, pure, and runtime-global free.
 - Every top-level `UAInfo` dimension is always present; unknown fields are `null`, never an `unknown` sentinel string.
 - Keep zero runtime dependencies.
