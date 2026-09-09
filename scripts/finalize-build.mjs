@@ -5,7 +5,6 @@ import { fileURLToPath } from 'node:url';
 
 const rootDirectory = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const esmDirectory = path.join(rootDirectory, 'dist', 'esm');
-const cjsDirectory = path.join(rootDirectory, 'dist', 'cjs');
 
 function resolveRelativeSpecifier(filePath, specifier) {
   if (!specifier.startsWith('.')) return specifier;
@@ -54,4 +53,3 @@ async function walk(directory) {
 
 await walk(esmDirectory);
 await writeFile(path.join(esmDirectory, 'package.json'), '{\n  "type": "module"\n}\n');
-await writeFile(path.join(cjsDirectory, 'package.json'), '{\n  "type": "commonjs"\n}\n');

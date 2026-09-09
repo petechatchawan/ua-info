@@ -3,11 +3,14 @@
   "compilerOptions": {
     "outDir": "./dist/esm"
   },
-  "include": ["src/**/*.ts"],
+  "include": [
+    "src/**/*.ts"
+  ],
   "exclude": [
     "node_modules",
     "dist",
     "src/**/*.test.ts",
-    "src/**/__tests__/**"
+    "src/**/__tests__/**",
+    "src/v3/index.ts"
   ]
 }

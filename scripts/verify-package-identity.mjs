@@ -7,7 +7,6 @@ const packageJson = JSON.parse(await readFile(path.join(root, 'package.json'), '
 
 const expected = Object.freeze({
   name: 'ua-info',
-  version: '3.0.0',
   repository: 'git+https://github.com/petechatchawan/ua-info.git',
   homepage: 'https://petechatchawan.github.io/ua-info/',
   bugs: 'https://github.com/petechatchawan/ua-info/issues',
@@ -16,7 +15,7 @@ const expected = Object.freeze({
 const failures = [];
 
 if (packageJson.name !== expected.name) failures.push(`name: ${packageJson.name}`);
-if (packageJson.version !== expected.version) failures.push(`version: ${packageJson.version}`);
+if (!/^3\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(packageJson.version)) failures.push(`version must be ua-info 3.x: ${packageJson.version}`);
 if (packageJson.repository?.url !== expected.repository) failures.push(`repository: ${packageJson.repository?.url}`);
 if (packageJson.homepage !== expected.homepage) failures.push(`homepage: ${packageJson.homepage}`);
 if (packageJson.bugs?.url !== expected.bugs) failures.push(`bugs: ${packageJson.bugs?.url}`);
