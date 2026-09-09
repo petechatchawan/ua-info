@@ -16,7 +16,7 @@ function mergeBrowser(base: BrowserInfo, hints: ClientHints): BrowserInfo {
       ...base,
       name: selected.name,
       family: 'chromium',
-      version: selected.version ? parseVersion(selected.version) : base.version,
+      version: selected.version ? parseVersion(selected.version) : selected.name === base.name ? base.version : null,
     };
   }
 
@@ -38,7 +38,6 @@ function mergeOS(base: OSInfo, hints: ClientHints): OSInfo {
 function mergeDevice(base: DeviceInfo, hints: ClientHints): DeviceInfo {
   let type = base.type;
   if (hints.mobile === true) type = 'mobile';
-  else if (hints.mobile === false && type === null) type = 'desktop';
 
   return {
     type,

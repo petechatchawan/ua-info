@@ -94,6 +94,27 @@ describe('Client Hints enrichment', () => {
     expect(result.browser.version?.full).toBe('150.0.0.0');
   });
 
+  it('drops a previous browser version when Client Hints change product without a version', () => {
+    const result = enrich(parse(chromeUA), {
+      ua: chromeUA,
+      clientHints: hints({ brands: [{ brand: 'Brave', version: '' }] }),
+      runtime: null,
+    });
+    expect(result.browser.name).toBe('brave');
+    expect(result.browser.version).toBeNull();
+  });
+
+  it('does not infer desktop from a non-mobile hint alone', () => {
+    const base = parse('CustomAgent/1.0');
+    const result = enrich(base, {
+      ua: base.ua,
+      clientHints: hints({ mobile: false, platform: 'Android' }),
+      runtime: null,
+    });
+    expect(result.os.name).toBe('android');
+    expect(result.device.type).toBeNull();
+  });
+
   it('preserves a tablet when mobile is false', () => {
     const ipad = parse(
       'Mozilla/5.0 (iPad; CPU OS 18_7 like Mac OS X) AppleWebKit/605.1.15 ' +
@@ -130,6 +151,19 @@ describe('Client Hints enrichment', () => {
       runtime: null,
     });
     expect(result.cpu).toEqual({ architecture, bitness });
+  });
+
+  it.each([
+    ['arm', 'arm64'],
+    ['x86', 'x86_64'],
+  ] as const)('uses 64-bit Client Hints bitness to canonicalize %s as %s', (raw, architecture) => {
+    const base = parse(chromeUA);
+    const result = enrich(base, {
+      ua: base.ua,
+      clientHints: hints({ architecture: raw, bitness: 64 }),
+      runtime: null,
+    });
+    expect(result.cpu).toEqual({ architecture, bitness: 64 });
   });
 
   it('generic Chromium evidence can establish family without inventing a product', () => {

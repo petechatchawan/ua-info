@@ -56,6 +56,9 @@ export function normalizeArchitecture(
     case 'aarch64':
       return { architecture: CPUArchitecture.ARM64, bitness: 64 };
     case 'arm':
+      return bitness === 64
+        ? { architecture: CPUArchitecture.ARM64, bitness: 64 }
+        : { architecture: CPUArchitecture.ARM, bitness: bitness ?? 32 };
     case 'armv7':
     case 'armv8':
       return { architecture: CPUArchitecture.ARM, bitness: bitness ?? 32 };
@@ -64,6 +67,9 @@ export function normalizeArchitecture(
     case 'amd64':
       return { architecture: CPUArchitecture.X86_64, bitness: 64 };
     case 'x86':
+      return bitness === 64
+        ? { architecture: CPUArchitecture.X86_64, bitness: 64 }
+        : { architecture: CPUArchitecture.X86, bitness: bitness ?? 32 };
     case 'i386':
     case 'i686':
       return { architecture: CPUArchitecture.X86, bitness: bitness ?? 32 };

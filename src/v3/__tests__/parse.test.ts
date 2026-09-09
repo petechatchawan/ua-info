@@ -39,6 +39,18 @@ describe('parse', () => {
     expect(result.browser.mode).toBe('webview');
   });
 
+  it('preserves explicit WebKit engine evidence without a browser product', () => {
+    const ua =
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 ' +
+      '(KHTML, like Gecko) Mobile/15E148 Line/26.11.0';
+    const result = parse(ua);
+    expect(result.browser.name).toBeNull();
+    expect(result.engine).toEqual({
+      name: 'webkit',
+      version: { full: '605.1.15', major: 605 },
+    });
+  });
+
   it('does not create a generic embedded application context', () => {
     expect(parse('Mozilla/5.0 Electron/39.0.0').context).toEqual({
       type: null,

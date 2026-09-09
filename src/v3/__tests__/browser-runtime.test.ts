@@ -68,7 +68,7 @@ describe('detect', () => {
       'platformVersion',
     ]);
     expect(result.browser.version?.full).toBe('150.0.7339.80');
-    expect(result.cpu).toEqual({ architecture: 'arm', bitness: 64 });
+    expect(result.cpu).toEqual({ architecture: 'arm64', bitness: 64 });
   });
 
   it('falls back when high entropy access rejects', async () => {
