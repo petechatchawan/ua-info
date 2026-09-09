@@ -87,7 +87,7 @@ function stripQuotes(value: string | null): string | null {
   return trimmed || null;
 }
 
-function isGreaseBrand(brand: string): boolean {
+export function isGreaseBrand(brand: string): boolean {
   const normalized = brand.toLowerCase();
   return normalized.includes('not') && normalized.includes('brand');
 }

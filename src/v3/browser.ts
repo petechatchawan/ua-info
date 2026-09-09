@@ -1,4 +1,4 @@
-import { isValidBrandVersion } from './client-hints';
+import { isGreaseBrand, isValidBrandVersion } from './client-hints';
 import { enrich } from './enrich';
 import type { BrandVersion, ClientHints, RuntimeEvidence } from './input';
 import { parse } from './parse';
@@ -48,7 +48,8 @@ function normalizeBrands(value: unknown): readonly BrandVersion[] | null {
     return (
       typeof candidate.brand === 'string' &&
       typeof candidate.version === 'string' &&
-      isValidBrandVersion(candidate.version)
+      isValidBrandVersion(candidate.version) &&
+      !isGreaseBrand(candidate.brand)
     );
   });
   return brands.length > 0 ? brands : null;

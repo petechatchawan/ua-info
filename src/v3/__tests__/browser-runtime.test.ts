@@ -87,6 +87,21 @@ describe('detect', () => {
     expect(result.browser.version).toEqual({ full: '150.0.0.0', major: 150 });
   });
 
+  it('falls back to low-entropy brands when high-entropy contains only GREASE', async () => {
+    const getHighEntropyValues = jest.fn().mockResolvedValue({
+      fullVersionList: [{ brand: 'Not A;Brand', version: '99' }],
+    });
+    installNavigator(
+      chromeUA,
+      getHighEntropyValues,
+      [{ brand: 'Brave', version: '150' }, { brand: 'Chromium', version: '150' }],
+    );
+    installStandalone(false);
+
+    const result = await detect({ highEntropy: true });
+    expect(result.browser.name).toBe('brave');
+  });
+
   it('ignores malformed high-entropy browser versions', async () => {
     const getHighEntropyValues = jest.fn().mockResolvedValue({
       fullVersionList: [{ brand: 'Google Chrome', version: 'garbage' }],
