@@ -72,7 +72,7 @@ function mergeRuntime(base: UAInfo, runtime: RuntimeEvidence | null): UAInfo {
     };
   }
 
-  if (runtime.standalonePWA === true) {
+  if (runtime.standalonePWA === true && base.context.type === null) {
     return {
       ...base,
       context: { type: 'pwa', name: ContextId.PWA, host: null },
