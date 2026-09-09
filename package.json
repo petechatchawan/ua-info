@@ -1,112 +1,119 @@
 {
-  "name": "ua-info",
-  "version": "2.2.0",
-  "description": "TypeScript User-Agent information parser with Client Hints, browser and device detection, bots, WebViews, and in-app context support",
-  "author": "Chatchawan Koedsawas",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/petechatchawan/ua-info.git"
-  },
-  "homepage": "https://petechatchawan.github.io/ua-info/",
-  "bugs": {
-    "url": "https://github.com/petechatchawan/ua-info/issues"
-  },
-  "engines": {
-    "node": ">=18"
-  },
-  "publishConfig": {
-    "access": "public",
-    "provenance": true
-  },
-  "main": "./dist/cjs/index.js",
-  "module": "./dist/esm/index.js",
-  "types": "./dist/esm/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/esm/index.d.ts",
-      "import": "./dist/esm/index.js",
-      "require": "./dist/cjs/index.js",
-      "default": "./dist/esm/index.js"
+    "name": "ua-info",
+    "version": "3.0.0",
+    "description": "TypeScript User-Agent information parser with Client Hints, browser and device detection, bots, WebViews, and in-app context support",
+    "author": "Chatchawan Koedsawas",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/petechatchawan/ua-info.git"
     },
-    "./server": {
-      "types": "./dist/esm/v2/server.d.ts",
-      "import": "./dist/esm/v2/server.js",
-      "require": "./dist/cjs/v2/server.js",
-      "default": "./dist/esm/v2/server.js"
+    "homepage": "https://petechatchawan.github.io/ua-info/",
+    "bugs": {
+        "url": "https://github.com/petechatchawan/ua-info/issues"
     },
-    "./browser": {
-      "types": "./dist/esm/v2/browser.d.ts",
-      "import": "./dist/esm/v2/browser.js",
-      "require": "./dist/cjs/v2/browser.js",
-      "default": "./dist/esm/v2/browser.js"
+    "engines": {
+        "node": ">=18"
     },
-    "./package.json": "./package.json"
-  },
-  "sideEffects": false,
-  "scripts": {
-    "lint": "eslint './src/**/*.ts'",
-    "clean": "rm -rf dist",
-    "build:esm": "tsc --project tsconfig.build.json",
-    "build:cjs": "tsc --project tsconfig.build.cjs.json",
-    "build": "npm run clean && npm run build:esm && npm run build:cjs && node scripts/finalize-build.mjs",
-    "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --verbose",
-    "fixture:check": "jest src/v2/__tests__/fixture-contract.test.ts --runInBand",
-    "test:coverage": "jest src/v2 --coverage --runInBand",
-    "detection:check": "npm run fixture:check && npm run test:coverage",
-    "identity:check": "node scripts/verify-package-identity.mjs",
-    "consumer:check": "node scripts/verify-consumers.mjs",
-    "check": "npm run identity:check && npm run lint && npm run detection:check && npm run build && npm run pack:check",
-    "pack:check": "node scripts/verify-package.mjs && npm run consumer:check",
-    "performance:sizes": "npm run build && node scripts/performance/collect-sizes.mjs --output artifacts/performance/sizes.json",
-    "performance:runtime": "npm run build && node scripts/performance/collect-runtime.mjs --output artifacts/performance/runtime.json",
-    "performance:report": "node scripts/performance/report.mjs",
-    "performance:validate": "node scripts/performance/validate-report.mjs artifacts/performance/performance-report.json",
-    "performance:gate": "node scripts/performance/evaluate-gate.mjs --report artifacts/performance/performance-report.json --policy benchmarks/performance-gate-policy.json --output artifacts/performance/performance-gate.json --summary artifacts/performance/performance-gate-summary.md",
-    "playground:install": "node scripts/install-playground-package.mjs",
-    "playground:boundaries": "node scripts/verify-playground-boundaries.mjs",
-    "playground:setup": "npm ci --prefix apps/playground && npm run build && npm run playground:install",
-    "playground:dev": "npm run playground:setup && npm run dev --prefix apps/playground",
-    "playground:typecheck": "npm run typecheck --prefix apps/playground",
-    "playground:test": "npm run test --prefix apps/playground",
-    "playground:build": "npm run build --prefix apps/playground",
-    "playground:test:e2e": "npm run playground:build && npm run test:e2e --prefix apps/playground",
-    "playground:check": "npm run playground:setup && npm run playground:boundaries && npm run playground:typecheck && npm run playground:test && npm run playground:test:e2e",
-    "prepack": "npm run check"
-  },
-  "files": [
-    "dist",
-    "README.md",
-    "LICENSE"
-  ],
-  "keywords": [
-    "user-agent",
-    "user-agent-parser",
-    "ua-parser",
-    "useragent",
-    "typescript",
-    "javascript",
-    "browser-detection",
-    "device-detection",
-    "os-detection",
-    "client-hints",
-    "bot-detection",
-    "crawler-detection",
-    "webview-detection",
-    "in-app-browser",
-    "line-liff",
-    "pwa-detection",
-    "nodejs"
-  ],
-  "devDependencies": {
-    "@types/jest": "^29.5.14",
-    "@types/node": "^18.19.130",
-    "@typescript-eslint/eslint-plugin": "^8.7.0",
-    "@typescript-eslint/parser": "^8.7.0",
-    "esbuild": "0.25.8",
-    "eslint": "^8.25.0",
-    "jest": "^30.4.2",
-    "ts-jest": "^29.4.11",
-    "typescript": "^4.9.5"
-  }
+    "publishConfig": {
+        "access": "public",
+        "provenance": true
+    },
+    "main": "./dist/cjs/index.js",
+    "module": "./dist/esm/index.js",
+    "types": "./dist/esm/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/esm/index.d.ts",
+            "import": "./dist/esm/index.js",
+            "require": "./dist/cjs/index.js",
+            "default": "./dist/esm/index.js"
+        },
+        "./check": {
+            "types": "./dist/esm/v3/check.d.ts",
+            "import": "./dist/esm/v3/check.js",
+            "require": "./dist/cjs/v3/check.js",
+            "default": "./dist/esm/v3/check.js"
+        },
+        "./server": {
+            "types": "./dist/esm/v3/server.d.ts",
+            "import": "./dist/esm/v3/server.js",
+            "require": "./dist/cjs/v3/server.js",
+            "default": "./dist/esm/v3/server.js"
+        },
+        "./browser": {
+            "types": "./dist/esm/v3/browser.d.ts",
+            "import": "./dist/esm/v3/browser.js",
+            "require": "./dist/cjs/v3/browser.js",
+            "default": "./dist/esm/v3/browser.js"
+        },
+        "./package.json": "./package.json"
+    },
+    "sideEffects": false,
+    "scripts": {
+        "lint": "eslint './src/**/*.ts'",
+        "clean": "rm -rf dist",
+        "build:esm": "tsc --project tsconfig.build.json",
+        "build:cjs": "tsc --project tsconfig.build.cjs.json",
+        "build": "npm run clean && npm run build:esm && npm run build:cjs && node scripts/finalize-build.mjs",
+        "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --verbose",
+        "fixture:check": "jest src/v3/__tests__ --runInBand",
+        "test:coverage": "jest src/v3 --coverage --runInBand",
+        "detection:check": "npm run test:coverage",
+        "identity:check": "node scripts/verify-package-identity.mjs",
+        "consumer:check": "node scripts/verify-consumers.mjs",
+        "check": "npm run identity:check && npm run lint && npm run detection:check && npm run build && npm run pack:check",
+        "pack:check": "node scripts/verify-package.mjs && npm run consumer:check",
+        "performance:sizes": "npm run build && node scripts/performance/collect-sizes.mjs --output artifacts/performance/sizes.json",
+        "performance:runtime": "npm run build && node scripts/performance/collect-runtime.mjs --output artifacts/performance/runtime.json",
+        "performance:report": "node scripts/performance/report.mjs",
+        "performance:validate": "node scripts/performance/validate-report.mjs artifacts/performance/performance-report.json",
+        "performance:gate": "node scripts/performance/evaluate-gate.mjs --report artifacts/performance/performance-report.json --policy benchmarks/performance-gate-policy.json --output artifacts/performance/performance-gate.json --summary artifacts/performance/performance-gate-summary.md",
+        "playground:install": "node scripts/install-playground-package.mjs",
+        "playground:boundaries": "node scripts/verify-playground-boundaries.mjs",
+        "playground:setup": "npm ci --prefix apps/playground && npm run build && npm run playground:install",
+        "playground:dev": "npm run playground:setup && npm run dev --prefix apps/playground",
+        "playground:typecheck": "npm run typecheck --prefix apps/playground",
+        "playground:test": "npm run test --prefix apps/playground",
+        "playground:build": "npm run build --prefix apps/playground",
+        "playground:test:e2e": "npm run playground:build && npm run test:e2e --prefix apps/playground",
+        "playground:check": "npm run playground:setup && npm run playground:boundaries && npm run playground:typecheck && npm run playground:test && npm run playground:test:e2e",
+        "prepack": "npm run check"
+    },
+    "files": [
+        "dist",
+        "README.md",
+        "MIGRATION.md",
+        "LICENSE"
+    ],
+    "keywords": [
+        "user-agent",
+        "user-agent-parser",
+        "ua-parser",
+        "useragent",
+        "typescript",
+        "javascript",
+        "browser-detection",
+        "device-detection",
+        "os-detection",
+        "client-hints",
+        "bot-detection",
+        "crawler-detection",
+        "webview-detection",
+        "in-app-browser",
+        "line-liff",
+        "pwa-detection",
+        "nodejs"
+    ],
+    "devDependencies": {
+        "@types/jest": "^29.5.14",
+        "@types/node": "^18.19.130",
+        "@typescript-eslint/eslint-plugin": "^8.7.0",
+        "@typescript-eslint/parser": "^8.7.0",
+        "esbuild": "0.25.8",
+        "eslint": "^8.25.0",
+        "jest": "^30.4.2",
+        "ts-jest": "^29.4.11",
+        "typescript": "^4.9.5"
+    }
 }

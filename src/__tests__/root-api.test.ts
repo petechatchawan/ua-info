@@ -1,31 +1,47 @@
-import * as userAgentInfo from '../index';
+import { readFileSync } from 'node:fs';
+import * as root from '../index';
+import * as check from '../v3/check';
+
+// @ts-expect-error v3 root no longer exports generic predicates
+const removedRootPredicate = root.isBrowser;
+// @ts-expect-error v3 removes the UAResult type
+type RemovedUAResult = (typeof import('../index'))['UAResult'];
 
 const CHROME_DESKTOP =
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 ' +
-    '(KHTML, like Gecko) Chrome/120.0.6099.109 Safari/537.36';
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 ' +
+  '(KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36';
 
-describe('ua-info 2.0 package root', () => {
-    it('exports the modern pure parser directly', () => {
-        const result = userAgentInfo.parse(CHROME_DESKTOP);
+describe('ua-info package root', () => {
+  it('keeps the root parser-first', () => {
+    const result = root.parse(CHROME_DESKTOP);
+    expect(result.browser.name).toBe(root.BrowserId.Chrome);
+    expect(result.os.name).toBe(root.OSId.Windows);
+    expect(result.device.type).toBe('desktop');
+    expect('isBrowser' in root).toBe(false);
+    expect(typeof check.isChrome).toBe('function');
+  });
 
-        expect(result.browser?.id).toBe(userAgentInfo.BrowserId.Chrome);
-        expect(result.os?.id).toBe(userAgentInfo.OSId.Windows);
-        expect(result.device.type).toBe('desktop');
+  it('exports check, server, and browser as dedicated package subpaths', () => {
+    const packageJson = JSON.parse(readFileSync('package.json', 'utf8')) as {
+      exports: Record<string, { import?: string; require?: string } | string>;
+    };
+    expect(packageJson.exports['./check']).toMatchObject({
+      import: './dist/esm/v3/check.js',
+      require: './dist/cjs/v3/check.js',
     });
-
-    it('exports the typed predicate helpers', () => {
-        expect(typeof userAgentInfo.isBrowser).toBe('function');
-        expect(typeof userAgentInfo.isBrowserFamily).toBe('function');
-        expect(typeof userAgentInfo.isBrowserMode).toBe('function');
-        expect(typeof userAgentInfo.isEngine).toBe('function');
-        expect(typeof userAgentInfo.isOperatingSystem).toBe('function');
-        expect(typeof userAgentInfo.isDeviceType).toBe('function');
-        expect(typeof userAgentInfo.isCPUArchitecture).toBe('function');
-        expect(typeof userAgentInfo.isClientKind).toBe('function');
-        expect(typeof userAgentInfo.isContextKind).toBe('function');
+    expect(packageJson.exports['./server']).toMatchObject({
+      import: './dist/esm/v3/server.js',
+      require: './dist/cjs/v3/server.js',
     });
-
-    it('does not retain the v1 UAInfo class', () => {
-        expect('UAInfo' in userAgentInfo).toBe(false);
+    expect(packageJson.exports['./browser']).toMatchObject({
+      import: './dist/esm/v3/browser.js',
+      require: './dist/cjs/v3/browser.js',
     });
+  });
 });
+
+void removedRootPredicate;
+function consumeRemovedType(value: RemovedUAResult): void {
+  void value;
+}
+void consumeRemovedType;

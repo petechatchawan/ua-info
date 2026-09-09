@@ -14,9 +14,9 @@ module.exports = {
     '<rootDir>/scripts/performance/__tests__/**/*.test.cjs',
   ],
   collectCoverageFrom: [
-    'src/v2/**/*.ts',
-    '!src/v2/**/__tests__/**',
-    '!src/v2/**/*.d.ts',
+    'src/v3/**/*.ts',
+    '!src/v3/**/__tests__/**',
+    '!src/v3/**/*.d.ts',
   ],
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'text-summary', 'lcov'],

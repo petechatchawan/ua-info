@@ -7,7 +7,7 @@ const packageJson = JSON.parse(await readFile(path.join(root, 'package.json'), '
 
 const expected = Object.freeze({
   name: 'ua-info',
-  version: '2.2.0',
+  version: '3.0.0',
   repository: 'git+https://github.com/petechatchawan/ua-info.git',
   homepage: 'https://petechatchawan.github.io/ua-info/',
   bugs: 'https://github.com/petechatchawan/ua-info/issues',
@@ -21,11 +21,10 @@ if (packageJson.repository?.url !== expected.repository) failures.push(`reposito
 if (packageJson.homepage !== expected.homepage) failures.push(`homepage: ${packageJson.homepage}`);
 if (packageJson.bugs?.url !== expected.bugs) failures.push(`bugs: ${packageJson.bugs?.url}`);
 
-const requiredFiles = new Set(['dist', 'README.md', 'LICENSE']);
+const requiredFiles = new Set(['dist', 'README.md', 'MIGRATION.md', 'LICENSE']);
 for (const entry of requiredFiles) {
   if (!packageJson.files?.includes(entry)) failures.push(`files is missing ${entry}`);
 }
-if (packageJson.files?.includes('MIGRATION.md')) failures.push('files must not include MIGRATION.md');
 
 const publishWorkflow = await readFile(path.join(root, '.github/workflows/publish.yml'), 'utf8');
 const requiredWorkflowFragments = [
@@ -95,4 +94,4 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
-console.log('Package identity verified: ua-info@2.2.0, canonical metadata, and OIDC-only release workflow.');
+console.log(`Package identity verified: ${packageJson.name}@${packageJson.version}, canonical metadata, and OIDC-only release workflow.`);
