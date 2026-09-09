@@ -191,7 +191,7 @@ export type BrowserMode = 'browser' | 'webview' | 'headless'
 
 `browser.family` describes product lineage, not the rendering engine. For example, Chrome or Edge on iOS can have Chromium product lineage while the engine is WebKit.
 
-`browser.mode` describes browser execution evidence only. Application embedding belongs in `context`, not another `embedded` browser mode.
+`browser.mode` describes browser execution evidence only. Initial v3 does not expose a generic application-embedding classification; if one is added later, it belongs in `context`, not in `browser.mode`.
 
 ### Engine
 
@@ -270,15 +270,17 @@ export interface ClientInfo {
 }
 ```
 
+`ClientInfo.name` intentionally remains `string | null` rather than a closed union because bot, crawler, automation, HTTP-client, library, and other non-browser identities form an open-ended catalog. Recognized built-in clients still use normalized stable lowercase names.
+
 Client types are selected leaf classifications. Umbrella predicates have fixed membership:
 
-| Predicate | True for client types |
-| --- | --- |
-| `isBot()` | `bot`, `crawler`, `ai-crawler` |
-| `isCrawler()` | `crawler`, `ai-crawler` |
-| `isAICrawler()` | `ai-crawler` only |
-| `isAIAssistant()` | `ai-assistant` only |
-| `isAutomation()` | `automation` only |
+| Predicate         | True for client types          |
+| ----------------- | ------------------------------ |
+| `isBot()`         | `bot`, `crawler`, `ai-crawler` |
+| `isCrawler()`     | `crawler`, `ai-crawler`        |
+| `isAICrawler()`   | `ai-crawler` only              |
+| `isAIAssistant()` | `ai-assistant` only            |
+| `isAutomation()`  | `automation` only              |
 
 Automation and AI assistants are not silently reclassified as bots.
 
@@ -289,7 +291,6 @@ export type ContextType =
   | 'in-app-browser'
   | 'mini-app'
   | 'pwa'
-  | 'embedded'
 
 export interface ContextInfo {
   readonly type: ContextType | null
@@ -343,7 +344,7 @@ arc
 
 Exported constants are the canonical spelling source. Display names are documentation/UI concerns, not parser data.
 
-Renaming a stable identity is a breaking change.
+Renaming a stable identity is a breaking change. Browser, OS, engine, and context identities are closed exported unions; `ClientInfo.name` is intentionally open-ended as described above.
 
 ## 7. Predicate API
 
@@ -459,7 +460,6 @@ isWebView(info)
 isHeadless(info)
 isInAppBrowser(info)
 isPWA(info)
-isEmbedded(info)
 isLine(info)
 isLiff(info)
 isFacebook(info)
@@ -476,23 +476,23 @@ Support is evidence-backed rather than tier-driven. A browser only receives a de
 
 The initial v3 catalog is:
 
-| Browser / behavior | Stable identity | Evidence expected | Named predicate | Notes |
-| --- | --- | --- | --- | --- |
-| Google Chrome | `chrome` | UA token and/or Chrome UA-CH brand | `isChrome` | Mainstream |
-| Apple Safari | `safari` | Safari eligibility + Version token | `isSafari` | Mainstream |
-| Microsoft Edge | `edge` | Edge platform token and/or Edge UA-CH brand | `isEdge` | Must beat Chrome fallback |
-| Mozilla Firefox | `firefox` | Firefox/FxiOS token | `isFirefox` | Engine differs on iOS |
-| Opera | `opera` | OPR/OPiOS/OPT/Opera-specific evidence | `isOpera` | Must beat Chrome fallback |
-| Samsung Internet / Samsung Browser | `samsung-internet` | SamsungBrowser evidence | `isSamsungInternet` | Active mainstream mobile browser |
-| Brave | `brave` | Brave UA-CH brand or current platform-specific Brave token | `isBrave` | Chrome-like UA can hide identity |
-| Vivaldi | `vivaldi` | Vivaldi token/evidence | `isVivaldi` | Active Chromium browser |
-| Xiaomi Mi Browser | `mi-browser` | MiuiBrowser/Xiaomi product evidence | `isMiBrowser` | First-class Xiaomi/MIUI support |
-| Huawei Browser | `huawei-browser` | HuaweiBrowser evidence | `isHuaweiBrowser` | Active Huawei mobile browser |
-| UC Browser | `uc-browser` | UCBrowser/platform-specific evidence | `isUCBrowser` | Still relevant on mobile markets |
-| Yandex Browser | `yandex-browser` | YaBrowser/platform-specific evidence | `isYandexBrowser` | Active desktop/mobile browser |
-| Arc | `arc` | Arc-specific evidence where available | `isArc` | Fallback when identity cannot be proven |
-| Chromium product | `chromium` | Explicit Chromium product token/brand | `isChromium` | Not a synonym for Chromium-family |
-| Android WebView | browser identity + `mode='webview'` | WebView UA/runtime evidence | `isWebView` | Mode, not a separate product identity |
+| Browser / behavior                 | Stable identity                     | Evidence expected                                          | Named predicate     | Notes                                   |
+| ---------------------------------- | ----------------------------------- | ---------------------------------------------------------- | ------------------- | --------------------------------------- |
+| Google Chrome                      | `chrome`                            | UA token and/or Chrome UA-CH brand                         | `isChrome`          | Mainstream                              |
+| Apple Safari                       | `safari`                            | Safari eligibility + Version token                         | `isSafari`          | Mainstream                              |
+| Microsoft Edge                     | `edge`                              | Edge platform token and/or Edge UA-CH brand                | `isEdge`            | Must beat Chrome fallback               |
+| Mozilla Firefox                    | `firefox`                           | Firefox/FxiOS token                                        | `isFirefox`         | Engine differs on iOS                   |
+| Opera                              | `opera`                             | OPR/OPiOS/OPT/Opera-specific evidence                      | `isOpera`           | Must beat Chrome fallback               |
+| Samsung Internet / Samsung Browser | `samsung-internet`                  | SamsungBrowser evidence                                    | `isSamsungInternet` | Active mainstream mobile browser        |
+| Brave                              | `brave`                             | Brave UA-CH brand or current platform-specific Brave token | `isBrave`           | Chrome-like UA can hide identity        |
+| Vivaldi                            | `vivaldi`                           | Vivaldi token/evidence                                     | `isVivaldi`         | Active Chromium browser                 |
+| Xiaomi Mi Browser                  | `mi-browser`                        | MiuiBrowser/Xiaomi product evidence                        | `isMiBrowser`       | First-class Xiaomi/MIUI support         |
+| Huawei Browser                     | `huawei-browser`                    | HuaweiBrowser evidence                                     | `isHuaweiBrowser`   | Active Huawei mobile browser            |
+| UC Browser                         | `uc-browser`                        | UCBrowser/platform-specific evidence                       | `isUCBrowser`       | Still relevant on mobile markets        |
+| Yandex Browser                     | `yandex-browser`                    | YaBrowser/platform-specific evidence                       | `isYandexBrowser`   | Active desktop/mobile browser           |
+| Arc                                | `arc`                               | Arc-specific evidence where available                      | `isArc`             | Fallback when identity cannot be proven |
+| Chromium product                   | `chromium`                          | Explicit Chromium product token/brand                      | `isChromium`        | Not a synonym for Chromium-family       |
+| Android WebView                    | browser identity + `mode='webview'` | WebView UA/runtime evidence                                | `isWebView`         | Mode, not a separate product identity   |
 
 The catalog is reviewed at releases using current usage, active vendor support, reliable signals, fixtures, and real consumer demand.
 
@@ -588,12 +588,12 @@ isLiff(info) // false
 
 When a caller supplies `liff`:
 
-| Runtime result | Effect |
-| --- | --- |
-| `liff.isInClient() === true` | establish `{ type: 'mini-app', name: 'liff', host.name: 'line' }` |
-| `false` | do not establish LIFF; preserve independently reliable LINE/other context evidence |
-| adapter absent | no LIFF runtime claim |
-| adapter throws | ignore the failed optional integration and preserve other evidence |
+| Runtime result               | Effect                                                                             |
+| ---------------------------- | ---------------------------------------------------------------------------------- |
+| `liff.isInClient() === true` | establish `{ type: 'mini-app', name: 'liff', host.name: 'line' }`                  |
+| `false`                      | do not establish LIFF; preserve independently reliable LINE/other context evidence |
+| adapter absent               | no LIFF runtime claim                                                              |
+| adapter throws               | ignore the failed optional integration and preserve other evidence                 |
 
 A runtime `true` is authoritative for LIFF-browser execution even if the UA is generic. A runtime `false` does not erase a separately detected LINE in-app browser; it only means LIFF-browser execution was not established.
 
@@ -629,6 +629,25 @@ platformVersion
 
 Unsupported, denied, malformed, or failed high-entropy access falls back to existing evidence without making normal detection fail.
 
+### Server request parsing
+
+`parseRequest(input)` reads every supported `Sec-CH-UA-*` request header that is already present and merges it with User-Agent evidence. It has no `highEntropy` option because server-side parsing cannot request missing hints from the current request.
+
+Supported request headers initially include:
+
+```text
+Sec-CH-UA
+Sec-CH-UA-Mobile
+Sec-CH-UA-Platform
+Sec-CH-UA-Full-Version-List
+Sec-CH-UA-Arch
+Sec-CH-UA-Bitness
+Sec-CH-UA-Model
+Sec-CH-UA-Platform-Version
+```
+
+Low-entropy hints may arrive without opt-in. Additional/high-entropy hints are only used when the caller's HTTP stack has already negotiated them and the user agent actually sends them. `ua-info` does not emit or manage `Accept-CH`, `Critical-CH`, `Permissions-Policy`, or response caching headers; that negotiation remains the caller/framework responsibility. Missing hints simply fall back to compatible User-Agent evidence.
+
 ## 13. Internal Detection Input
 
 Browser and server paths normalize to one internal representation:
@@ -651,6 +670,7 @@ The parser/enricher pipeline produces one `UAInfo`; adapters do not maintain par
 - Adapters normalize missing User-Agent input to `''` before parsing.
 - Unsupported identity -> identity field `null`.
 - Family known but product unknown -> product `name: null`, family retained.
+- Product known but family not reliably established -> product `name` retained, `browser.family: null`. A specific vendor identity does not force a lineage guess.
 - Missing version -> `version: null`.
 - Known version text with unparsable major -> `version.full` retained, `version.major: null`.
 - Malformed Client Hint field -> ignore that field and continue with compatible evidence.
@@ -668,6 +688,8 @@ A new first-class identity requires:
 5. generic predicate compatibility,
 6. named predicate only when common usage justifies it,
 7. documented limitations when the product masks its identity.
+
+The same evidence bar applies before adding a new `ContextType` member. The initial v3 context taxonomy intentionally excludes a generic embedded-application type until a concrete public signal and fixture contract justify it.
 
 No registry/plugin subsystem is introduced. The detector catalog is internal data and focused functions.
 
@@ -724,7 +746,7 @@ Lock cases where:
 
 ### Context matrix
 
-Test LINE in-app, LIFF runtime true, LIFF runtime false, missing adapter, throwing adapter, external browser, PWA, and embedded application contexts independently.
+Test LINE in-app, LIFF runtime true, LIFF runtime false, missing adapter, throwing adapter, external browser, and PWA contexts independently.
 
 ### Package consumers
 
@@ -759,7 +781,7 @@ Expected migration points:
 - `isOperatingSystem()` -> `isOS()`.
 - `isDeviceType()` -> `isDevice()`.
 - Xiaomi identity `xiaomi-browser` -> `mi-browser`.
-- application embedding is represented by `context`, not a duplicated browser `embedded` mode.
+- v2 `BrowserMode.Embedded` / `ContextKind.Embedded` are not part of the initial v3 context contract; embedded-application classification is deferred until a concrete signal and fixture contract is specified.
 - legacy IE/EdgeHTML behavior does not define the modern browser architecture.
 
 A published v3 release must include a dedicated v2 -> v3 migration guide.
