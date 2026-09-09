@@ -71,3 +71,60 @@ export function normalizeArchitecture(
       return null;
   }
 }
+
+export type HeaderReader = (name: string) => string | null;
+
+function stripQuotes(value: string | null): string | null {
+  if (value === null) return null;
+  const trimmed = value.trim();
+  if (trimmed.length >= 2 && trimmed.startsWith('"') && trimmed.endsWith('"')) {
+    return trimmed.slice(1, -1);
+  }
+  return trimmed || null;
+}
+
+function isGreaseBrand(brand: string): boolean {
+  const normalized = brand.toLowerCase();
+  return normalized.includes('not') && normalized.includes('brand');
+}
+
+export function parseBrandList(value: string | null): readonly BrandVersion[] {
+  if (!value) return [];
+  const brands: BrandVersion[] = [];
+  const regex = /"([^"]+)"\s*;\s*v\s*=\s*"([^"]+)"/g;
+  for (const match of value.matchAll(regex)) {
+    const brand = match[1];
+    const version = match[2];
+    if (!brand || !version || isGreaseBrand(brand)) continue;
+    brands.push({ brand, version });
+  }
+  return brands;
+}
+
+function parseMobile(value: string | null): boolean | null {
+  const normalized = value?.trim();
+  if (normalized === '?1') return true;
+  if (normalized === '?0') return false;
+  return null;
+}
+
+function parseBitness(value: string | null): 32 | 64 | null {
+  const normalized = stripQuotes(value);
+  if (normalized === '32') return 32;
+  if (normalized === '64') return 64;
+  return null;
+}
+
+export function decodeClientHints(readHeader: HeaderReader): ClientHints {
+  const significant = parseBrandList(readHeader('sec-ch-ua'));
+  const full = parseBrandList(readHeader('sec-ch-ua-full-version-list'));
+  return {
+    brands: full.length > 0 ? full : significant,
+    mobile: parseMobile(readHeader('sec-ch-ua-mobile')),
+    platform: stripQuotes(readHeader('sec-ch-ua-platform')),
+    platformVersion: stripQuotes(readHeader('sec-ch-ua-platform-version')),
+    architecture: stripQuotes(readHeader('sec-ch-ua-arch')),
+    bitness: parseBitness(readHeader('sec-ch-ua-bitness')),
+    model: stripQuotes(readHeader('sec-ch-ua-model')),
+  };
+}
