@@ -18,7 +18,7 @@ export function createCurrentDetectionEffect(input: {
       const requestGeneration = ++generation;
       input.store.dispatch({ type: 'current-detection-requested' });
       try {
-        const result = await input.detectionService.detectCurrent();
+        const result = await input.detectionService.detect();
         if (destroyed || requestGeneration !== generation) return;
         input.store.dispatch({ type: 'current-detection-succeeded', result });
       } catch (error) {

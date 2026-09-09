@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { UAResult, UADetectionService } from '../services/ua-detection-service';
+import type { UAInfo, UADetectionService } from '../services/ua-detection-service';
 import { chromeResult, lineLiffResult } from '../tests/fixtures';
 import { createManualDetectionEffect } from './manual-detection-effect';
 import { createPlaygroundStore } from './playground-store';
@@ -13,7 +13,7 @@ function deferred<T>() {
 function createHarness() {
   const store = createPlaygroundStore();
   const detectionService: UADetectionService = {
-    detectCurrent: vi.fn(),
+    detect: vi.fn(),
     parseUserAgent: vi.fn().mockReturnValue(chromeResult),
     parseRequest: vi.fn().mockResolvedValue(lineLiffResult),
   };
@@ -59,8 +59,8 @@ describe('createManualDetectionEffect', () => {
   });
 
   it('ignores an older asynchronous result', async () => {
-    const first = deferred<UAResult>();
-    const second = deferred<UAResult>();
+    const first = deferred<UAInfo>();
+    const second = deferred<UAInfo>();
     const { store, detectionService, effect } = createHarness();
     vi.mocked(detectionService.parseRequest)
       .mockReturnValueOnce(first.promise)

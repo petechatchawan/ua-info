@@ -1,30 +1,24 @@
-import { parse, type UAResult } from 'ua-info';
-import { detectCurrent, type DetectCurrentOptions } from 'ua-info/browser';
+import { parse, type UAInfo } from 'ua-info';
+import { detect, type DetectOptions } from 'ua-info/browser';
 import type { HeaderRecord } from 'ua-info/server';
 
-export type { UAResult };
+export type { UAInfo };
 export type ClientHintHeaders = HeaderRecord;
 
 export interface UADetectionService {
-  detectCurrent(): Promise<UAResult>;
-  parseUserAgent(userAgent: string): UAResult;
+  detect(): Promise<UAInfo>;
+  parseUserAgent(userAgent: string): UAInfo;
   parseRequest(input: {
     readonly userAgent: string;
     readonly headers: ClientHintHeaders;
-  }): Promise<UAResult>;
+  }): Promise<UAInfo>;
 }
 
-const highEntropy: NonNullable<DetectCurrentOptions['highEntropy']> = [
-  'architecture',
-  'bitness',
-  'fullVersionList',
-  'model',
-  'platformVersion',
-];
+const detectOptions: DetectOptions = { highEntropy: true };
 
 export function createUADetectionService(): UADetectionService {
   return {
-    detectCurrent: () => detectCurrent({ highEntropy }),
+    detect: () => detect(detectOptions),
     parseUserAgent: (userAgent) => parse(userAgent),
     async parseRequest(input) {
       const { parseRequest } = await import('ua-info/server');

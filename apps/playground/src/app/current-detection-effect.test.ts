@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import type { UAResult, UADetectionService } from '../services/ua-detection-service';
+import type { UAInfo, UADetectionService } from '../services/ua-detection-service';
 import { chromeResult, lineLiffResult } from '../tests/fixtures';
 import { createCurrentDetectionEffect } from './current-detection-effect';
 import { createPlaygroundStore } from './playground-store';
@@ -11,8 +11,8 @@ function deferred<T>() {
   return { promise, resolve, reject };
 }
 
-function service(detectCurrent: UADetectionService['detectCurrent']): UADetectionService {
-  return { detectCurrent, parseUserAgent: vi.fn(), parseRequest: vi.fn() };
+function service(detect: UADetectionService['detect']): UADetectionService {
+  return { detect, parseUserAgent: vi.fn(), parseRequest: vi.fn() };
 }
 
 describe('createCurrentDetectionEffect', () => {
@@ -37,8 +37,8 @@ describe('createCurrentDetectionEffect', () => {
   });
 
   it('ignores stale and post-destroy completions', async () => {
-    const first = deferred<UAResult>();
-    const second = deferred<UAResult>();
+    const first = deferred<UAInfo>();
+    const second = deferred<UAInfo>();
     const detect = vi.fn().mockReturnValueOnce(first.promise).mockReturnValueOnce(second.promise);
     const store = createPlaygroundStore();
     const effect = createCurrentDetectionEffect({ store, detectionService: service(detect) });
@@ -49,7 +49,7 @@ describe('createCurrentDetectionEffect', () => {
     first.resolve(chromeResult);
     await firstRun;
     expect(store.getState().current).toEqual({ status: 'success', result: lineLiffResult });
-    const third = deferred<UAResult>();
+    const third = deferred<UAInfo>();
     detect.mockReturnValueOnce(third.promise);
     const thirdRun = effect.detect();
     effect.destroy();

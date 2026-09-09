@@ -1,4 +1,4 @@
-import type { UAResult } from '../services/ua-detection-service';
+import type { UAInfo } from '../services/ua-detection-service';
 import type { PlaygroundMode } from './playground-state';
 
 const NOT_DETECTED = 'Not detected';
@@ -9,7 +9,9 @@ function humanize(value: string | null | undefined): string {
     webview: 'WebView',
     pwa: 'PWA',
     'in-app-browser': 'In-App Browser',
-    'ai-agent': 'AI Agent',
+    'mini-app': 'Mini App',
+    'ai-crawler': 'AI Crawler',
+    'ai-assistant': 'AI Assistant',
     'http-client': 'HTTP Client',
     'email-client': 'Email Client',
     'media-player': 'Media Player',
@@ -17,6 +19,12 @@ function humanize(value: string | null | undefined): string {
     xr: 'XR',
     x86_64: 'x86_64',
     arm64: 'ARM64',
+    ipados: 'iPadOS',
+    ios: 'iOS',
+    macos: 'macOS',
+    chromeos: 'ChromeOS',
+    liff: 'LIFF',
+    line: 'LINE',
   };
   return (
     special[value] ??
@@ -28,10 +36,11 @@ function humanize(value: string | null | undefined): string {
 }
 
 function formatProduct(
-  product: { readonly name: string; readonly version: { readonly raw: string } | null } | null,
+  product: { readonly name: string | null; readonly version: { readonly full: string } | null },
 ): string {
-  if (!product) return NOT_DETECTED;
-  return product.version?.raw ? `${product.name} ${product.version.raw}` : product.name;
+  if (!product.name) return NOT_DETECTED;
+  const name = humanize(product.name);
+  return product.version?.full ? `${name} ${product.version.full}` : name;
 }
 
 export interface DetectionSummaryViewModel {
@@ -60,56 +69,62 @@ function row(label: string, value: string | null | undefined): ResultRowViewMode
   return { label, value: normalized, detected: normalized !== NOT_DETECTED };
 }
 
-export function createDetectionSummary(result: UAResult): DetectionSummaryViewModel {
+export function createDetectionSummary(result: UAInfo): DetectionSummaryViewModel {
   return {
     browser: formatProduct(result.browser),
-    mode: humanize(result.browser?.mode),
-    contextHost: formatProduct(result.context?.host ?? null),
-    contextSurface: result.context?.name ?? NOT_DETECTED,
+    mode: humanize(result.browser.mode),
+    contextHost: result.context.host ? formatProduct(result.context.host) : NOT_DETECTED,
+    contextSurface: humanize(result.context.name),
     os: formatProduct(result.os),
     device: humanize(result.device.type),
   };
 }
 
-export function createResultCards(result: UAResult): readonly ResultCardViewModel[] {
+export function createResultCards(result: UAInfo): readonly ResultCardViewModel[] {
   return [
     {
       id: 'browser',
       title: 'Browser',
       rows: [
-        row('Name', result.browser?.name),
-        row('Version', result.browser?.version?.raw),
-        row('Family', humanize(result.browser?.family)),
-        row('Mode', humanize(result.browser?.mode)),
+        row('Name', result.browser.name ? humanize(result.browser.name) : null),
+        row('Version', result.browser.version?.full),
+        row('Family', humanize(result.browser.family)),
+        row('Mode', humanize(result.browser.mode)),
       ],
     },
     {
       id: 'context',
       title: 'Context',
       rows: [
-        row('Kind', humanize(result.context?.kind)),
-        row('Surface', result.context?.name),
-        row('Host', formatProduct(result.context?.host ?? null)),
+        row('Type', humanize(result.context.type)),
+        row('Surface', result.context.name ? humanize(result.context.name) : null),
+        row('Host', result.context.host ? formatProduct(result.context.host) : null),
       ],
     },
     {
       id: 'client',
       title: 'Client',
       rows: [
-        row('Kind', humanize(result.client?.kind)),
-        row('Name', result.client?.name),
-        row('Version', result.client?.version?.raw),
+        row('Type', humanize(result.client.type)),
+        row('Name', result.client.name),
+        row('Version', result.client.version?.full),
       ],
     },
     {
       id: 'engine',
       title: 'Engine',
-      rows: [row('Name', result.engine?.name), row('Version', result.engine?.version?.raw)],
+      rows: [
+        row('Name', result.engine.name ? humanize(result.engine.name) : null),
+        row('Version', result.engine.version?.full),
+      ],
     },
     {
       id: 'os',
       title: 'Operating System',
-      rows: [row('Name', result.os?.name), row('Version', result.os?.version?.raw)],
+      rows: [
+        row('Name', result.os.name ? humanize(result.os.name) : null),
+        row('Version', result.os.version?.full),
+      ],
     },
     {
       id: 'device',
@@ -124,8 +139,8 @@ export function createResultCards(result: UAResult): readonly ResultCardViewMode
       id: 'cpu',
       title: 'CPU',
       rows: [
-        row('Architecture', humanize(result.cpu?.architecture)),
-        row('Bitness', result.cpu?.bitness ? `${result.cpu.bitness}-bit` : null),
+        row('Architecture', humanize(result.cpu.architecture)),
+        row('Bitness', result.cpu.bitness ? `${result.cpu.bitness}-bit` : null),
       ],
     },
   ];
@@ -137,7 +152,7 @@ export function createCodeExample(input: {
   readonly hasClientHints: boolean;
 }): string {
   if (input.mode === 'current') {
-    return `import { detectCurrent } from 'ua-info/browser';\n\nconst result = await detectCurrent();`;
+    return `import { detect } from 'ua-info/browser';\n\nconst result = await detect();`;
   }
   if (input.hasClientHints) {
     return (

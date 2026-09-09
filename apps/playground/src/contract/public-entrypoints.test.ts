@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { BrowserId, parse } from 'ua-info';
-import { detectCurrent } from 'ua-info/browser';
+import { isChrome } from 'ua-info/check';
+import { detect } from 'ua-info/browser';
 import { parseRequest } from 'ua-info/server';
 
 const chromeUA =
@@ -8,7 +9,7 @@ const chromeUA =
   '(KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36';
 
 describe('packed ua-info browser consumer contract', () => {
-  it('resolves root, browser, and server entry points', () => {
+  it('resolves root, check, browser, and server entry points', () => {
     const parsed = parse(chromeUA);
     const enriched = parseRequest({
       userAgent: chromeUA,
@@ -19,9 +20,10 @@ describe('packed ua-info browser consumer contract', () => {
       },
     });
 
-    expect(parsed.browser?.id).toBe(BrowserId.Chrome);
-    expect(enriched.browser?.version?.major).toBe(151);
+    expect(parsed.browser.name).toBe(BrowserId.Chrome);
+    expect(isChrome(parsed)).toBe(true);
+    expect(enriched.browser.version?.major).toBe(151);
     expect(enriched.device.type).toBe('mobile');
-    expect(typeof detectCurrent).toBe('function');
+    expect(typeof detect).toBe('function');
   });
 });

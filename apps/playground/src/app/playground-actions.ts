@@ -1,4 +1,4 @@
-import type { UAResult } from '../services/ua-detection-service';
+import type { UAInfo } from '../services/ua-detection-service';
 import type {
   ClientHintsInputError,
   PlaygroundMode,
@@ -8,11 +8,11 @@ import type {
 export type PlaygroundAction =
   | { readonly type: 'mode-selected'; readonly mode: PlaygroundMode }
   | { readonly type: 'current-detection-requested' }
-  | { readonly type: 'current-detection-succeeded'; readonly result: UAResult }
+  | { readonly type: 'current-detection-succeeded'; readonly result: UAInfo }
   | { readonly type: 'current-detection-failed'; readonly message: string }
   | { readonly type: 'manual-user-agent-changed'; readonly value: string }
   | { readonly type: 'manual-parse-requested' }
-  | { readonly type: 'manual-parse-succeeded'; readonly result: UAResult }
+  | { readonly type: 'manual-parse-succeeded'; readonly result: UAInfo }
   | { readonly type: 'manual-parse-failed'; readonly message: string }
   | {
       readonly type: 'sample-selected';

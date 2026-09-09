@@ -15,7 +15,7 @@ test('detects the current browser without console errors', async ({ page }) => {
   await page.screenshot({ path: 'test-results/playground-desktop.png', fullPage: true });
 });
 
-test('separates LINE LIFF browser, mode, and context fields', async ({ page }) => {
+test('keeps pure LINE parsing distinct from runtime LIFF', async ({ page }) => {
   await page.goto('./');
   await page.getByRole('tab', { name: 'Manual User-Agent' }).click();
   await expect(page.locator('#current-browser-panel')).toBeHidden();
@@ -25,11 +25,11 @@ test('separates LINE LIFF browser, mode, and context fields', async ({ page }) =
   await expect(summary).toBeVisible();
   await expect(summary.locator('[data-field="mode"]')).toHaveText('WebView');
   await expect(summary.locator('[data-field="contextHost"]')).toContainText('LINE');
-  await expect(summary.locator('[data-field="contextSurface"]')).toHaveText('LIFF');
+  await expect(summary.locator('[data-field="contextSurface"]')).toHaveText('LINE');
   const raw = JSON.parse((await page.getByTestId('raw-json').textContent()) ?? '{}');
   expect(raw.browser.mode).toBe('webview');
-  expect(raw.context.name).toBe('LIFF');
-  expect(raw.context.host.name).toBe('LINE');
+  expect(raw.context.name).toBe('line');
+  expect(raw.context.host.name).toBe('line');
 });
 
 test('fits a 320px viewport and makes no third-party request', async ({ page }) => {
@@ -42,6 +42,6 @@ test('fits a 320px viewport and makes no third-party request', async ({ page }) 
     () => document.documentElement.scrollWidth <= window.innerWidth,
   );
   expect(fits).toBe(true);
-  expect([...origins]).toEqual(['http://127.0.0.1:4173']);
+  expect([...origins]).toEqual(['http://127.0.0.1:4174']);
   await page.screenshot({ path: 'test-results/playground-mobile-320.png', fullPage: true });
 });

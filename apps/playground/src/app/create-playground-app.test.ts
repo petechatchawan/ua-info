@@ -4,7 +4,7 @@ import { createPlaygroundApp } from './create-playground-app';
 
 function service() {
   return {
-    detectCurrent: vi.fn().mockResolvedValue(chromeResult),
+    detect: vi.fn().mockResolvedValue(chromeResult),
     parseUserAgent: vi.fn().mockReturnValue(chromeResult),
     parseRequest: vi.fn().mockResolvedValue(chromeResult),
   };
@@ -20,7 +20,7 @@ describe('createPlaygroundApp', () => {
     await Promise.resolve();
     app.selectMode('manual');
     expect(app.element).toBe(shell);
-    expect(detectionService.detectCurrent).toHaveBeenCalledOnce();
+    expect(detectionService.detect).toHaveBeenCalledOnce();
     expect(app.element.querySelector('#manual-user-agent-panel')?.hasAttribute('hidden')).toBe(false);
     app.destroy();
   });

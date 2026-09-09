@@ -21,7 +21,7 @@ import { parseClientHintsInput } from '../services/client-hints-input';
 import {
   createUADetectionService,
   type UADetectionService,
-  type UAResult,
+  type UAInfo,
 } from '../services/ua-detection-service';
 
 export interface PlaygroundApp {
@@ -139,7 +139,7 @@ export function createPlaygroundApp(
     privacy.element,
   );
 
-  const activeResult = (): UAResult | null => {
+  const activeResult = (): UAInfo | null => {
     const state = store.getState();
     if (state.mode === 'current') {
       return state.current.status === 'success' ? state.current.result : null;

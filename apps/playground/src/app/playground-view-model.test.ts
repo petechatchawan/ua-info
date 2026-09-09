@@ -12,7 +12,12 @@ describe('playground view models', () => {
   });
 
   it('uses Not detected for absent values', () => {
-    const result = { ...chromeResult, client: null, context: null, cpu: null };
+    const result = {
+      ...chromeResult,
+      client: { type: null, name: null, version: null },
+      context: { type: null, name: null, host: null },
+      cpu: { architecture: null, bitness: null },
+    };
     const cards = createResultCards(result);
     expect(cards.find((card) => card.id === 'client')?.rows.every((row) => row.value === 'Not detected')).toBe(true);
     expect(cards.find((card) => card.id === 'cpu')?.rows.every((row) => row.value === 'Not detected')).toBe(true);

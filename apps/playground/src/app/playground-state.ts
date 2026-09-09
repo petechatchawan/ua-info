@@ -1,11 +1,11 @@
-import type { UAResult } from '../services/ua-detection-service';
+import type { UAInfo } from '../services/ua-detection-service';
 
 export type PlaygroundMode = 'current' | 'manual';
 
 export type CurrentDetectionState =
   | { readonly status: 'idle' }
   | { readonly status: 'loading' }
-  | { readonly status: 'success'; readonly result: UAResult }
+  | { readonly status: 'success'; readonly result: UAInfo }
   | { readonly status: 'error'; readonly message: string };
 
 export type ManualParseStatus = 'idle' | 'scheduled' | 'parsing' | 'success' | 'error';
@@ -31,7 +31,7 @@ export interface ManualPlaygroundState {
     readonly error: ClientHintsInputError | null;
   };
   readonly parseStatus: ManualParseStatus;
-  readonly result: UAResult | null;
+  readonly result: UAInfo | null;
   readonly errorMessage: string | null;
 }
 
