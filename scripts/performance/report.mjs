@@ -13,12 +13,7 @@ const rootDirectory = path.resolve(path.dirname(modulePath), '../..');
 const outputDirectory = path.join(rootDirectory, 'artifacts', 'performance');
 const reportPath = path.join(outputDirectory, 'performance-report.json');
 const summaryPath = path.join(outputDirectory, 'performance-summary.md');
-const baselinePath = path.join(
-  rootDirectory,
-  'benchmarks',
-  'baselines',
-  'ua-info-2.2.0-node22-linux-x64.json',
-);
+const gatePolicyPath = path.join(rootDirectory, 'benchmarks', 'performance-gate-policy.json');
 
 async function resolveCommit() {
   if (process.env.GITHUB_SHA) return process.env.GITHUB_SHA;
@@ -72,6 +67,7 @@ export async function createPerformanceReport() {
   };
 
   validateReport(report);
+  const baselinePath = path.join(rootDirectory, (await readJson(gatePolicyPath)).baseline);
   const baseline = existsSync(baselinePath) ? await readJson(baselinePath) : null;
   if (baseline) validateReport(baseline);
   const summary = renderSummary(report, baseline);
