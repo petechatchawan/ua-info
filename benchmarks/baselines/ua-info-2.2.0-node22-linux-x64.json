@@ -3,7 +3,7 @@
   "policy": "report-only",
   "generatedAt": "2026-07-25T18:22:00.588Z",
   "package": {
-    "name": "ua-info",
+    "name": "user-agent-parser-ts",
     "version": "2.2.0"
   },
   "environment": {

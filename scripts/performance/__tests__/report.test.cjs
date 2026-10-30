@@ -3,7 +3,7 @@ function createReport() {
     schemaVersion: 1,
     policy: 'report-only',
     generatedAt: '2026-07-26T00:00:00.000Z',
-    package: { name: 'ua-info', version: '2.2.0' },
+    package: { name: 'user-agent-parser-ts', version: '2.2.0' },
     environment: {
       platform: 'linux',
       arch: 'x64',
@@ -96,7 +96,7 @@ describe('performance report schema and summary', () => {
 
   test('renders package, bundle, import and throughput sections', () => {
     const summary = renderSummary(createReport());
-    expect(summary).toContain('# ua-info Performance & Bundle Size');
+    expect(summary).toContain('# user-agent-parser-ts Performance & Bundle Size');
     expect(summary).toContain('## Package');
     expect(summary).toContain('## Consumer bundles');
     expect(summary).toContain('## Cold imports');

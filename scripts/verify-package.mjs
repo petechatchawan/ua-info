@@ -12,9 +12,9 @@ const packageJson = JSON.parse(await readFile(path.join(root, 'package.json'), '
 const workspace = await mkdtemp(path.join(os.tmpdir(), 'ua-info-pack-'));
 
 try {
-  if (packageJson.name !== 'ua-info') throw new Error(`Expected package name ua-info, received ${packageJson.name}`);
+  if (packageJson.name !== 'user-agent-parser-ts') throw new Error(`Expected package name user-agent-parser-ts, received ${packageJson.name}`);
   if (!/^3\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(packageJson.version)) {
-    throw new Error(`Expected a valid ua-info 3.x version, received ${packageJson.version}`);
+    throw new Error(`Expected a valid user-agent-parser-ts 3.x version, received ${packageJson.version}`);
   }
   for (const subpath of ['.', './check', './server', './browser']) {
     if (!packageJson.exports?.[subpath]) throw new Error(`The 3.x export map is missing ${subpath}.`);

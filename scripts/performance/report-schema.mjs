@@ -59,7 +59,7 @@ export function validateReport(report) {
   assertString(report.generatedAt, 'generatedAt');
 
   const packageIdentity = assertObject(report.package, 'package');
-  if (packageIdentity.name !== 'ua-info') {
+  if (packageIdentity.name !== 'user-agent-parser-ts') {
     throw new Error(`Unexpected package identity: ${packageIdentity.name}.`);
   }
   assertString(packageIdentity.version, 'package.version');

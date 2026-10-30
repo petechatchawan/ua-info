@@ -6,7 +6,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const packageJson = JSON.parse(await readFile(path.join(root, 'package.json'), 'utf8'));
 
 const expected = Object.freeze({
-  name: 'ua-info',
+  name: 'user-agent-parser-ts',
   repository: 'git+https://github.com/petechatchawan/ua-info.git',
   homepage: 'https://petechatchawan.github.io/ua-info/',
   bugs: 'https://github.com/petechatchawan/ua-info/issues',
@@ -15,7 +15,7 @@ const expected = Object.freeze({
 const failures = [];
 
 if (packageJson.name !== expected.name) failures.push(`name: ${packageJson.name}`);
-if (!/^3\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(packageJson.version)) failures.push(`version must be ua-info 3.x: ${packageJson.version}`);
+if (!/^3\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(packageJson.version)) failures.push(`version must be user-agent-parser-ts 3.x: ${packageJson.version}`);
 if (packageJson.repository?.url !== expected.repository) failures.push(`repository: ${packageJson.repository?.url}`);
 if (packageJson.homepage !== expected.homepage) failures.push(`homepage: ${packageJson.homepage}`);
 if (packageJson.bugs?.url !== expected.bugs) failures.push(`bugs: ${packageJson.bugs?.url}`);
@@ -29,7 +29,7 @@ const publishWorkflow = await readFile(path.join(root, '.github/workflows/publis
 const requiredWorkflowFragments = [
   'id-token: write',
   'expected_repository="petechatchawan/ua-info"',
-  'if [ "$package_name" != "ua-info" ]; then',
+  'if [ "$package_name" != "user-agent-parser-ts" ]; then',
   'needs: release-context',
   "if: needs.release-context.outputs.can-publish == 'true'",
 ];

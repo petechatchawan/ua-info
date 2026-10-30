@@ -16,7 +16,7 @@ function renderFinding(item) {
 
 export function renderGateSummary({ result, report, baseline, policy, baselinePath }) {
   const lines = [
-    `# ua-info Performance Gate: ${result.status.toUpperCase()}`,
+    `# user-agent-parser-ts Performance Gate: ${result.status.toUpperCase()}`,
     '',
     `- Mode: **${result.mode}**`,
     `- Package: \`${report.package.name}@${report.package.version}\``,

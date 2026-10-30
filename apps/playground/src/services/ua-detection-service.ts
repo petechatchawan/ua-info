@@ -1,6 +1,6 @@
-import { parse, type UAInfo } from 'ua-info';
-import { detect, type DetectOptions } from 'ua-info/browser';
-import type { HeaderRecord } from 'ua-info/server';
+import { parse, type UAInfo } from 'user-agent-parser-ts';
+import { detect, type DetectOptions } from 'user-agent-parser-ts/browser';
+import type { HeaderRecord } from 'user-agent-parser-ts/server';
 
 export type { UAInfo };
 export type ClientHintHeaders = HeaderRecord;
@@ -21,7 +21,7 @@ export function createUADetectionService(): UADetectionService {
     detect: () => detect(detectOptions),
     parseUserAgent: (userAgent) => parse(userAgent),
     async parseRequest(input) {
-      const { parseRequest } = await import('ua-info/server');
+      const { parseRequest } = await import('user-agent-parser-ts/server');
       return parseRequest(input);
     },
   };

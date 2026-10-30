@@ -23,7 +23,7 @@ export function createAppHeader(): Component<void> {
   navigation.setAttribute('aria-label', 'Project links');
   for (const [label, href] of [
     ['GitHub', 'https://github.com/petechatchawan/ua-info'],
-    ['npm', 'https://www.npmjs.com/package/ua-info'],
+    ['npm', 'https://www.npmjs.com/package/user-agent-parser-ts'],
   ] as const) {
     const link = document.createElement('a');
     link.textContent = label;

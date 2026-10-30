@@ -34,8 +34,8 @@ describe('result components', () => {
   it('copies exact API code', () => {
     const copied = vi.fn();
     const example = createCodeExample({ onCopy: copied });
-    example.update({ code: "import { parse } from 'ua-info';" });
+    example.update({ code: "import { parse } from 'user-agent-parser-ts';" });
     example.element.querySelector<HTMLButtonElement>('button')?.click();
-    expect(copied).toHaveBeenCalledWith("import { parse } from 'ua-info';");
+    expect(copied).toHaveBeenCalledWith("import { parse } from 'user-agent-parser-ts';");
   });
 });

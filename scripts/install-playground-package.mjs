@@ -43,7 +43,7 @@ try {
 
   const installed = JSON.parse(
     await readFile(
-      path.join(playgroundDirectory, 'node_modules', 'ua-info', 'package.json'),
+      path.join(playgroundDirectory, 'node_modules', 'user-agent-parser-ts', 'package.json'),
       'utf8',
     ),
   );

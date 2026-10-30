@@ -11,7 +11,7 @@ const CHROME_DESKTOP =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 ' +
   '(KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36';
 
-describe('ua-info package root', () => {
+describe('user-agent-parser-ts package root', () => {
   it('keeps the root parser-first', () => {
     const result = root.parse(CHROME_DESKTOP);
     expect(result.browser.name).toBe(root.BrowserId.Chrome);

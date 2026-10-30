@@ -3,7 +3,7 @@ import { createRequire } from 'node:module';
 import { defineConfig } from 'vite';
 
 const require = createRequire(import.meta.url);
-const packagePath = require.resolve('ua-info/package.json');
+const packagePath = require.resolve('user-agent-parser-ts/package.json');
 const packageMetadata = JSON.parse(readFileSync(packagePath, 'utf8')) as {
   readonly version: string;
 };

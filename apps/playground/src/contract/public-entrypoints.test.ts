@@ -1,14 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { BrowserId, parse } from 'ua-info';
-import { isChrome } from 'ua-info/check';
-import { detect } from 'ua-info/browser';
-import { parseRequest } from 'ua-info/server';
+import { BrowserId, parse } from 'user-agent-parser-ts';
+import { isChrome } from 'user-agent-parser-ts/check';
+import { detect } from 'user-agent-parser-ts/browser';
+import { parseRequest } from 'user-agent-parser-ts/server';
 
 const chromeUA =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 ' +
   '(KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36';
 
-describe('packed ua-info browser consumer contract', () => {
+describe('packed user-agent-parser-ts browser consumer contract', () => {
   it('resolves root, check, browser, and server entry points', () => {
     const parsed = parse(chromeUA);
     const enriched = parseRequest({

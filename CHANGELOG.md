@@ -1,6 +1,12 @@
 # Changelog
 
-All notable changes to `ua-info` are documented in this file.
+All notable changes to `user-agent-parser-ts` (formerly `ua-info`) are documented in this file.
+
+## Unreleased
+
+### Breaking
+
+- Renamed the npm package from `ua-info` to `user-agent-parser-ts`. Update dependencies and import specifiers; see `MIGRATION.md`.
 
 ## 3.0.0 — 2026-09-09
 
