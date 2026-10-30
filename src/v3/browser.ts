@@ -94,14 +94,31 @@ function readStandalonePWA(navigatorValue: NavigatorLike): boolean | null {
   const media = (globalThis as typeof globalThis & {
     matchMedia?: (query: string) => { readonly matches: boolean };
   }).matchMedia;
-  if (typeof media === 'function') return media('(display-mode: standalone)').matches;
-  return null;
+  if (typeof media !== 'function') return null;
+  try {
+    return media('(display-mode: standalone)').matches;
+  } catch {
+    return null;
+  }
+}
+
+interface BrowserGlobals {
+  readonly navigator?: NavigatorLike;
+  readonly document?: unknown;
+  readonly WorkerGlobalScope?: unknown;
+}
+
+// Node.js 21+ also defines `navigator`, so a navigator alone does not prove a browser runtime.
+function readBrowserNavigator(): NavigatorLike | null {
+  const globals = globalThis as BrowserGlobals;
+  const isBrowserRuntime = globals.document !== undefined || globals.WorkerGlobalScope !== undefined;
+  return isBrowserRuntime && globals.navigator ? globals.navigator : null;
 }
 
 export async function detect(options: DetectOptions = {}): Promise<UAInfo> {
-  const navigatorValue = (globalThis as typeof globalThis & { navigator?: NavigatorLike }).navigator;
+  const navigatorValue = readBrowserNavigator();
   if (!navigatorValue) {
-    throw new Error('detect() requires a browser navigator. Use parse() or parseRequest() outside the browser.');
+    throw new Error('detect() requires a browser window or worker. Use parse() or parseRequest() outside the browser.');
   }
 
   const ua = navigatorValue.userAgent ?? '';

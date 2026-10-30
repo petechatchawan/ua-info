@@ -2,15 +2,28 @@
 
 All notable changes to `user-agent-parser-ts` (formerly `ua-info`) are documented in this file.
 
-## Unreleased
+## 3.0.1 — 2026-10-30
+
+### Security
+
+- Detection now reads at most the first 1,024 characters of a User-Agent. `UAInfo.ua` still echoes the full input. A 13 KB header used to take 2.3 s in `parseRequest()`; it now takes about 2 ms.
+- Removed the cubic `Tizen.+Mobile.+Watch` wearable alternative. `Watch` already matches those User-Agents.
+- Rewrote the generic bot fallback so that each token is scanned once. A 16 KB dotted token run used to take 130 ms; it now takes under 0.1 ms.
+
+### Fixed
+
+- `parse()` treats non-string input as an empty User-Agent instead of returning `ua: undefined`.
+- The LINE in-app browser token now needs a token boundary, so `my-command-line/1.2.3` no longer reports a LINE context or `webview` mode.
+- `detect()` throws outside a browser window or worker, as documented. Node.js 21+ defines `navigator`, so `detect()` used to return an all-null result there.
+- `detect()` ignores a `matchMedia` implementation that throws.
+
+## 3.0.0 — 2026-09-09
+
+Published to npm as `user-agent-parser-ts@3.0.0` on 2026-10-30.
 
 ### Breaking
 
 - Renamed the npm package from `ua-info` to `user-agent-parser-ts`. Update dependencies and import specifiers; see `MIGRATION.md`.
-
-## 3.0.0 — 2026-09-09
-
-### Breaking
 
 - Replaced `UAResult` with fixed-shape `UAInfo`; top-level dimensions always exist and unknown fields use `null` instead of nullable containers or `"unknown"` sentinels.
 - Stable machine identities now live in `name` fields, and `Version.raw` is replaced by `Version.full`.

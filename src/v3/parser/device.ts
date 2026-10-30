@@ -33,7 +33,7 @@ export function detectDevice(userAgent: string): DeviceInfo {
   if (/\b(?:Quest|OculusBrowser)\b/i.test(userAgent)) return device('xr', 'Meta');
   if (/\b(?:PlayStation|Xbox|Nintendo)\b/i.test(userAgent)) return device('console');
   if (/\b(?:SmartTV|SMART-TV|HbbTV|NetCast|Web0S|webOS.TV|Tizen.+TV)\b/i.test(userAgent)) return device('smart-tv');
-  if (/\b(?:Watch|Wear OS|Tizen.+Mobile.+Watch)\b/i.test(userAgent)) return device('wearable');
+  if (/\b(?:Watch|Wear OS)\b/i.test(userAgent)) return device('wearable');
 
   if (/\biPad\b/i.test(userAgent)) return device('tablet', 'Apple', 'iPad');
   if (/\biPhone\b/i.test(userAgent)) return device('mobile', 'Apple', 'iPhone');
