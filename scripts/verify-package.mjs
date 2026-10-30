@@ -1,5 +1,6 @@
 import './verify-package-identity.mjs';
 import { execFileSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
 import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
@@ -9,15 +10,27 @@ const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 const nodeCommand = process.execPath;
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const packageJson = JSON.parse(await readFile(path.join(root, 'package.json'), 'utf8'));
+const gatePolicy = JSON.parse(await readFile(path.join(root, 'benchmarks', 'performance-gate-policy.json'), 'utf8'));
+const budgetBaseline = JSON.parse(await readFile(path.join(root, gatePolicy.baseline), 'utf8'));
+// The unpacked size may exceed the reviewed baseline by this much before the release is blocked.
+// Bundle sizes are the exact gate (performance:gate); this only catches an accidental large file.
+const UNPACKED_SIZE_TOLERANCE = 1.1;
 const workspace = await mkdtemp(path.join(os.tmpdir(), 'ua-info-pack-'));
 
 try {
   if (packageJson.name !== 'user-agent-parser-ts') throw new Error(`Expected package name user-agent-parser-ts, received ${packageJson.name}`);
-  if (!/^3\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(packageJson.version)) {
-    throw new Error(`Expected a valid user-agent-parser-ts 3.x version, received ${packageJson.version}`);
+  if (!/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(packageJson.version)) {
+    throw new Error(`Expected a valid semantic version, received ${packageJson.version}`);
   }
-  for (const subpath of ['.', './check', './server', './browser']) {
-    if (!packageJson.exports?.[subpath]) throw new Error(`The 3.x export map is missing ${subpath}.`);
+  const subpaths = Object.keys(packageJson.exports ?? {}).filter((subpath) => subpath !== './package.json');
+  if (!subpaths.includes('.')) throw new Error('The export map is missing the package root.');
+  for (const subpath of subpaths) {
+    const entry = packageJson.exports[subpath];
+    for (const condition of ['types', 'import', 'require']) {
+      const target = entry[condition];
+      if (!target) throw new Error(`Export ${subpath} is missing the ${condition} condition.`);
+      if (!existsSync(path.join(root, target))) throw new Error(`Export ${subpath} ${condition} target ${target} does not exist. Run npm run build first.`);
+    }
   }
 
   const output = execFileSync(npmCommand, [
@@ -43,11 +56,12 @@ try {
   if (forbiddenFiles.length > 0) {
     throw new Error(`Package contains forbidden implementation/test files: ${forbiddenFiles.join(', ')}`);
   }
-  if (report.unpackedSize > 150_000) {
-    throw new Error(`Package unpacked size exceeds 150000 bytes: ${report.unpackedSize}`);
-  }
-  if (report.files.length > 64) {
-    throw new Error(`Package file count exceeds 64: ${report.files.length}`);
+  const unpackedLimit = Math.ceil(budgetBaseline.sizes.package.unpackedBytes * UNPACKED_SIZE_TOLERANCE);
+  if (report.unpackedSize > unpackedLimit) {
+    throw new Error(
+      `Package unpacked size ${report.unpackedSize} exceeds ${unpackedLimit} bytes (reviewed baseline ${budgetBaseline.sizes.package.unpackedBytes} + 10%). ` +
+      'Remove the new files, or review the growth and run npm run budget:update.',
+    );
   }
 
   const tarballPath = path.join(workspace, report.filename);

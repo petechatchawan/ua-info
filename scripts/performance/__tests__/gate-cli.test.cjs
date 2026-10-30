@@ -62,6 +62,7 @@ function createPolicy(baselinePath) {
     mode: 'static-hard-gate',
     baseline: baselinePath,
     requiredEsbuild: '0.25.8',
+    staleBudgetPercent: 10,
     blocking: {
       package: [],
       distributions: [],

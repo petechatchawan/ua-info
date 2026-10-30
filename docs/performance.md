@@ -20,16 +20,15 @@ The performance report uses schema version `1` and remains measurement-only. The
 
 This keeps historical measurements stable while allowing release policy to evolve independently.
 
-## Package ceilings
+## Package limits
 
-Package size and file count are enforced by `scripts/verify-package.mjs`, not duplicated as zero-growth performance blockers.
+`scripts/verify-package.mjs` validates the packed tarball. It does not cap the file count: adding a source module adds files, and the file count measures build layout, not what users download.
 
-Every packed release must satisfy:
+It enforces these rules instead:
 
-```text
-unpacked npm package <= 150,000 bytes
-packed file count    <= 64 files
-```
+- the version is valid semver and every `exports` entry has existing `types`, `import`, and `require` targets;
+- no test, example, playground, or legacy `v2` file is packed;
+- the unpacked size is at most 10% above `sizes.package.unpackedBytes` in the reviewed baseline. This only catches an accidental large file. Shipped code growth is gated exactly by the bundle budgets below.
 
 The same tarball is used for content validation and ESM/CommonJS/TypeScript consumer verification.
 
@@ -63,7 +62,9 @@ Bundle scenarios cover:
 
 An increase in a blocking raw bundle metric fails `performance:gate` with `PERF_GATE_STATIC_BUDGET_EXCEEDED`.
 
-Raw distribution totals and distribution file counts are still measured, but they are no longer duplicate zero-growth blockers because published package size/file-count already have explicit absolute ceilings.
+A decrease of more than `staleBudgetPercent` (10%) also fails, with `PERF_GATE_BUDGET_STALE`. Without that rule, a shrink would leave unreviewed room for a later regression. Run `npm run budget:update` to ratchet the budget down.
+
+Raw distribution totals and distribution file counts are still measured, but they are not blockers.
 
 ### Advisory static metrics
 
@@ -122,19 +123,27 @@ The CI gate fails for broken instrumentation, invalid schemas, package/toolchain
 
 ## Baseline update protocol
 
-The baseline is never updated automatically.
+The baseline is the reviewed budget. It is never updated automatically, and CI never writes it.
+
+Static sizes depend only on the built files and the pinned esbuild, so a developer updates them locally:
+
+```bash
+npm run build
+npm run budget:update
+```
+
+`budget:update` generates a report, then replaces `sizes`, `package`, and `baselineSource` in the baseline. It keeps the `runtime` numbers and `environment` of the last CI-produced baseline, because runtime numbers are advisory and depend on the machine.
 
 A legitimate blocking bundle increase requires a reviewed change that:
 
-1. explains why the growth is necessary;
-2. updates the baseline from a successful exact-head Node.js 22 artifact;
-3. records run, job, artifact, source head, Node.js, npm, and esbuild provenance;
-4. executes the performance job twice on the same exact source head;
-5. confirms blocking metrics are reproducible;
-6. updates this document when policy or methodology changes;
-7. keeps the gate passing against the reviewed new maximums.
+1. explains in the pull request why the growth is necessary;
+2. includes the baseline diff produced by `npm run budget:update`;
+3. keeps `performance:gate` passing in CI. CI measures the same head on Node.js 22 independently, so a baseline that does not match the build fails there;
+4. updates this document when policy or methodology changes.
 
 A baseline-only increase without implementation justification is not an acceptable fix.
+
+To refresh the advisory runtime numbers, replace the `runtime` and `environment` sections with those of a `performance-report` artifact from a successful Node.js 22 CI run, and keep `sizes` as `budget:update` wrote it.
 
 ## Scope limits
 

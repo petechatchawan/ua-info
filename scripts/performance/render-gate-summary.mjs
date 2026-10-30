@@ -72,7 +72,7 @@ export function renderGateSummary({ result, report, baseline, policy, baselinePa
       '',
       '## Baseline update protocol',
       '',
-      'Do not edit the baseline only to silence this failure. A legitimate increase requires implementation justification, two exact-head Node.js 22 reports with matching static metrics, and updated run/job/artifact provenance in the reviewed baseline.',
+      'Do not edit the baseline only to silence this failure. A legitimate increase requires implementation justification in the pull request and the baseline diff from `npm run budget:update`. A stale budget (PERF_GATE_BUDGET_STALE) is fixed with the same command.',
     );
   }
 

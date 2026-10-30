@@ -1,7 +1,15 @@
 import { readJson } from './lib.mjs';
 
 const EXPECTED = Object.freeze({
-  topLevel: ['schemaVersion', 'mode', 'baseline', 'requiredEsbuild', 'blocking', 'advisory'],
+  topLevel: [
+    'schemaVersion',
+    'mode',
+    'baseline',
+    'requiredEsbuild',
+    'staleBudgetPercent',
+    'blocking',
+    'advisory',
+  ],
   blocking: ['package', 'distributions', 'bundles'],
   advisory: [
     'package',
@@ -61,6 +69,8 @@ export function validateGatePolicy(policy) {
   if (policy.requiredEsbuild !== '0.25.8') {
     throw invalid('requiredEsbuild must be exactly 0.25.8.');
   }
+
+  assertThreshold(policy.staleBudgetPercent, 'staleBudgetPercent');
 
   assertExactKeys(policy.blocking, EXPECTED.blocking, 'blocking');
   assertExactArray(
