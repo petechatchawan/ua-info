@@ -56,12 +56,13 @@
         "build:esm": "tsc --project tsconfig.build.json",
         "build:cjs": "tsc --project tsconfig.build.cjs.json",
         "build": "npm run clean && npm run build:esm && npm run build:cjs && node scripts/finalize-build.mjs",
-        "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --verbose",
-        "fixture:check": "jest src/v3/__tests__ --runInBand",
-        "test:coverage": "jest src/v3 --coverage --runInBand",
+        "test": "vitest run",
+        "fixture:check": "vitest run src/v3/__tests__",
+        "test:coverage": "vitest run --coverage src/v3",
         "detection:check": "npm run test:coverage",
         "identity:check": "node scripts/verify-package-identity.mjs",
-        "check": "npm run lint && npm run detection:check && npm run build && npm run pack:check",
+        "typecheck": "tsc --project tsconfig.test.json",
+        "check": "npm run lint && npm run typecheck && npm run detection:check && npm run build && npm run pack:check",
         "pack:check": "node scripts/verify-package.mjs",
         "performance:sizes": "npm run build && node scripts/performance/collect-sizes.mjs --output artifacts/performance/sizes.json",
         "performance:runtime": "npm run build && node scripts/performance/collect-runtime.mjs --output artifacts/performance/runtime.json",
@@ -111,14 +112,14 @@
         "ua-info"
     ],
     "devDependencies": {
-        "@types/jest": "^29.5.14",
         "@types/node": "^18.19.130",
         "@typescript-eslint/eslint-plugin": "^8.7.0",
         "@typescript-eslint/parser": "^8.7.0",
+        "@vitest/coverage-v8": "~3.2.4",
         "esbuild": "0.25.8",
         "eslint": "^8.25.0",
-        "jest": "^30.4.2",
-        "ts-jest": "^29.4.11",
-        "typescript": "^4.9.5"
+        "typescript": "^4.9.5",
+        "vite": "^6.4.5",
+        "vitest": "~3.2.4"
     }
 }
