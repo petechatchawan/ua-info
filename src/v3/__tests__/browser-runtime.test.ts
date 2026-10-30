@@ -1,3 +1,4 @@
+import { type Mock, vi } from 'vitest';
 import { detect } from '../browser';
 
 const chromeUA =
@@ -13,7 +14,7 @@ function installDocument(): void {
 
 function installNavigator(
   userAgent = chromeUA,
-  getHighEntropyValues: jest.Mock | undefined = undefined,
+  getHighEntropyValues: Mock | undefined = undefined,
   brands: readonly { readonly brand: string; readonly version: string }[] = [
     { brand: 'Google Chrome', version: '150' },
   ],
@@ -49,7 +50,7 @@ afterEach(() => {
 
 describe('detect', () => {
   it('does not request high entropy by default', async () => {
-    const getHighEntropyValues = jest.fn();
+    const getHighEntropyValues = vi.fn();
     installNavigator(chromeUA, getHighEntropyValues);
     installStandalone(false);
 
@@ -59,7 +60,7 @@ describe('detect', () => {
   });
 
   it('requests only the documented set when highEntropy is true', async () => {
-    const getHighEntropyValues = jest.fn().mockResolvedValue({
+    const getHighEntropyValues = vi.fn().mockResolvedValue({
       architecture: 'arm',
       bitness: '64',
       model: '',
@@ -95,7 +96,7 @@ describe('detect', () => {
   });
 
   it('falls back to low-entropy brands when high-entropy contains only GREASE', async () => {
-    const getHighEntropyValues = jest.fn().mockResolvedValue({
+    const getHighEntropyValues = vi.fn().mockResolvedValue({
       fullVersionList: [{ brand: 'Not A;Brand', version: '99' }],
     });
     installNavigator(
@@ -110,7 +111,7 @@ describe('detect', () => {
   });
 
   it('ignores malformed high-entropy browser versions', async () => {
-    const getHighEntropyValues = jest.fn().mockResolvedValue({
+    const getHighEntropyValues = vi.fn().mockResolvedValue({
       fullVersionList: [{ brand: 'Google Chrome', version: 'garbage' }],
     });
     installNavigator(chromeUA, getHighEntropyValues);
@@ -122,7 +123,7 @@ describe('detect', () => {
   });
 
   it('falls back when high entropy access rejects', async () => {
-    installNavigator(chromeUA, jest.fn().mockRejectedValue(new Error('denied')));
+    installNavigator(chromeUA, vi.fn().mockRejectedValue(new Error('denied')));
     installStandalone(false);
     await expect(detect({ highEntropy: true })).resolves.toMatchObject({
       browser: { name: 'chrome' },
