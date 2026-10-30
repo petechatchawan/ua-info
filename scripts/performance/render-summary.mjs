@@ -24,7 +24,7 @@ function baselineValue(baseline, path, id, key) {
 
 export function renderSummary(report, baseline = null) {
   const lines = [
-    '# ua-info Performance & Bundle Size',
+    '# user-agent-parser-ts Performance & Bundle Size',
     '',
     `- Policy: **${report.policy}**`,
     `- Package: \`${report.package.name}@${report.package.version}\``,

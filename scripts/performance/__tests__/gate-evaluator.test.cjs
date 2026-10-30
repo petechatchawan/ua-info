@@ -3,7 +3,7 @@ function createReport() {
     schemaVersion: 1,
     policy: 'report-only',
     generatedAt: '2026-07-26T00:00:00.000Z',
-    package: { name: 'ua-info', version: '2.2.0' },
+    package: { name: 'user-agent-parser-ts', version: '2.2.0' },
     environment: {
       platform: 'linux',
       arch: 'x64',

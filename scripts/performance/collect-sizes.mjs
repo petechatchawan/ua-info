@@ -17,7 +17,7 @@ const defaultRootDirectory = path.resolve(path.dirname(modulePath), '../..');
 function parsePackReport(stdout) {
   const parsed = JSON.parse(stdout);
   const report = Array.isArray(parsed) ? parsed[0] : parsed;
-  if (!report || report.name !== 'ua-info') {
+  if (!report || report.name !== 'user-agent-parser-ts') {
     throw new Error(`Unexpected packed package identity: ${report?.name ?? 'missing'}.`);
   }
   if (typeof report.version !== 'string' || report.version.length === 0) {

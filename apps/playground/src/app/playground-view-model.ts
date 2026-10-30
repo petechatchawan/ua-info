@@ -152,11 +152,11 @@ export function createCodeExample(input: {
   readonly hasClientHints: boolean;
 }): string {
   if (input.mode === 'current') {
-    return `import { detect } from 'ua-info/browser';\n\nconst result = await detect();`;
+    return `import { detect } from 'user-agent-parser-ts/browser';\n\nconst result = await detect();`;
   }
   if (input.hasClientHints) {
     return (
-      `import { parseRequest } from 'ua-info/server';\n\n` +
+      `import { parseRequest } from 'user-agent-parser-ts/server';\n\n` +
       `const result = parseRequest({\n` +
       `  userAgent: ${JSON.stringify(input.userAgent)},\n` +
       `  headers: clientHints,\n` +
@@ -164,7 +164,7 @@ export function createCodeExample(input: {
     );
   }
   return (
-    `import { parse } from 'ua-info';\n\n` +
+    `import { parse } from 'user-agent-parser-ts';\n\n` +
     `const result = parse(${JSON.stringify(input.userAgent)});`
   );
 }

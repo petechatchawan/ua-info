@@ -47,7 +47,7 @@ describe('performance scenario catalog', () => {
 
   test('keeps the predicate bundle scenario predicate-only', () => {
     const scenario = scenarios.BUNDLE_SCENARIOS.find(({ id }) => id === 'root-predicate');
-    expect(scenario.source).toContain("from 'ua-info/check'");
+    expect(scenario.source).toContain("from 'user-agent-parser-ts/check'");
     expect(scenario.source).not.toContain('parse(');
   });
 

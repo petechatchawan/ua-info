@@ -13,7 +13,7 @@ function createReport() {
     schemaVersion: 1,
     policy: 'report-only',
     generatedAt: '2026-07-26T00:00:00.000Z',
-    package: { name: 'ua-info', version: '2.2.0' },
+    package: { name: 'user-agent-parser-ts', version: '2.2.0' },
     environment: {
       platform: 'linux', arch: 'x64', node: 'v22.23.1', npm: '10.9.8',
       esbuild: '0.25.8', commit: null,
@@ -119,7 +119,7 @@ describe('performance gate CLI', () => {
     const result = await runCli(directory, createReport());
     expect(result.exitCode).toBe(0);
     expect(JSON.parse(await readFile(result.outputPath, 'utf8')).status).toBe('pass');
-    expect(await readFile(result.summaryPath, 'utf8')).toContain('# ua-info Performance Gate: PASS');
+    expect(await readFile(result.summaryPath, 'utf8')).toContain('# user-agent-parser-ts Performance Gate: PASS');
   });
 
   test('writes FAIL output and exits one for static growth', async () => {

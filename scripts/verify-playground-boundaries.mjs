@@ -9,10 +9,10 @@ const allowedUaImportOwners = new Set([
   'contract/public-entrypoints.test.ts',
 ]);
 const allowedUaSpecifiers = new Set([
-  'ua-info',
-  'ua-info/browser',
-  'ua-info/check',
-  'ua-info/server',
+  'user-agent-parser-ts',
+  'user-agent-parser-ts/browser',
+  'user-agent-parser-ts/check',
+  'user-agent-parser-ts/server',
 ]);
 const forbiddenText = [
   ['../../src', 'source-tree import'],
@@ -53,12 +53,12 @@ for (const absolute of await walk(sourceDirectory)) {
   }
 
   for (const target of imports) {
-    if (target === 'ua-info' || target.startsWith('ua-info/')) {
+    if (target === 'user-agent-parser-ts' || target.startsWith('user-agent-parser-ts/')) {
       if (!allowedUaSpecifiers.has(target)) {
-        violations.push(`${relative}: unsupported ua-info package specifier (${target})`);
+        violations.push(`${relative}: unsupported user-agent-parser-ts package specifier (${target})`);
       }
       if (!allowedUaImportOwners.has(relative)) {
-        violations.push(`${relative}: ua-info import is owned by the detection service`);
+        violations.push(`${relative}: user-agent-parser-ts import is owned by the detection service`);
       }
     }
   }

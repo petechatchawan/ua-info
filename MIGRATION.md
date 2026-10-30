@@ -1,6 +1,16 @@
-# Migrating from ua-info v2 to v3
+# Migrating from ua-info v2 to user-agent-parser-ts v3
 
-ua-info v3 is intentionally breaking. The new API is parser-first, uses fixed-shape results, and moves predicates to `ua-info/check`.
+## Package rename
+
+The package is now published as `user-agent-parser-ts`. Replace `ua-info` with `user-agent-parser-ts` in `package.json` and in every import specifier, including the `/check`, `/browser`, and `/server` subpaths.
+
+```bash
+npm uninstall ua-info
+npm install user-agent-parser-ts
+```
+
+
+`user-agent-parser-ts` v3 is intentionally breaking. The new API is parser-first, uses fixed-shape results, and moves predicates to `user-agent-parser-ts/check`.
 
 ## Result model
 
@@ -24,26 +34,26 @@ Stable identity fields use lowercase machine names. Xiaomi Browser is now `mi-br
 
 ```ts
 // v2
-import { BrowserId, isBrowser, parse } from 'ua-info';
+import { BrowserId, isBrowser, parse } from 'user-agent-parser-ts';
 if (isBrowser(parse(ua), BrowserId.Chrome)) {}
 
 // v3
-import { BrowserId, parse } from 'ua-info';
-import { isBrowser } from 'ua-info/check';
+import { BrowserId, parse } from 'user-agent-parser-ts';
+import { isBrowser } from 'user-agent-parser-ts/check';
 if (isBrowser(parse(ua), BrowserId.Chrome)) {}
 ```
 
-Generic predicate renames include `isOperatingSystem()` -> `isOS()` and `isDeviceType()` -> `isDevice()`. Named helpers such as `isChrome()`, `isAndroid()`, `isMobile()`, `isLine()`, and `isLiff()` are exported from `ua-info/check`.
+Generic predicate renames include `isOperatingSystem()` -> `isOS()` and `isDeviceType()` -> `isDevice()`. Named helpers such as `isChrome()`, `isAndroid()`, `isMobile()`, `isLine()`, and `isLiff()` are exported from `user-agent-parser-ts/check`.
 
 ## Browser runtime detection
 
 ```ts
 // v2
-import { detectCurrent } from 'ua-info/browser';
+import { detectCurrent } from 'user-agent-parser-ts/browser';
 const info = await detectCurrent();
 
 // v3
-import { detect } from 'ua-info/browser';
+import { detect } from 'user-agent-parser-ts/browser';
 const info = await detect();
 ```
 
@@ -64,7 +74,7 @@ where the adapter provides `liff.isInClient()`.
 `parseRequest()` accepts either a header source directly or a Request-like object:
 
 ```ts
-import { parseRequest } from 'ua-info/server';
+import { parseRequest } from 'user-agent-parser-ts/server';
 
 parseRequest({ 'user-agent': ua, 'sec-ch-ua': ch });
 parseRequest({ headers: request.headers });

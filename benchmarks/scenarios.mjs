@@ -60,22 +60,22 @@ export const BUNDLE_SCENARIOS = Object.freeze([
   Object.freeze({
     id: 'root-parse',
     platform: 'node',
-    source: `import { parse } from 'ua-info';\nconst result = parse(${JSON.stringify(CHROME_DESKTOP)});\nconsole.log(result.browser.name ?? 'unknown');\n`,
+    source: `import { parse } from 'user-agent-parser-ts';\nconst result = parse(${JSON.stringify(CHROME_DESKTOP)});\nconsole.log(result.browser.name ?? 'unknown');\n`,
   }),
   Object.freeze({
     id: 'root-predicate',
     platform: 'node',
-    source: `import { isChrome } from 'ua-info/check';\nconst result = { browser: { name: 'chrome' } };\nconsole.log(isChrome(result));\n`,
+    source: `import { isChrome } from 'user-agent-parser-ts/check';\nconst result = { browser: { name: 'chrome' } };\nconsole.log(isChrome(result));\n`,
   }),
   Object.freeze({
     id: 'server-parse-request',
     platform: 'node',
-    source: `import { parseRequest } from 'ua-info/server';\nconst result = parseRequest({ headers: { 'user-agent': ${JSON.stringify(CHROME_DESKTOP)} } });\nconsole.log(result.browser.name ?? 'unknown');\n`,
+    source: `import { parseRequest } from 'user-agent-parser-ts/server';\nconst result = parseRequest({ headers: { 'user-agent': ${JSON.stringify(CHROME_DESKTOP)} } });\nconsole.log(result.browser.name ?? 'unknown');\n`,
   }),
   Object.freeze({
     id: 'browser-detect-current',
     platform: 'browser',
-    source: `import { detect } from 'ua-info/browser';\nglobalThis.__uaInfoDetect = detect;\nconsole.log(typeof globalThis.__uaInfoDetect);\n`,
+    source: `import { detect } from 'user-agent-parser-ts/browser';\nglobalThis.__uaInfoDetect = detect;\nconsole.log(typeof globalThis.__uaInfoDetect);\n`,
   }),
 ]);
 

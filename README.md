@@ -1,11 +1,11 @@
-# UA Info
+# user-agent-parser-ts
 
-[![npm version](https://img.shields.io/npm/v/ua-info.svg)](https://www.npmjs.com/package/ua-info)
+[![npm version](https://img.shields.io/npm/v/user-agent-parser-ts.svg)](https://www.npmjs.com/package/user-agent-parser-ts)
 [![CI](https://github.com/petechatchawan/ua-info/actions/workflows/ci.yml/badge.svg)](https://github.com/petechatchawan/ua-info/actions/workflows/ci.yml)
-[![license](https://img.shields.io/npm/l/ua-info.svg)](LICENSE)
+[![license](https://img.shields.io/npm/l/user-agent-parser-ts.svg)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-ready-blue.svg)](https://www.typescriptlang.org/)
 
-**UA Info** is a zero-dependency TypeScript User-Agent information parser with browser, operating-system, device, bot/client, WebView, in-app context, and User-Agent Client Hints support.
+**user-agent-parser-ts** (formerly `ua-info`) is a zero-dependency TypeScript User-Agent parser with browser, operating-system, device, bot/client, WebView, in-app context, and User-Agent Client Hints support.
 
 The API has one main mental model:
 
@@ -14,8 +14,8 @@ parse -> info -> check
 ```
 
 ```ts
-import { parse } from 'ua-info';
-import { isAndroid, isChrome, isMobile } from 'ua-info/check';
+import { parse } from 'user-agent-parser-ts';
+import { isAndroid, isChrome, isMobile } from 'user-agent-parser-ts/check';
 
 const info = parse(userAgent);
 
@@ -27,7 +27,7 @@ if (isChrome(info) && isAndroid(info) && isMobile(info)) {
 ## Installation
 
 ```bash
-npm install ua-info
+npm install user-agent-parser-ts
 ```
 
 Node.js 18 or newer is required for server-side usage. TypeScript declarations, ESM, and CommonJS exports are included.
@@ -36,15 +36,15 @@ Node.js 18 or newer is required for server-side usage. TypeScript declarations, 
 
 | Use case | Import | Main API |
 | --- | --- | --- |
-| Pure User-Agent parsing | `ua-info` | `parse()` |
-| Predicates | `ua-info/check` | `isChrome()`, `isMobile()`, ... |
-| HTTP request + Client Hints | `ua-info/server` | `parseRequest()` |
-| Current browser + runtime signals | `ua-info/browser` | `detect()` |
+| Pure User-Agent parsing | `user-agent-parser-ts` | `parse()` |
+| Predicates | `user-agent-parser-ts/check` | `isChrome()`, `isMobile()`, ... |
+| HTTP request + Client Hints | `user-agent-parser-ts/server` | `parseRequest()` |
+| Current browser + runtime signals | `user-agent-parser-ts/browser` | `detect()` |
 
 ### Pure parser
 
 ```ts
-import { parse } from 'ua-info';
+import { parse } from 'user-agent-parser-ts';
 
 const info = parse(userAgent);
 
@@ -58,7 +58,7 @@ console.log(info.device.type);
 ### Server requests
 
 ```ts
-import { parseRequest } from 'ua-info/server';
+import { parseRequest } from 'user-agent-parser-ts/server';
 
 const info = parseRequest(request);
 ```
@@ -79,7 +79,7 @@ It consumes supported `Sec-CH-UA-*` headers that are already present. It does **
 ### Current browser
 
 ```ts
-import { detect } from 'ua-info/browser';
+import { detect } from 'user-agent-parser-ts/browser';
 
 const info = await detect();
 ```
@@ -198,10 +198,10 @@ Browser detection uses ordered, product-specific evidence before generic Chrome/
 
 ## Predicate API
 
-Predicates live in `ua-info/check`, not in the package root.
+Predicates live in `user-agent-parser-ts/check`, not in the package root.
 
 ```ts
-import { parse } from 'ua-info';
+import { parse } from 'user-agent-parser-ts';
 import {
   isBrowser,
   isBrowserFamily,
@@ -211,7 +211,7 @@ import {
   isMobile,
   isTablet,
   isLine,
-} from 'ua-info/check';
+} from 'user-agent-parser-ts/check';
 
 const info = parse(userAgent);
 
@@ -351,8 +351,8 @@ LINE and LIFF are deliberately different concepts.
 Pure User-Agent parsing may establish a LINE in-app browser:
 
 ```ts
-import { parse } from 'ua-info';
-import { isLiff, isLine } from 'ua-info/check';
+import { parse } from 'user-agent-parser-ts';
+import { isLiff, isLine } from 'user-agent-parser-ts/check';
 
 const info = parse(lineUserAgent);
 
@@ -364,8 +364,8 @@ LIFF is established only from browser runtime evidence. Pass a structural adapte
 
 ```ts
 import liff from '@line/liff';
-import { detect } from 'ua-info/browser';
-import { isLiff, isLine } from 'ua-info/check';
+import { detect } from 'user-agent-parser-ts/browser';
+import { isLiff, isLine } from 'user-agent-parser-ts/check';
 
 const info = await detect({ liff });
 
@@ -437,9 +437,9 @@ Applications remain responsible for Client Hints negotiation and cache behavior.
 ## CommonJS
 
 ```js
-const { parse } = require('ua-info');
-const { isChrome, isMobile } = require('ua-info/check');
-const { parseRequest } = require('ua-info/server');
+const { parse } = require('user-agent-parser-ts');
+const { isChrome, isMobile } = require('user-agent-parser-ts/check');
+const { parseRequest } = require('user-agent-parser-ts/server');
 
 const info = parse(userAgent);
 
@@ -451,8 +451,8 @@ if (isChrome(info) && isMobile(info)) {
 ## TypeScript example
 
 ```ts
-import { BrowserId, parse, type UAInfo } from 'ua-info';
-import { isBrowser } from 'ua-info/check';
+import { BrowserId, parse, type UAInfo } from 'user-agent-parser-ts';
+import { isBrowser } from 'user-agent-parser-ts/check';
 
 function handle(info: UAInfo) {
   if (isBrowser(info, BrowserId.Chrome)) {
