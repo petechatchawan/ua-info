@@ -7,6 +7,10 @@ const lineUA =
   'Mozilla/5.0 (Linux; Android 16; Pixel 10 Pro; wv) AppleWebKit/537.36 ' +
   '(KHTML, like Gecko) Version/4.0 Chrome/150.0.0.0 Mobile Safari/537.36 Line/26.11.0';
 
+function installDocument(): void {
+  Object.defineProperty(globalThis, 'document', { configurable: true, value: {} });
+}
+
 function installNavigator(
   userAgent = chromeUA,
   getHighEntropyValues: jest.Mock | undefined = undefined,
@@ -26,6 +30,7 @@ function installNavigator(
       },
     },
   });
+  installDocument();
 }
 
 function installStandalone(matches: boolean): void {
@@ -38,6 +43,8 @@ function installStandalone(matches: boolean): void {
 afterEach(() => {
   Reflect.deleteProperty(globalThis, 'navigator');
   Reflect.deleteProperty(globalThis, 'matchMedia');
+  Reflect.deleteProperty(globalThis, 'document');
+  Reflect.deleteProperty(globalThis, 'WorkerGlobalScope');
 });
 
 describe('detect', () => {
@@ -162,5 +169,31 @@ describe('detect', () => {
 
   it('rejects without navigator and directs server callers to pure adapters', async () => {
     await expect(detect()).rejects.toThrow(/parse\(\).*parseRequest\(\)/i);
+  });
+
+  it('rejects a server runtime that defines navigator without a document (Node.js 21+)', async () => {
+    Object.defineProperty(globalThis, 'navigator', {
+      configurable: true,
+      value: { userAgent: 'Node.js/24' },
+    });
+    await expect(detect()).rejects.toThrow(/parse\(\).*parseRequest\(\)/i);
+  });
+
+  it('runs inside a worker scope without a document', async () => {
+    installNavigator();
+    Reflect.deleteProperty(globalThis, 'document');
+    Object.defineProperty(globalThis, 'WorkerGlobalScope', { configurable: true, value: function WorkerGlobalScope() {} });
+    await expect(detect()).resolves.toMatchObject({ browser: { name: 'chrome' } });
+  });
+
+  it('ignores a throwing matchMedia', async () => {
+    installNavigator();
+    Object.defineProperty(globalThis, 'matchMedia', {
+      configurable: true,
+      value: () => { throw new Error('unsupported'); },
+    });
+    const result = await detect();
+    expect(result.browser.name).toBe('chrome');
+    expect(result.context.type).toBeNull();
   });
 });

@@ -1,6 +1,6 @@
 {
     "name": "user-agent-parser-ts",
-    "version": "3.0.0",
+    "version": "3.0.1",
     "description": "Zero-dependency User-Agent parser for TypeScript with Client Hints, browser, OS, device, bot and WebView detection for Node.js and browsers",
     "author": "Chatchawan Koedsawas",
     "license": "MIT",

@@ -52,7 +52,8 @@ export function detectClient(userAgent: string): ClientInfo {
     }
   }
 
-  const generic = /\b([a-z0-9._-]*(?:bot|spider|crawler))\b(?:[/ ]?([0-9.]+))?/i.exec(userAgent);
+  // A token may start only after a non-token character, so each token run is scanned once (linear time).
+  const generic = /(?:^|[^a-z0-9._-])([a-z0-9._-]*(?:bot|spider|crawler))\b(?:[/ ]?([0-9.]+))?/i.exec(userAgent);
   if (generic?.[1]) {
     return {
       type: 'bot',

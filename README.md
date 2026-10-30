@@ -53,7 +53,7 @@ console.log(info.os.name);
 console.log(info.device.type);
 ```
 
-`parse()` is synchronous, deterministic, and does not access browser globals, HTTP headers, cookies, storage, or the network.
+`parse()` is synchronous, deterministic, and does not access browser globals, HTTP headers, cookies, storage, or the network. Detection reads at most the first 1,024 characters of the User-Agent, so oversized input cannot slow it down; `info.ua` still holds the full string.
 
 ### Server requests
 
@@ -102,7 +102,7 @@ model
 platformVersion
 ```
 
-`detect()` throws when no browser `navigator` is available. Use `parse()` or `parseRequest()` during SSR or other non-browser execution.
+`detect()` throws outside a browser window or worker. This includes Node.js 21 and later, which define `navigator`. Use `parse()` or `parseRequest()` during SSR or other non-browser execution.
 
 ## Result model
 

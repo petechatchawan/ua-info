@@ -16,7 +16,7 @@ export function detectContext(userAgent: string): ContextInfo {
     : null;
   if (messenger?.[1]) return context('in-app-browser', ContextId.Messenger, messenger[1]);
 
-  const line = /\bLine\/([0-9]+(?:\.[0-9]+)*)/i.exec(userAgent);
+  const line = /(?:^|[\s;(])Line\/([0-9]+(?:\.[0-9]+)*)/i.exec(userAgent);
   if (line?.[1]) return context('in-app-browser', ContextId.Line, line[1]);
 
   const instagram = /\bInstagram[ /]([0-9.]+)/i.exec(userAgent);
