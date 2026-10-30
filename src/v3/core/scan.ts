@@ -5,6 +5,9 @@ const MAX_PRODUCTS = 64;
 const MAX_PARTS = 64;
 const MAX_NAME_LENGTH = 24;
 const MAX_VERSION_LENGTH = 32;
+const MAX_WORDS = 256;
+const COMMA = 44;
+const SLASH = 47;
 
 const SPACE = 32;
 const TAB = 9;
@@ -26,7 +29,29 @@ export interface Product {
 export interface Scan {
   readonly products: readonly Product[];
   readonly parts: readonly string[];
+  /** Product names. Built on first use. */
   readonly names: ReadonlySet<string>;
+  /** Every word of the text in order, split at spaces, brackets, `;`, `,` and `/`. */
+  readonly words: readonly string[];
+  readonly wordSet: ReadonlySet<string>;
+}
+
+function splitWords(lower: string): string[] {
+  const words: string[] = [];
+  let start = -1;
+  for (let index = 0; index <= lower.length && words.length < MAX_WORDS; index++) {
+    const code = index < lower.length ? lower.charCodeAt(index) : SPACE;
+    const separator =
+      code === SPACE || code === TAB || code === SEMICOLON || code === COMMA || code === SLASH ||
+      code === OPEN_PAREN || code === CLOSE_PAREN || code === OPEN_BRACKET || code === CLOSE_BRACKET;
+    if (separator) {
+      if (start >= 0) words.push(lower.slice(start, Math.min(index, start + MAX_NAME_LENGTH)));
+      start = -1;
+    } else if (start < 0) {
+      start = index;
+    }
+  }
+  return words;
 }
 
 function isDigit(code: number): boolean {
@@ -73,12 +98,10 @@ export function scan(input: string): Scan {
   const length = lower.length;
   const products: Product[] = [];
   const parts: string[] = [];
-  const names = new Set<string>();
 
   const addProduct = (name: string, version: string | null, top: boolean): void => {
     if (products.length >= MAX_PRODUCTS || name.length === 0 || name.length > MAX_NAME_LENGTH) return;
     products.push({ name, version, top });
-    names.add(name);
   };
 
   // `a/b/1.2` is product a with value `b/1.2`, and also product b with version 1.2.
@@ -161,5 +184,20 @@ export function scan(input: string): Scan {
     index++;
   }
   if (depth > 0) addPart(partStart, length);
-  return { products, parts, names };
+  const words = splitWords(lower);
+  let wordSet: Set<string> | null = null;
+  let names: Set<string> | null = null;
+  return {
+    products,
+    parts,
+    get names() {
+      if (names === null) names = new Set(products.map((product) => product.name));
+      return names;
+    },
+    words,
+    get wordSet() {
+      if (wordSet === null) wordSet = new Set(words);
+      return wordSet;
+    },
+  };
 }
