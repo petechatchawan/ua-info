@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "policy": "report-only",
-  "generatedAt": "2026-10-30T14:36:28.244Z",
+  "generatedAt": "2026-10-30T17:40:54.430Z",
   "package": {
     "name": "user-agent-parser-ts",
     "version": "3.0.1"
@@ -16,29 +16,29 @@
   },
   "sizes": {
     "package": {
-      "tarballBytes": 22432,
-      "unpackedBytes": 120354,
-      "fileCount": 62
+      "tarballBytes": 26880,
+      "unpackedBytes": 139703,
+      "fileCount": 68
     },
     "distributions": [
       {
         "id": "esm",
-        "rawBytes": 52089,
-        "fileCount": 39
+        "rawBytes": 63368,
+        "fileCount": 43
       },
       {
         "id": "cjs",
-        "rawBytes": 47001,
-        "fileCount": 19
+        "rawBytes": 54917,
+        "fileCount": 21
       }
     ],
     "bundles": [
       {
         "id": "root-parse",
         "platform": "node",
-        "rawBytes": 10876,
-        "gzipBytes": 3579,
-        "brotliBytes": 3292
+        "rawBytes": 15872,
+        "gzipBytes": 5852,
+        "brotliBytes": 5374
       },
       {
         "id": "root-predicate",
@@ -50,16 +50,16 @@
       {
         "id": "server-parse-request",
         "platform": "node",
-        "rawBytes": 15278,
-        "gzipBytes": 4930,
-        "brotliBytes": 4546
+        "rawBytes": 17206,
+        "gzipBytes": 6333,
+        "brotliBytes": 5820
       },
       {
         "id": "browser-detect-current",
         "platform": "browser",
-        "rawBytes": 15958,
-        "gzipBytes": 5156,
-        "brotliBytes": 4735
+        "rawBytes": 17886,
+        "gzipBytes": 6560,
+        "brotliBytes": 6037
       }
     ]
   },
@@ -155,7 +155,7 @@
   },
   "baselineSource": {
     "runId": "budget-update",
-    "commit": "c2420ed5cd12a067c6b7f1af8db78c53d956803f",
+    "commit": "08511b18b421e10419f5ea0698b4d4f33934c5f3",
     "runner": "darwin-arm64 Node.js v24.18.0 (static sizes only)"
   }
 }

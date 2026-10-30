@@ -1,6 +1,11 @@
-import { enrich } from '../enrich';
-import type { ClientHints } from '../input';
+import { resolve } from '../core/resolve';
+import type { ClientHints, DetectionInput } from '../input';
 import { parse } from '../parse';
+import type { UAInfo } from '../types';
+
+function enrich(_base: UAInfo, input: DetectionInput): UAInfo {
+  return resolve(input.ua, input.clientHints, input.runtime);
+}
 
 const chromeUA =
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 ' +

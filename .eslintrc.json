@@ -18,6 +18,27 @@
       "rules": {
         "no-useless-escape": "off"
       }
+    },
+    {
+      "files": ["src/v3/core/**/*.ts", "src/v3/catalog/**/*.ts"],
+      "excludedFiles": ["**/__tests__/**"],
+      "rules": {
+        "no-restricted-syntax": [
+          "error",
+          {
+            "selector": "Literal[regex]",
+            "message": "Use a catalog signal. Regular expressions are banned here so matching stays linear."
+          },
+          {
+            "selector": "NewExpression[callee.name='RegExp']",
+            "message": "Use a catalog signal. Regular expressions are banned here so matching stays linear."
+          },
+          {
+            "selector": "CallExpression[callee.property.name=/^(match|matchAll|search)$/]",
+            "message": "Use a catalog signal. Regular expressions are banned here so matching stays linear."
+          }
+        ]
+      }
     }
   ]
 }

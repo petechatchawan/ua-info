@@ -1,7 +1,6 @@
 import { isGreaseBrand, isValidBrandVersion } from './client-hints';
-import { enrich } from './enrich';
+import { resolve } from './core/resolve';
 import type { BrandVersion, ClientHints, RuntimeEvidence } from './input';
-import { parse } from './parse';
 import type { UAInfo } from './types';
 
 export interface LiffAdapter {
@@ -127,5 +126,5 @@ export async function detect(options: DetectOptions = {}): Promise<UAInfo> {
     standalonePWA: readStandalonePWA(navigatorValue),
     liffInClient: readLiff(options),
   };
-  return enrich(parse(ua), { ua, clientHints, runtime });
+  return resolve(ua, clientHints, runtime);
 }

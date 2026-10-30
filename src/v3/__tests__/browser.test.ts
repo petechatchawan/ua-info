@@ -1,18 +1,17 @@
 import { BrowserId, EngineId } from '../constants';
-import { detectBrowser } from '../parser/browser';
-import { detectEngine } from '../parser/engine';
+import { parse } from '../parse';
 import { BROWSER_FIXTURES } from './fixtures';
 
 describe('browser detection', () => {
   it.each(BROWSER_FIXTURES)('$id', (fixture) => {
-    expect(detectBrowser(fixture.userAgent)?.browser).toMatchObject(fixture.expected);
+    expect(parse(fixture.userAgent).browser).toMatchObject(fixture.expected);
   });
 
   it('detects Mi Browser before Chrome', () => {
     const ua =
       'Mozilla/5.0 (Linux; U; Android 14; en-us; 23127PN0CG) AppleWebKit/537.36 ' +
       '(KHTML, like Gecko) Version/4.0 Chrome/120.0.0.0 Mobile Safari/537.36 XiaoMi/MiuiBrowser/18.4.110316';
-    expect(detectBrowser(ua)?.browser).toMatchObject({
+    expect(parse(ua).browser).toMatchObject({
       name: BrowserId.MiBrowser,
       family: 'chromium',
       mode: 'browser',
@@ -23,33 +22,44 @@ describe('browser detection', () => {
     const ua =
       'Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 ' +
       '(KHTML, like Gecko) Version/26.5 Mobile/15E148 Safari/604.1 Brave';
-    expect(detectBrowser(ua)?.browser).toMatchObject({
+    const result = parse(ua);
+    expect(result.browser).toMatchObject({
       name: BrowserId.Brave,
       family: null,
       version: null,
     });
-    expect(detectEngine(ua, 'webkit').name).toBe(EngineId.WebKit);
+    expect(result.engine.name).toBe(EngineId.WebKit);
   });
 
   it('does not treat a Safari compatibility token as Safari without Version', () => {
-    const ua = 'Mozilla/5.0 AppleWebKit/605.1.15 Safari/605.1.15';
-    expect(detectBrowser(ua)).toBeNull();
+    expect(parse('Mozilla/5.0 AppleWebKit/605.1.15 Safari/605.1.15').browser.name).toBeNull();
   });
 
   it('keeps browser lineage independent from the iOS rendering engine', () => {
     const ua =
       'Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 ' +
       '(KHTML, like Gecko) CriOS/150.0.0.0 Mobile/15E148 Safari/604.1';
-    const detected = detectBrowser(ua);
-    expect(detected?.browser).toMatchObject({ name: BrowserId.Chrome, family: 'chromium' });
-    expect(detected?.engineHint).toBe('webkit');
-    expect(detectEngine(ua, detected?.engineHint ?? null).name).toBe(EngineId.WebKit);
+    const result = parse(ua);
+    expect(result.browser).toMatchObject({ name: BrowserId.Chrome, family: 'chromium' });
+    expect(result.engine.name).toBe(EngineId.WebKit);
   });
 
   it('never copies Chrome version into Blink', () => {
     const ua =
       'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 ' +
       '(KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36';
-    expect(detectEngine(ua, 'blink')).toEqual({ name: EngineId.Blink, version: null });
+    expect(parse(ua).engine).toEqual({ name: EngineId.Blink, version: null });
+  });
+
+  it('does not report an unlisted Chromium fork as Chrome', () => {
+    const ua = 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 Chrome/150.0.0.0 Mobile Safari/537.36 Fork/1.0';
+    expect(parse(ua).browser).toMatchObject({ name: null, family: 'chromium' });
+  });
+
+  it('reports Edge Legacy as Edge', () => {
+    const ua =
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) ' +
+      'Chrome/70.0.3538.102 Safari/537.36 Edge/18.19041';
+    expect(parse(ua).browser).toMatchObject({ name: BrowserId.Edge, family: null, version: { full: '18.19041', major: 18 } });
   });
 });

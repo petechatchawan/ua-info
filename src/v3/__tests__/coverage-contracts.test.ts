@@ -3,7 +3,6 @@ import * as check from '../check';
 import { normalizeArchitecture, normalizePlatform, parseBrandList } from '../client-hints';
 import { parse } from '../parse';
 import { detectClient } from '../parser/client';
-import { detectContext } from '../parser/context';
 import { detectCPU } from '../parser/cpu';
 import { detectDevice } from '../parser/device';
 import { detectOS } from '../parser/os';
@@ -232,7 +231,7 @@ describe('supported contract matrix', () => {
     ['MicroMessenger/8.0.50', 'wechat'],
     ['FBAV/500.1.0', 'facebook'],
   ] as const)('detects in-app context %s', (ua, name) => {
-    expect(detectContext(ua)).toMatchObject({
+    expect(parse(ua).context).toMatchObject({
       type: 'in-app-browser',
       name,
       host: { name },
