@@ -1,8 +1,9 @@
 const VALID_POLICY = Object.freeze({
   schemaVersion: 1,
   mode: 'static-hard-gate',
-  baseline: 'benchmarks/baselines/ua-info-2.2.0-node22-linux-x64.json',
+  baseline: 'benchmarks/baselines/reviewed-node22-linux-x64.json',
   requiredEsbuild: '0.25.8',
+  staleBudgetPercent: 10,
   blocking: {
     package: [],
     distributions: [],
@@ -38,6 +39,8 @@ describe('performance gate policy', () => {
     ['baseline', { baseline: '' }],
     ['requiredEsbuild', { requiredEsbuild: '^0.25.8' }],
     ['unknown field', { unexpected: true }],
+    ['staleBudgetPercent of zero', { staleBudgetPercent: 0 }],
+    ['missing staleBudgetPercent', { staleBudgetPercent: undefined }],
   ])('rejects invalid %s', (_label, overrides) => {
     expect(() => validateGatePolicy(policy(overrides))).toThrow('PERF_GATE_POLICY_INVALID');
   });

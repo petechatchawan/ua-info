@@ -64,8 +64,9 @@ function createPolicy() {
   return {
     schemaVersion: 1,
     mode: 'static-hard-gate',
-    baseline: 'benchmarks/baselines/ua-info-2.2.0-node22-linux-x64.json',
+    baseline: 'benchmarks/baselines/reviewed-node22-linux-x64.json',
     requiredEsbuild: '0.25.8',
+    staleBudgetPercent: 10,
     blocking: {
       package: [],
       distributions: [],
@@ -131,6 +132,27 @@ describe('performance gate evaluator', () => {
         delta: 1,
       }),
     ]);
+  });
+
+  test('blocks a budget that is more than the stale threshold above the measured size', () => {
+    const baseline = createReport();
+    const report = structuredClone(baseline);
+    report.sizes.bundles[0].rawBytes = Math.floor(baseline.sizes.bundles[0].rawBytes * 0.89);
+    const result = evaluatePerformanceGate({ report, baseline, policy: createPolicy() });
+    expect(result.status).toBe('fail');
+    expect(result.blockingViolations).toEqual([
+      expect.objectContaining({
+        code: 'PERF_GATE_BUDGET_STALE',
+        path: 'sizes.bundles.root-parse.rawBytes',
+      }),
+    ]);
+  });
+
+  test('passes a decrease inside the stale threshold', () => {
+    const baseline = createReport();
+    const report = structuredClone(baseline);
+    report.sizes.bundles[0].rawBytes = Math.ceil(baseline.sizes.bundles[0].rawBytes * 0.91);
+    expect(evaluatePerformanceGate({ report, baseline, policy: createPolicy() }).status).toBe('pass');
   });
 
   test('does not block package or distribution growth', () => {

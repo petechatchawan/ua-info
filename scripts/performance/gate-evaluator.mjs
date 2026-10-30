@@ -24,15 +24,17 @@ function finding({ code, path, current, baseline, delta, message }) {
   return { code, path, current, baseline, delta, message };
 }
 
-function compareMaximum({ path, current, baseline, comparisons, violations }) {
+function compareMaximum({ path, current, baseline, stalePercent, comparisons, violations }) {
   const delta = current - baseline;
+  const staleBelow = baseline * (1 - stalePercent / 100);
+  const stale = baseline > 0 && current < staleBelow;
   comparisons.push({
     path,
     kind: 'blocking-maximum',
     current,
     baseline,
     delta,
-    status: delta > 0 ? 'fail' : 'pass',
+    status: delta > 0 || stale ? 'fail' : 'pass',
   });
   if (delta > 0) {
     violations.push(finding({
@@ -42,6 +44,16 @@ function compareMaximum({ path, current, baseline, comparisons, violations }) {
       baseline,
       delta,
       message: `${path} is ${delta} above the reviewed maximum.`,
+    }));
+  }
+  if (stale) {
+    violations.push(finding({
+      code: 'PERF_GATE_BUDGET_STALE',
+      path,
+      current,
+      baseline,
+      delta,
+      message: `${path} is more than ${stalePercent}% below the reviewed maximum; run npm run budget:update so the budget does not hide a later regression.`,
     }));
   }
 }
@@ -155,6 +167,7 @@ export function evaluatePerformanceGate({ report, baseline, policy }) {
       path: `sizes.package.${metric}`,
       current: report.sizes.package[metric],
       baseline: baseline.sizes.package[metric],
+      stalePercent: policy.staleBudgetPercent,
       comparisons,
       violations: blockingViolations,
     });
@@ -167,6 +180,7 @@ export function evaluatePerformanceGate({ report, baseline, policy }) {
         path: `sizes.distributions.${reportItem.id}.${metric}`,
         current: reportItem[metric],
         baseline: baselineItem[metric],
+        stalePercent: policy.staleBudgetPercent,
         comparisons,
         violations: blockingViolations,
       });
@@ -180,6 +194,7 @@ export function evaluatePerformanceGate({ report, baseline, policy }) {
         path: `sizes.bundles.${reportItem.id}.${metric}`,
         current: reportItem[metric],
         baseline: baselineItem[metric],
+        stalePercent: policy.staleBudgetPercent,
         comparisons,
         violations: blockingViolations,
       });

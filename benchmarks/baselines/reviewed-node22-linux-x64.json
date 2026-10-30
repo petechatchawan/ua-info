@@ -1,0 +1,161 @@
+{
+  "schemaVersion": 1,
+  "policy": "report-only",
+  "generatedAt": "2026-10-30T14:36:28.244Z",
+  "package": {
+    "name": "user-agent-parser-ts",
+    "version": "3.0.1"
+  },
+  "environment": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.23.1",
+    "npm": "10.9.8",
+    "esbuild": "0.25.8",
+    "commit": "446ea52515049d36a54aba7c0acae93912242ce6"
+  },
+  "sizes": {
+    "package": {
+      "tarballBytes": 22432,
+      "unpackedBytes": 120354,
+      "fileCount": 62
+    },
+    "distributions": [
+      {
+        "id": "esm",
+        "rawBytes": 52089,
+        "fileCount": 39
+      },
+      {
+        "id": "cjs",
+        "rawBytes": 47001,
+        "fileCount": 19
+      }
+    ],
+    "bundles": [
+      {
+        "id": "root-parse",
+        "platform": "node",
+        "rawBytes": 10876,
+        "gzipBytes": 3579,
+        "brotliBytes": 3292
+      },
+      {
+        "id": "root-predicate",
+        "platform": "node",
+        "rawBytes": 405,
+        "gzipBytes": 260,
+        "brotliBytes": 227
+      },
+      {
+        "id": "server-parse-request",
+        "platform": "node",
+        "rawBytes": 15278,
+        "gzipBytes": 4930,
+        "brotliBytes": 4546
+      },
+      {
+        "id": "browser-detect-current",
+        "platform": "browser",
+        "rawBytes": 15958,
+        "gzipBytes": 5156,
+        "brotliBytes": 4735
+      }
+    ]
+  },
+  "runtime": {
+    "coldImports": [
+      {
+        "id": "root-esm",
+        "kind": "import",
+        "sampleCount": 15,
+        "medianMilliseconds": 6.3189530000000005,
+        "p95Milliseconds": 6.575310999999999,
+        "minimumMilliseconds": 5.903988999999999,
+        "maximumMilliseconds": 6.575310999999999
+      },
+      {
+        "id": "root-cjs",
+        "kind": "require",
+        "sampleCount": 15,
+        "medianMilliseconds": 5.859715999999999,
+        "p95Milliseconds": 6.226400999999999,
+        "minimumMilliseconds": 5.7279610000000005,
+        "maximumMilliseconds": 6.226400999999999
+      },
+      {
+        "id": "server-esm",
+        "kind": "import",
+        "sampleCount": 15,
+        "medianMilliseconds": 6.122407000000003,
+        "p95Milliseconds": 6.5602920000000005,
+        "minimumMilliseconds": 5.810575,
+        "maximumMilliseconds": 6.5602920000000005
+      },
+      {
+        "id": "browser-esm",
+        "kind": "import",
+        "sampleCount": 15,
+        "medianMilliseconds": 6.248531,
+        "p95Milliseconds": 6.5652919999999995,
+        "minimumMilliseconds": 5.922833999999998,
+        "maximumMilliseconds": 6.5652919999999995
+      }
+    ],
+    "parseThroughput": [
+      {
+        "id": "desktop-chromium",
+        "iterations": 20000,
+        "sampleCount": 15,
+        "medianOperationsPerSecond": 143452.89247295042,
+        "p95NanosecondsPerOperation": 7123.64749999997,
+        "checksum": 45600000
+      },
+      {
+        "id": "mobile-safari",
+        "iterations": 20000,
+        "sampleCount": 15,
+        "medianOperationsPerSecond": 112837.44248745879,
+        "p95NanosecondsPerOperation": 8906.416750000062,
+        "checksum": 49800000
+      },
+      {
+        "id": "line-liff",
+        "iterations": 20000,
+        "sampleCount": 15,
+        "medianOperationsPerSecond": 88479.27663378077,
+        "p95NanosecondsPerOperation": 11542.134199999964,
+        "checksum": 66000000
+      },
+      {
+        "id": "crawler",
+        "iterations": 20000,
+        "sampleCount": 15,
+        "medianOperationsPerSecond": 235190.80800942332,
+        "p95NanosecondsPerOperation": 4572.687799999949,
+        "checksum": 18750000
+      },
+      {
+        "id": "malformed",
+        "iterations": 20000,
+        "sampleCount": 15,
+        "medianOperationsPerSecond": 267453.74380814185,
+        "p95NanosecondsPerOperation": 4100.685399999929,
+        "checksum": 7800000
+      },
+      {
+        "id": "mixed-corpus",
+        "iterations": 24000,
+        "sampleCount": 15,
+        "medianOperationsPerSecond": 118889.69213737239,
+        "p95NanosecondsPerOperation": 8482.090416666628,
+        "checksum": 44640000
+      }
+    ]
+  },
+  "baselineSource": {
+    "runId": "budget-update",
+    "commit": "c2420ed5cd12a067c6b7f1af8db78c53d956803f",
+    "runner": "darwin-arm64 Node.js v24.18.0 (static sizes only)"
+  }
+}
