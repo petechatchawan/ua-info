@@ -6,8 +6,11 @@ export type Source = 'ua' | 'hints';
 
 const SOURCE_STRENGTH: Readonly<Record<Source, number>> = { ua: 1, hints: 2 };
 
+/** A signal names either a `Name/Version` product or a run of words (`windows nt`, `x86_64`). */
 export type Signal<X = unknown> = {
-  readonly product: string;
+  readonly product?: string;
+  readonly words?: string;
+  readonly skip?: number;
   readonly valueIs?: readonly string[];
   readonly with?: readonly string[];
   readonly os?: readonly OSId[];
@@ -41,19 +44,31 @@ function normalize<X>(match: Match<X>): Signal<X> {
   return typeof match === 'string' ? ({ product: match } as Signal<X>) : match;
 }
 
+
 export function compileMatcher<K extends string, X = unknown>(
   rows: Readonly<Record<K, RowSpec<K, X>>>,
 ): Matcher<K, X> {
-  const index = new Map<string, { readonly id: K; readonly signal: Signal<X> }[]>();
+  type Entry = { readonly id: K; readonly signal: Signal<X> };
+  const index = new Map<string, Entry[]>();
+  const wordIndex = new Map<string, Entry[]>();
+  const longestKey = new Map<string, number>();
   const beaten = new Map<K, readonly K[]>();
 
   for (const id of Object.keys(rows) as K[]) {
     for (const match of rows[id].match) {
       const signal = normalize(match);
-      const key = signal.product.toLowerCase();
-      const entries = index.get(key);
+      const target = signal.words === undefined ? index : wordIndex;
+      const key = (signal.words ?? signal.product ?? '').toLowerCase();
+      if (key.length === 0 || (signal.words === undefined) === (signal.product === undefined)) {
+        throw new Error(`Row ${id} needs exactly one of product or words.`);
+      }
+      if (signal.words !== undefined) {
+        const keyWords = key.split(' ');
+        longestKey.set(keyWords[0], Math.max(longestKey.get(keyWords[0]) ?? 0, keyWords.length));
+      }
+      const entries = target.get(key);
       if (entries) entries.push({ id, signal });
-      else index.set(key, [{ id, signal }]);
+      else target.set(key, [{ id, signal }]);
     }
     beaten.set(id, rows[id].beats ?? []);
   }
@@ -79,17 +94,40 @@ export function compileMatcher<K extends string, X = unknown>(
     productNames: () => [...index.keys()],
     find(scanned, os) {
       const found: Candidate<K, X>[] = [];
-      for (const product of scanned.products) {
+      const accept = (id: K, signal: Signal<X>, versionRaw: string | null): void => {
+        if (signal.valueIs && !signal.valueIs.some((value) => value.toLowerCase() === versionRaw)) return;
+        const present = (name: string): boolean => scanned.names.has(name) || scanned.wordSet.has(name);
+        if (signal.with && !signal.with.every((name) => present(name.toLowerCase()))) return;
+        if (signal.os && (os === null || !signal.os.includes(os))) return;
+        const fromProduct = signal.versionFrom
+          ? scanned.products.find((item) => item.name === (signal.versionFrom as string).toLowerCase())
+          : undefined;
+        const version = readVersion(signal.versionFrom ? fromProduct?.version ?? null : versionRaw);
+        if (version === null && !signal.versionOptional) return;
+        found.push({ id, source: 'ua', version, fallback: signal.fallback === true, signal });
+      };
+
+      for (const product of index.size === 0 ? [] : scanned.products) {
         for (const { id, signal } of index.get(product.name) ?? []) {
-          if (signal.valueIs && !signal.valueIs.some((value) => value.toLowerCase() === product.version)) continue;
-          if (signal.with && !signal.with.every((name) => scanned.names.has(name.toLowerCase()))) continue;
-          if (signal.os && (os === null || !signal.os.includes(os))) continue;
-          const versionProduct = signal.versionFrom
-            ? scanned.products.find((item) => item.name === (signal.versionFrom as string).toLowerCase())
-            : product;
-          const version = readVersion(versionProduct?.version ?? null);
-          if (version === null && !signal.versionOptional) continue;
-          found.push({ id, source: 'ua', version, fallback: signal.fallback === true, signal });
+          if (signal.valueIs) {
+            if (!signal.valueIs.some((value) => value.toLowerCase() === product.version)) continue;
+            accept(id, signal, product.version);
+          } else {
+            accept(id, signal, product.version);
+          }
+        }
+      }
+
+      const words = longestKey.size === 0 ? [] : scanned.words;
+      for (let start = 0; start < words.length; start++) {
+        const longest = longestKey.get(words[start]);
+        if (longest === undefined) continue;
+        let key = '';
+        for (let length = 1; length <= longest && start + length <= words.length; length++) {
+          key = length === 1 ? words[start] : `${key} ${words[start + length - 1]}`;
+          for (const { id, signal } of wordIndex.get(key) ?? []) {
+            accept(id, signal, words[start + length + (signal.skip ?? 0)] ?? null);
+          }
         }
       }
       return found;

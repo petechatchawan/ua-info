@@ -2,9 +2,7 @@ import * as check from '../check';
 import { BrowserId, ContextId, EngineId, OSId } from '../constants';
 import { parse } from '../parse';
 import { detectClient } from '../parser/client';
-import { detectCPU } from '../parser/cpu';
 import { detectDevice } from '../parser/device';
-import { detectOS } from '../parser/os';
 import type { UAInfo } from '../types';
 
 const empty = parse('');
@@ -145,7 +143,7 @@ describe('supported detector matrix', () => {
     ['Mozilla/5.0 Tizen/8.0', OSId.Tizen],
     ['Mozilla/5.0 (X11; Linux x86_64)', OSId.Linux],
   ] as const)('detects OS from %s', (ua, expected) => {
-    expect(detectOS(ua).name).toBe(expected);
+    expect(parse(ua).os.name).toBe(expected);
   });
 
   it.each([
@@ -183,7 +181,7 @@ describe('supported detector matrix', () => {
     ['sparc', 'sparc', null],
     ['unknown', null, null],
   ] as const)('detects CPU %s', (ua, architecture, bitness) => {
-    expect(detectCPU(ua)).toEqual({ architecture, bitness });
+    expect(parse(ua).cpu).toEqual({ architecture, bitness });
   });
 
   it.each([

@@ -1,21 +1,6 @@
-import { CPUArchitecture, OSId } from './constants';
+import { CPUArchitecture } from './constants';
 import type { BrandVersion, ClientHints } from './input';
-import type { CPUArchitecture as CPUArchitectureType, OSId as OSIdType } from './constants';
-
-export function normalizePlatform(platform: string | null): OSIdType | null {
-  if (!platform) return null;
-  switch (platform.trim().toLowerCase()) {
-    case 'android': return OSId.Android;
-    case 'chrome os':
-    case 'chromeos': return OSId.ChromeOS;
-    case 'ios': return OSId.IOS;
-    case 'ipados': return OSId.IPadOS;
-    case 'linux': return OSId.Linux;
-    case 'macos': return OSId.MacOS;
-    case 'windows': return OSId.Windows;
-    default: return null;
-  }
-}
+import type { CPUArchitecture as CPUArchitectureType } from './constants';
 
 export interface NormalizedArchitecture {
   readonly architecture: CPUArchitectureType;

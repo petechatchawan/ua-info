@@ -1,32 +1,43 @@
-import { CONTEXTS, type UserAgentContextId } from '../catalog/contexts';
 import { BROWSERS, NEUTRAL_PRODUCTS, type BrowserSignal } from '../catalog/browsers';
-import type { BrowserId, EngineId, OSId } from '../constants';
+import { CONTEXTS, type UserAgentContextId } from '../catalog/contexts';
+import { CPUS, type CPUSignal } from '../catalog/cpus';
+import { OPERATING_SYSTEMS } from '../catalog/os';
+import type { BrowserId, CPUArchitecture, EngineId, OSId } from '../constants';
 import { ContextId, EngineId as Engines } from '../constants';
-import { mergeCPU, mergeDevice, mergeOS } from '../enrich';
+import { normalizeArchitecture } from '../client-hints';
+import { mergeDevice } from '../enrich';
 import type { ClientHints, RuntimeEvidence } from '../input';
 import { detectClient } from '../parser/client';
-import { detectCPU } from '../parser/cpu';
 import { detectDevice } from '../parser/device';
-import { detectOS } from '../parser/os';
 import type {
   BrowserFamily,
   BrowserInfo,
   BrowserMode,
   ContextInfo,
+  CPUInfo,
   EngineInfo,
+  OSInfo,
   UAInfo,
+  Version,
 } from '../types';
 import { compileMatcher, pick, strongestVersion, type Candidate } from './match';
 import { MAX_UA_LENGTH, readVersion, scan, type Scan } from './scan';
 
 const BROWSER_MATCHER = compileMatcher<BrowserId, BrowserSignal>(BROWSERS);
 const CONTEXT_MATCHER = compileMatcher<UserAgentContextId>(CONTEXTS);
+const OS_MATCHER = compileMatcher<OSId>(OPERATING_SYSTEMS);
+const CPU_MATCHER = compileMatcher<CPUArchitecture, CPUSignal>(CPUS);
 
 const ACCOUNTED_PRODUCTS: ReadonlySet<string> = new Set([
   ...BROWSER_MATCHER.productNames(),
   ...CONTEXT_MATCHER.productNames(),
   ...NEUTRAL_PRODUCTS,
 ]);
+
+const PLATFORM_TO_OS = new Map<string, OSId>();
+for (const id of Object.keys(OPERATING_SYSTEMS) as OSId[]) {
+  for (const platform of OPERATING_SYSTEMS[id].platforms) PLATFORM_TO_OS.set(platform.toLowerCase(), id);
+}
 
 const BRAND_TO_BROWSER = new Map<string, BrowserId>();
 for (const id of Object.keys(BROWSERS) as BrowserId[]) {
@@ -157,10 +168,62 @@ function resolveContext(scanned: Scan, runtime: RuntimeEvidence | null): Context
   return context;
 }
 
+function scaleVersion(id: OSId, version: Version | null, source: 'ua' | 'hints'): Version | null {
+  if (version === null) return null;
+  const scale = OPERATING_SYSTEMS[id].scale;
+  if (source === 'hints') {
+    const mapped = scale?.hint?.(version);
+    return mapped === undefined ? version : readVersion(mapped);
+  }
+  const table = scale?.ua;
+  if (table && Object.prototype.hasOwnProperty.call(table, version.full)) return readVersion(table[version.full]);
+  return version;
+}
+
+function resolveOS(scanned: Scan, hints: ClientHints | null): OSInfo {
+  const candidates = OS_MATCHER.find(scanned, null).map((candidate) => ({
+    ...candidate,
+    version: scaleVersion(candidate.id, candidate.version, 'ua'),
+  }));
+  const hintOS = hints?.platform ? PLATFORM_TO_OS.get(hints.platform.trim().toLowerCase()) : undefined;
+  if (hintOS !== undefined) {
+    const platformVersion = hints?.platformVersion ? readVersion(hints.platformVersion) : null;
+    candidates.push({
+      id: hintOS,
+      source: 'hints',
+      version: scaleVersion(hintOS, platformVersion, 'hints'),
+      fallback: false,
+      signal: null,
+    });
+  }
+  const { id } = pick(candidates, OS_MATCHER.beats);
+  return { name: id, version: id ? strongestVersion(candidates, id) : null };
+}
+
+function resolveCPU(scanned: Scan, hints: ClientHints | null): CPUInfo {
+  const candidates = CPU_MATCHER.find(scanned, null);
+  const { id, survivors } = pick(candidates, CPU_MATCHER.beats);
+  const base: CPUInfo =
+    id === null ? { architecture: null, bitness: null } : { architecture: id, bitness: survivors[0].signal?.bitness ?? null };
+  if (!hints) return base;
+
+  const hinted = normalizeArchitecture(hints.architecture, hints.bitness);
+  if (hinted) {
+    const weakerCompatible =
+      hinted.bitness === null &&
+      (hinted.architecture === base.architecture ||
+        (hinted.architecture === 'arm' && base.architecture === 'arm64') ||
+        (hinted.architecture === 'x86' && base.architecture === 'x86_64'));
+    return weakerCompatible ? base : hinted;
+  }
+  return hints.bitness !== null ? { ...base, bitness: hints.bitness } : base;
+}
+
 export function resolve(ua: string, hints: ClientHints | null, runtime: RuntimeEvidence | null): UAInfo {
   const text = ua.length > MAX_UA_LENGTH ? ua.slice(0, MAX_UA_LENGTH) : ua;
   const scanned = scan(text);
-  const uaOS = detectOS(text);
+  const os = resolveOS(scanned, hints);
+  const uaOS = hints ? resolveOS(scanned, null) : os;
   const { browser, engine } = resolveBrowser(scanned, uaOS.name, hints);
   const context = resolveContext(scanned, runtime);
 
@@ -171,9 +234,9 @@ export function resolve(ua: string, hints: ClientHints | null, runtime: RuntimeE
     ua,
     browser: { ...browser, mode },
     engine: resolveEngine(scanned, uaOS.name, engine),
-    os: hints ? mergeOS(uaOS, hints) : uaOS,
+    os,
     device: hints ? mergeDevice(detectDevice(text), hints) : detectDevice(text),
-    cpu: hints ? mergeCPU(detectCPU(text), hints) : detectCPU(text),
+    cpu: resolveCPU(scanned, hints),
     client: detectClient(text),
     context,
   };
