@@ -37,3 +37,7 @@ package-lock.json
 *.tgz
 # Generated package output
 dist/
+
+# Playwright output
+apps/playground/playwright-report/
+apps/playground/test-results/
