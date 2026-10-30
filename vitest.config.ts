@@ -6,6 +6,7 @@ export default defineConfig({
     globals: true,
     include: [
       'src/**/__tests__/**/*.test.ts',
+      'test/**/*.test.ts',
       'scripts/performance/__tests__/**/*.test.cjs',
     ],
     coverage: {
