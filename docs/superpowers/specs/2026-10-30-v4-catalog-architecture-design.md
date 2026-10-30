@@ -358,7 +358,19 @@ Deleting files (jest config, old parser files, redundant tests, the duplicate ba
 
 ## Implementation reconciliation
 
-None yet.
+### PR 5 (browsers, engines, contexts)
+
+Accepted by the operator's go-ahead to start PR 5, and checked against the corpus. None changes the shared contract.
+
+- **IDs stay hand-written until PR 9.** The catalog is typed `Record<BrowserId, BrowserRow>` against the existing union in `constants.ts`, so a missing row is a `tsc` error today. Deriving the union from the catalog keys moves to PR 9, where the const objects go away.
+- **`enrich.ts` shrinks instead of disappearing.** It keeps `mergeOS`, `mergeDevice` and `mergeCPU` until PRs 6 and 7 move those dimensions into the pipeline. `mergeBrowser` and `mergeRuntime` are gone. `parse`, `parseRequest` and `detect` all call `core/resolve.ts`.
+- **Signals carry the per-row exceptions.** `Signal` gained `valueIs` (Messenger's `FBAN/MessengerForiOS`), `with`, `os`, `versionFrom`, `versionOptional`, and the browser extras `family`, `engine`, `mode`. Safari's Apple-only rule is `os: ['ios', 'ipados', 'macos']` on its row, not code.
+- **A Chromium brand is not a candidate.** `Sec-CH-UA` always lists `Chromium`, so it would conflict with every Chrome UA. It only supplies `family` and, for the Chromium product, the version.
+- **Hint brands pick like UA tokens.** A stronger source wins an unresolved conflict, so a Brave or Edge brand now replaces a Samsung Internet UA. v3 kept Samsung there. The generic `Google Chrome` brand is a fallback candidate, so it never replaces a specific product.
+- **`NEUTRAL_PRODUCTS` includes `nettype`, `language`, `abi`, `mmwebid`, `mmwebsdk` and `liff`.** These ride on WeChat and LINE Chromium UAs and would otherwise read as unknown forks. The WeChat tokens are recalled, not captured, and need real corpus entries.
+- **Scanner treats `;` between top-level tokens as a separator.** A bare `FBAN/Orca-Android; FBAV/500.1.0` in a test string would otherwise carry the `;` into the value.
+- **Measured cost.** `root-parse` grows from 10,876 to 15,872 raw bytes (gzip 5,852) because the scanner, matcher and resolver are a fixed cost, while `server` and `browser` grow by 1,928. Parse throughput on the mixed corpus went from about 453,000 to 410,000 operations per second. Each added row is expected to cost far less than the machinery, and the next PRs measure it.
+- **Behavior changes, all in the corpus diff.** An unlisted Chromium fork reports `name: null, family: 'chromium'`. Edge Legacy reports `edge` with `family: null`. The Android stock browser reports no browser. Safari needs an Apple OS, so a Tizen Safari UA reports none. Opera Mini reports `family: null` and no engine.
 
 ## Open questions and risks
 

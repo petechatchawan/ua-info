@@ -1,6 +1,5 @@
 import { decodeClientHints } from './client-hints';
-import { enrich } from './enrich';
-import { parse } from './parse';
+import { resolve } from './core/resolve';
 import type { UAInfo } from './types';
 
 export type HeaderValue = string | readonly string[] | undefined;
@@ -41,9 +40,5 @@ export function parseRequest(input: ParseRequestInput): UAInfo {
   const requestLike = isRequestLikeInput(input) ? input : { headers: input };
   const read = (name: string) => readHeader(requestLike.headers, name);
   const ua = requestLike.userAgent ?? read('user-agent') ?? '';
-  return enrich(parse(ua), {
-    ua,
-    clientHints: decodeClientHints(read),
-    runtime: null,
-  });
+  return resolve(ua, decodeClientHints(read), null);
 }

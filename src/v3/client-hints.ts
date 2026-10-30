@@ -1,30 +1,6 @@
-import { BrowserId, CPUArchitecture, OSId } from './constants';
+import { CPUArchitecture, OSId } from './constants';
 import type { BrandVersion, ClientHints } from './input';
-import type { BrowserId as BrowserIdType, CPUArchitecture as CPUArchitectureType, OSId as OSIdType } from './constants';
-
-const PRODUCT_BRANDS: readonly { readonly brand: string; readonly name: BrowserIdType }[] = [
-  { brand: 'Brave', name: BrowserId.Brave },
-  { brand: 'Microsoft Edge', name: BrowserId.Edge },
-  { brand: 'Opera', name: BrowserId.Opera },
-  { brand: 'Google Chrome', name: BrowserId.Chrome },
-];
-
-export interface SelectedBrowserBrand {
-  readonly name: BrowserIdType;
-  readonly version: string;
-}
-
-export function selectBrowserBrand(brands: readonly BrandVersion[]): SelectedBrowserBrand | null {
-  for (const candidate of PRODUCT_BRANDS) {
-    const match = brands.find((item) => item.brand.toLowerCase() === candidate.brand.toLowerCase());
-    if (match) return { name: candidate.name, version: match.version };
-  }
-  return null;
-}
-
-export function hasChromiumBrand(brands: readonly BrandVersion[]): boolean {
-  return brands.some((item) => item.brand.toLowerCase() === 'chromium');
-}
+import type { CPUArchitecture as CPUArchitectureType, OSId as OSIdType } from './constants';
 
 export function normalizePlatform(platform: string | null): OSIdType | null {
   if (!platform) return null;

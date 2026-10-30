@@ -17,7 +17,7 @@ describe('parse', () => {
   it('parses Android Chrome into fixed dimensions', () => {
     const result = parse(
       'Mozilla/5.0 (Linux; Android 16; Pixel 10 Pro) AppleWebKit/537.36 ' +
-      '(KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36 arm64',
+      '(KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36 (arm64)',
     );
     expect(result.browser).toMatchObject({ name: 'chrome', family: 'chromium', mode: 'browser' });
     expect(result.os).toMatchObject({ name: 'android', version: { full: '16', major: 16 } });

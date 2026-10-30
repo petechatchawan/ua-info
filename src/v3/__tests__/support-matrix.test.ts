@@ -2,10 +2,8 @@ import * as check from '../check';
 import { BrowserId, ContextId, EngineId, OSId } from '../constants';
 import { parse } from '../parse';
 import { detectClient } from '../parser/client';
-import { detectContext } from '../parser/context';
 import { detectCPU } from '../parser/cpu';
 import { detectDevice } from '../parser/device';
-import { detectEngine } from '../parser/engine';
 import { detectOS } from '../parser/os';
 import type { UAInfo } from '../types';
 
@@ -217,7 +215,7 @@ describe('supported detector matrix', () => {
     ['MicroMessenger/8.0.50', ContextId.WeChat],
     ['FBAV/500.0.0', ContextId.Facebook],
   ] as const)('detects context %s', (ua, name) => {
-    expect(detectContext(ua).name).toBe(name);
+    expect(parse(ua).context.name).toBe(name);
   });
 
   it.each([
@@ -225,7 +223,7 @@ describe('supported detector matrix', () => {
     ['Mozilla/5.0 AppleWebKit/605.1.15', 'webkit', EngineId.WebKit],
     ['Mozilla/5.0 Chrome/150.0.0.0', 'blink', EngineId.Blink],
     ['custom-client', null, null],
-  ] as const)('detects engine from %s', (ua, hint, name) => {
-    expect(detectEngine(ua, hint).name).toBe(name);
+  ] as const)('detects engine from %s', (ua, _hint, name) => {
+    expect(parse(ua).engine.name).toBe(name);
   });
 });
