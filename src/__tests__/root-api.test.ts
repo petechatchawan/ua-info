@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import * as root from '../index';
-import * as check from '../v3/check';
+import * as check from '../check';
 
 // @ts-expect-error v3 root no longer exports generic predicates
 const removedRootPredicate = root.isBrowser;
@@ -26,16 +26,16 @@ describe('user-agent-parser-ts package root', () => {
       exports: Record<string, { import?: string; require?: string } | string>;
     };
     expect(packageJson.exports['./check']).toMatchObject({
-      import: './dist/esm/v3/check.js',
-      require: './dist/cjs/v3/check.js',
+      import: './dist/esm/check.js',
+      require: './dist/cjs/check.js',
     });
     expect(packageJson.exports['./server']).toMatchObject({
-      import: './dist/esm/v3/server.js',
-      require: './dist/cjs/v3/server.js',
+      import: './dist/esm/server.js',
+      require: './dist/cjs/server.js',
     });
     expect(packageJson.exports['./browser']).toMatchObject({
-      import: './dist/esm/v3/browser.js',
-      require: './dist/cjs/v3/browser.js',
+      import: './dist/esm/browser.js',
+      require: './dist/cjs/browser.js',
     });
   });
 });

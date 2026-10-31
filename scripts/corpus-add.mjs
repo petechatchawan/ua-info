@@ -50,7 +50,7 @@ for (const file of await readdir(corpusDirectory)) {
 }
 
 const { parse } = await import('../dist/esm/index.js');
-const { parseRequest } = await import('../dist/esm/v3/server.js');
+const { parseRequest } = await import('../dist/esm/server.js');
 const hasHeaders = Object.keys(headers).length > 0;
 const { ua, ...expectation } = hasHeaders
   ? parseRequest({ ...headers, 'user-agent': userAgent })

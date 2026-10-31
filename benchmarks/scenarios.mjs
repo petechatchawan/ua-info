@@ -82,8 +82,8 @@ export const BUNDLE_SCENARIOS = Object.freeze([
 export const COLD_IMPORT_SCENARIOS = Object.freeze([
   Object.freeze({ id: 'root-esm', kind: 'import', target: 'dist/esm/index.js' }),
   Object.freeze({ id: 'root-cjs', kind: 'require', target: 'dist/cjs/index.js' }),
-  Object.freeze({ id: 'server-esm', kind: 'import', target: 'dist/esm/v3/server.js' }),
-  Object.freeze({ id: 'browser-esm', kind: 'import', target: 'dist/esm/v3/browser.js' }),
+  Object.freeze({ id: 'server-esm', kind: 'import', target: 'dist/esm/server.js' }),
+  Object.freeze({ id: 'browser-esm', kind: 'import', target: 'dist/esm/browser.js' }),
 ]);
 
 export const THROUGHPUT_SCENARIOS = Object.freeze([
