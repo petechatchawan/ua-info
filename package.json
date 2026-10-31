@@ -1,6 +1,6 @@
 {
     "name": "user-agent-parser-ts",
-    "version": "3.0.1",
+    "version": "4.0.0",
     "description": "Zero-dependency User-Agent parser for TypeScript with Client Hints, browser, OS, device, bot and WebView detection for Node.js and browsers",
     "author": "Chatchawan Koedsawas",
     "license": "MIT",
@@ -30,22 +30,28 @@
             "default": "./dist/esm/index.js"
         },
         "./check": {
-            "types": "./dist/esm/v3/check.d.ts",
-            "import": "./dist/esm/v3/check.js",
-            "require": "./dist/cjs/v3/check.js",
-            "default": "./dist/esm/v3/check.js"
+            "types": "./dist/esm/check.d.ts",
+            "import": "./dist/esm/check.js",
+            "require": "./dist/cjs/check.js",
+            "default": "./dist/esm/check.js"
         },
         "./server": {
-            "types": "./dist/esm/v3/server.d.ts",
-            "import": "./dist/esm/v3/server.js",
-            "require": "./dist/cjs/v3/server.js",
-            "default": "./dist/esm/v3/server.js"
+            "types": "./dist/esm/server.d.ts",
+            "import": "./dist/esm/server.js",
+            "require": "./dist/cjs/server.js",
+            "default": "./dist/esm/server.js"
         },
         "./browser": {
-            "types": "./dist/esm/v3/browser.d.ts",
-            "import": "./dist/esm/v3/browser.js",
-            "require": "./dist/cjs/v3/browser.js",
-            "default": "./dist/esm/v3/browser.js"
+            "types": "./dist/esm/browser.d.ts",
+            "import": "./dist/esm/browser.js",
+            "require": "./dist/cjs/browser.js",
+            "default": "./dist/esm/browser.js"
+        },
+        "./labels": {
+            "types": "./dist/esm/labels.d.ts",
+            "import": "./dist/esm/labels.js",
+            "require": "./dist/cjs/labels.js",
+            "default": "./dist/esm/labels.js"
         },
         "./package.json": "./package.json"
     },
@@ -57,8 +63,8 @@
         "build:cjs": "tsc --project tsconfig.build.cjs.json",
         "build": "npm run clean && npm run build:esm && npm run build:cjs && node scripts/finalize-build.mjs",
         "test": "vitest run",
-        "fixture:check": "vitest run src/v3/__tests__",
-        "test:coverage": "vitest run --coverage src/v3",
+        "fixture:check": "vitest run src/__tests__",
+        "test:coverage": "vitest run --coverage src",
         "detection:check": "npm run test:coverage",
         "identity:check": "node scripts/verify-package-identity.mjs",
         "typecheck": "tsc --project tsconfig.test.json",

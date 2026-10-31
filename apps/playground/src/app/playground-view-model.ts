@@ -1,4 +1,4 @@
-import type { UAInfo } from '../services/ua-detection-service';
+import { labels, type UAInfo } from '../services/ua-detection-service';
 import type { PlaygroundMode } from './playground-state';
 
 const NOT_DETECTED = 'Not detected';
@@ -73,7 +73,9 @@ export function createDetectionSummary(result: UAInfo): DetectionSummaryViewMode
   return {
     browser: formatProduct(result.browser),
     mode: humanize(result.browser.mode),
-    contextHost: result.context.host ? formatProduct(result.context.host) : NOT_DETECTED,
+    contextHost: result.context.app
+      ? formatProduct({ name: labels.context[result.context.app], version: result.context.version })
+      : NOT_DETECTED,
     contextSurface: humanize(result.context.name),
     os: formatProduct(result.os),
     device: humanize(result.device.type),
@@ -98,7 +100,8 @@ export function createResultCards(result: UAInfo): readonly ResultCardViewModel[
       rows: [
         row('Type', humanize(result.context.type)),
         row('Surface', result.context.name ? humanize(result.context.name) : null),
-        row('Host', result.context.host ? formatProduct(result.context.host) : null),
+        row('Host app', result.context.app ? labels.context[result.context.app] : null),
+        row('Host version', result.context.version?.full),
       ],
     },
     {
@@ -106,7 +109,7 @@ export function createResultCards(result: UAInfo): readonly ResultCardViewModel[
       title: 'Client',
       rows: [
         row('Type', humanize(result.client.type)),
-        row('Name', result.client.name),
+        row('Name', result.client.name ? labels.client[result.client.name] : result.client.token),
         row('Version', result.client.version?.full),
       ],
     },
@@ -131,7 +134,7 @@ export function createResultCards(result: UAInfo): readonly ResultCardViewModel[
       title: 'Device',
       rows: [
         row('Type', humanize(result.device.type)),
-        row('Vendor', result.device.vendor),
+        row('Vendor', result.device.vendor ? labels.vendor[result.device.vendor] : null),
         row('Model', result.device.model),
       ],
     },

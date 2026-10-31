@@ -1,4 +1,25 @@
-export * from './v3/constants';
-export * from './v3/types';
-export * from './v3/version';
-export * from './v3/parse';
+export { parse } from './parse';
+export type {
+  AppId,
+  BrowserFamily,
+  BrowserId,
+  BrowserInfo,
+  BrowserMode,
+  ClientId,
+  ClientInfo,
+  ClientType,
+  ContextId,
+  ContextInfo,
+  ContextType,
+  CPUArchitecture,
+  CPUInfo,
+  DeviceInfo,
+  DeviceType,
+  EngineId,
+  EngineInfo,
+  OSId,
+  OSInfo,
+  UAInfo,
+  VendorId,
+  Version,
+} from './types';

@@ -51,7 +51,7 @@ try {
     filePath.includes('__tests__') ||
     /(?:^|\/).*\.(?:spec|test)\.(?:js|cjs|mjs|ts)$/.test(filePath) ||
     /dist\/(?:esm|cjs)\/v2\//.test(filePath) ||
-    /dist\/(?:esm|cjs)\/(?:main\/ua-info|mappings\/|types\.(?:js|d\.ts)$|utils\.(?:js|d\.ts)$)/.test(filePath),
+    /dist\/(?:esm|cjs)\/(?:main\/ua-info|mappings\/)/.test(filePath),
   );
   if (forbiddenFiles.length > 0) {
     throw new Error(`Package contains forbidden implementation/test files: ${forbiddenFiles.join(', ')}`);

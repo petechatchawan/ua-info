@@ -14,8 +14,8 @@ describe('playground view models', () => {
   it('uses Not detected for absent values', () => {
     const result = {
       ...chromeResult,
-      client: { type: null, name: null, version: null },
-      context: { type: null, name: null, host: null },
+      client: { type: null, name: null, token: null, version: null },
+      context: { type: null, name: null, app: null, version: null },
       cpu: { architecture: null, bitness: null },
     };
     const cards = createResultCards(result);

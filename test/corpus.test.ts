@@ -1,9 +1,9 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { parse } from '../src/v3/parse';
-import { parseRequest } from '../src/v3/server';
-import type { UAInfo } from '../src/v3/types';
+import { parse } from '../src/parse';
+import { parseRequest } from '../src/server';
+import type { UAInfo } from '../src/types';
 
 type DeepPartial<T> = { [K in keyof T]?: T[K] extends object ? DeepPartial<T[K]> : T[K] };
 

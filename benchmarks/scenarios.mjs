@@ -65,7 +65,7 @@ export const BUNDLE_SCENARIOS = Object.freeze([
   Object.freeze({
     id: 'root-predicate',
     platform: 'node',
-    source: `import { isChrome } from 'user-agent-parser-ts/check';\nconst result = { browser: { name: 'chrome' } };\nconsole.log(isChrome(result));\n`,
+    source: `import { is } from 'user-agent-parser-ts/check';\nconst info = globalThis.__uaInfo;\nconsole.log(is(info, { browser: 'chrome' }));\n`,
   }),
   Object.freeze({
     id: 'server-parse-request',
@@ -82,8 +82,8 @@ export const BUNDLE_SCENARIOS = Object.freeze([
 export const COLD_IMPORT_SCENARIOS = Object.freeze([
   Object.freeze({ id: 'root-esm', kind: 'import', target: 'dist/esm/index.js' }),
   Object.freeze({ id: 'root-cjs', kind: 'require', target: 'dist/cjs/index.js' }),
-  Object.freeze({ id: 'server-esm', kind: 'import', target: 'dist/esm/v3/server.js' }),
-  Object.freeze({ id: 'browser-esm', kind: 'import', target: 'dist/esm/v3/browser.js' }),
+  Object.freeze({ id: 'server-esm', kind: 'import', target: 'dist/esm/server.js' }),
+  Object.freeze({ id: 'browser-esm', kind: 'import', target: 'dist/esm/browser.js' }),
 ]);
 
 export const THROUGHPUT_SCENARIOS = Object.freeze([

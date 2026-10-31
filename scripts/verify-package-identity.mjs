@@ -15,7 +15,7 @@ const expected = Object.freeze({
 const failures = [];
 
 if (packageJson.name !== expected.name) failures.push(`name: ${packageJson.name}`);
-if (!/^3\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(packageJson.version)) failures.push(`version must be user-agent-parser-ts 3.x: ${packageJson.version}`);
+if (!/^(?:[3-9]|[1-9]\d+)\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(packageJson.version)) failures.push(`version must be a user-agent-parser-ts 3.0 or later semantic version: ${packageJson.version}`);
 if (packageJson.repository?.url !== expected.repository) failures.push(`repository: ${packageJson.repository?.url}`);
 if (packageJson.homepage !== expected.homepage) failures.push(`homepage: ${packageJson.homepage}`);
 if (packageJson.bugs?.url !== expected.bugs) failures.push(`bugs: ${packageJson.bugs?.url}`);
