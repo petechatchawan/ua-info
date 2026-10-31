@@ -1,8 +1,11 @@
 import type { Version } from './types';
 
 export function parseVersion(raw: string): Version {
-  const full = raw;
-  const match = /^(\d+)/.exec(raw);
-  const major = match ? Number.parseInt(match[1], 10) : null;
-  return { full, major: Number.isSafeInteger(major) ? major : null };
+  let major = 0;
+  let digits = 0;
+  while (digits < raw.length && raw.charCodeAt(digits) >= 48 && raw.charCodeAt(digits) <= 57) {
+    major = major * 10 + (raw.charCodeAt(digits) - 48);
+    digits++;
+  }
+  return { full: raw, major: digits > 0 && Number.isSafeInteger(major) ? major : null };
 }

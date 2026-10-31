@@ -1,7 +1,6 @@
 import * as check from '../check';
 import { BrowserId, ContextId, EngineId, OSId } from '../constants';
 import { parse } from '../parse';
-import { detectClient } from '../parser/client';
 import type { UAInfo } from '../types';
 
 const empty = parse('');
@@ -188,7 +187,7 @@ describe('supported detector matrix', () => {
   });
 
   it.each([
-    ['ChatGPT-User/1.0', 'ai-assistant', 'ai-assistant'],
+    ['ChatGPT-User/1.0', 'ai-assistant', 'chatgpt-user'],
     ['OAI-AdsBot/1.0', 'crawler', 'oai-adsbot'],
     ['Googlebot-Image/1.0', 'crawler', 'googlebot-image'],
     ['Googlebot-Video/1.0', 'crawler', 'googlebot-video'],
@@ -207,7 +206,7 @@ describe('supported detector matrix', () => {
     ['ExampleSpider/2.5', 'bot', 'examplespider'],
     ['ExampleCrawler', 'bot', 'examplecrawler'],
   ] as const)('detects client %s', (ua, type, name) => {
-    expect(detectClient(ua)).toMatchObject({ type, name });
+    expect(parse(ua).client).toMatchObject({ type, name });
   });
 
   it.each([

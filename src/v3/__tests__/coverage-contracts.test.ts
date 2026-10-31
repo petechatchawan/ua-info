@@ -2,7 +2,6 @@ import { BrowserId, CPUArchitecture, EngineId, OSId, type UAInfo } from '../inde
 import * as check from '../check';
 import { normalizeArchitecture, parseBrandList } from '../client-hints';
 import { parse } from '../parse';
-import { detectClient } from '../parser/client';
 import { readHeader } from '../server';
 
 function makeInfo(overrides: Partial<UAInfo>): UAInfo {
@@ -204,7 +203,7 @@ describe('supported contract matrix', () => {
   });
 
   it.each([
-    ['ChatGPT-User', 'ai-assistant', 'ai-assistant'],
+    ['ChatGPT-User', 'ai-assistant', 'chatgpt-user'],
     ['OAI-AdsBot/1.0', 'crawler', 'oai-adsbot'],
     ['Googlebot-Image/1.0', 'crawler', 'googlebot-image'],
     ['Googlebot-Video/1.0', 'crawler', 'googlebot-video'],
@@ -223,7 +222,7 @@ describe('supported contract matrix', () => {
     ['FancySpider/2.5', 'bot', 'fancyspider'],
     ['NovelBot', 'bot', 'novelbot'],
   ] as const)('detects client branch %s', (ua, type, name) => {
-    expect(detectClient(ua)).toMatchObject({ type, name });
+    expect(parse(ua).client).toMatchObject({ type, name });
   });
 
   it.each([
