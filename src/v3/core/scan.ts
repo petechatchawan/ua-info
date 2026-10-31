@@ -29,6 +29,10 @@ export interface Product {
 export interface Scan {
   readonly products: readonly Product[];
   readonly parts: readonly string[];
+  /** Comment group of each part, so a caller can stay inside one parenthesized group. */
+  readonly partGroups: readonly number[];
+  /** The part at `index` with its original letter case, or the lowercase part when lowercasing changed the length. */
+  rawPart(index: number): string;
   /** Product names. Built on first use. */
   readonly names: ReadonlySet<string>;
   /** Every word of the text in order, split at spaces, brackets, `;`, `,` and `/`. */
@@ -94,10 +98,14 @@ export function readVersion(raw: string | null): Version | null {
  * comment group in one pass. It reads each character once and cannot backtrack.
  */
 export function scan(input: string): Scan {
-  const lower = (input.length > MAX_UA_LENGTH ? input.slice(0, MAX_UA_LENGTH) : input).toLowerCase();
+  const text = input.length > MAX_UA_LENGTH ? input.slice(0, MAX_UA_LENGTH) : input;
+  const lower = text.toLowerCase();
   const length = lower.length;
   const products: Product[] = [];
   const parts: string[] = [];
+  const partGroups: number[] = [];
+  const spans: number[] = [];
+  let group = -1;
 
   const addProduct = (name: string, version: string | null, top: boolean): void => {
     if (products.length >= MAX_PRODUCTS || name.length === 0 || name.length > MAX_NAME_LENGTH) return;
@@ -112,15 +120,17 @@ export function scan(input: string): Scan {
   };
 
   const addPart = (start: number, end: number): void => {
-    const text = lower.slice(start, end).trim();
-    if (text.length === 0 || parts.length >= MAX_PARTS) return;
-    parts.push(text);
-    const slash = text.indexOf('/');
-    if (slash <= 0 || slash > MAX_NAME_LENGTH || text.charCodeAt(0) === PLUS) return;
-    const name = text.slice(0, slash);
+    const part = lower.slice(start, end).trim();
+    if (part.length === 0 || parts.length >= MAX_PARTS) return;
+    parts.push(part);
+    partGroups.push(group);
+    spans.push(start, end);
+    const slash = part.indexOf('/');
+    if (slash <= 0 || slash > MAX_NAME_LENGTH || part.charCodeAt(0) === PLUS) return;
+    const name = part.slice(0, slash);
     if (name.indexOf(':') >= 0 || countSpaces(name) > 2) return;
-    const space = text.indexOf(' ', slash);
-    addSlashed(name, text.slice(slash + 1, space < 0 ? text.length : space), false);
+    const space = part.indexOf(' ', slash);
+    addSlashed(name, part.slice(slash + 1, space < 0 ? part.length : space), false);
   };
 
   const addToken = (start: number, end: number): void => {
@@ -158,6 +168,7 @@ export function scan(input: string): Scan {
         index++;
       } else if (code === OPEN_PAREN || code === OPEN_BRACKET) {
         depth = 1;
+        group++;
         partStart = index + 1;
         index++;
       } else {
@@ -190,6 +201,11 @@ export function scan(input: string): Scan {
   return {
     products,
     parts,
+    partGroups,
+    rawPart(index) {
+      if (text.length !== lower.length) return parts[index];
+      return text.slice(spans[index * 2], spans[index * 2 + 1]).trim();
+    },
     get names() {
       if (names === null) names = new Set(products.map((product) => product.name));
       return names;

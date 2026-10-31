@@ -3,11 +3,14 @@ import * as check from '../check';
 import { normalizeArchitecture, parseBrandList } from '../client-hints';
 import { parse } from '../parse';
 import { detectClient } from '../parser/client';
-import { detectDevice } from '../parser/device';
 import { readHeader } from '../server';
 
 function makeInfo(overrides: Partial<UAInfo>): UAInfo {
   return { ...parse(''), ...overrides };
+}
+
+function androidUA(ua: string): string {
+  return ua.startsWith('Mozilla') ? ua : `Mozilla/5.0 (Linux; ${ua.startsWith('Android') ? ua : ua}`;
 }
 
 describe('supported contract matrix', () => {
@@ -165,7 +168,7 @@ describe('supported contract matrix', () => {
     ['ESP32 FreeRTOS', 'embedded'],
     ['Macintosh; Intel Mac OS X 15_0', 'desktop'],
   ] as const)('detects supported hardware class %s', (ua, type) => {
-    expect(detectDevice(ua).type).toBe(type);
+    expect(parse(ua).device.type).toBe(type);
   });
 
   it.each([
@@ -177,11 +180,11 @@ describe('supported contract matrix', () => {
     ['Android 14; ONEPLUS A6013 Build/UP1A) Mobile', 'OnePlus'],
     ['Android 14; moto g84 Build/UP1A) Mobile', 'Motorola'],
   ] as const)('infers Android vendor for %s', (ua, vendor) => {
-    expect(detectDevice(ua).vendor).toBe(vendor);
+    expect(parse(androidUA(ua)).device.vendor).toBe(vendor);
   });
 
   it('keeps Android model unknown when all segments are metadata', () => {
-    expect(detectDevice('Android 14; arm64; en-US; wv)')).toMatchObject({
+    expect(parse('Mozilla/5.0 (Linux; Android 14; arm64; en-US; wv)').device).toMatchObject({
       type: 'tablet',
       vendor: null,
       model: null,

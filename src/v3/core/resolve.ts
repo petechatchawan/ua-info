@@ -5,10 +5,8 @@ import { OPERATING_SYSTEMS } from '../catalog/os';
 import type { BrowserId, CPUArchitecture, EngineId, OSId } from '../constants';
 import { ContextId, EngineId as Engines } from '../constants';
 import { normalizeArchitecture } from '../client-hints';
-import { mergeDevice } from '../enrich';
 import type { ClientHints, RuntimeEvidence } from '../input';
 import { detectClient } from '../parser/client';
-import { detectDevice } from '../parser/device';
 import type {
   BrowserFamily,
   BrowserInfo,
@@ -20,6 +18,7 @@ import type {
   UAInfo,
   Version,
 } from '../types';
+import { resolveDevice } from './device';
 import { compileMatcher, pick, strongestVersion, type Candidate } from './match';
 import { MAX_UA_LENGTH, readVersion, scan, type Scan } from './scan';
 
@@ -235,7 +234,7 @@ export function resolve(ua: string, hints: ClientHints | null, runtime: RuntimeE
     browser: { ...browser, mode },
     engine: resolveEngine(scanned, uaOS.name, engine),
     os,
-    device: hints ? mergeDevice(detectDevice(text), hints) : detectDevice(text),
+    device: resolveDevice(scanned, uaOS.name, hints),
     cpu: resolveCPU(scanned, hints),
     client: detectClient(text),
     context,

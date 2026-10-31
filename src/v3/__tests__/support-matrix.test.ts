@@ -2,7 +2,6 @@ import * as check from '../check';
 import { BrowserId, ContextId, EngineId, OSId } from '../constants';
 import { parse } from '../parse';
 import { detectClient } from '../parser/client';
-import { detectDevice } from '../parser/device';
 import type { UAInfo } from '../types';
 
 const empty = parse('');
@@ -36,6 +35,10 @@ function withContext(
       host: hostName === null ? null : { name: hostName, version: null },
     },
   };
+}
+
+function androidUA(ua: string): string {
+  return ua.startsWith('Mozilla') ? ua : `Mozilla/5.0 (Linux; ${ua.startsWith('Android') ? ua : ua}`;
 }
 
 describe('supported predicate catalog', () => {
@@ -156,7 +159,7 @@ describe('supported detector matrix', () => {
     ['Mozilla/5.0 (Macintosh; Intel Mac OS X 15_0)', 'desktop'],
     ['ESP32 FreeRTOS', 'embedded'],
   ] as const)('detects %s as %s', (ua, expected) => {
-    expect(detectDevice(ua).type).toBe(expected);
+    expect(parse(ua).device.type).toBe(expected);
   });
 
   it.each([
@@ -168,7 +171,7 @@ describe('supported detector matrix', () => {
     ['Mozilla/5.0 (Linux; Android 14; ONEPLUS A6013 Build/UP1A) Mobile', 'OnePlus'],
     ['Mozilla/5.0 (Linux; Android 14; moto g84 Build/UP1A) Mobile', 'Motorola'],
   ] as const)('infers Android vendor %s', (ua, expected) => {
-    expect(detectDevice(ua).vendor).toBe(expected);
+    expect(parse(androidUA(ua)).device.vendor).toBe(expected);
   });
 
   it.each([
