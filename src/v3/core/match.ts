@@ -13,6 +13,7 @@ export type Signal<X = unknown> = {
   readonly skip?: number;
   readonly valueIs?: readonly string[];
   readonly with?: readonly string[];
+  readonly without?: readonly string[];
   readonly os?: readonly OSId[];
   readonly versionFrom?: string;
   readonly versionOptional?: true;
@@ -98,6 +99,7 @@ export function compileMatcher<K extends string, X = unknown>(
         if (signal.valueIs && !signal.valueIs.some((value) => value.toLowerCase() === versionRaw)) return;
         const present = (name: string): boolean => scanned.names.has(name) || scanned.wordSet.has(name);
         if (signal.with && !signal.with.every((name) => present(name.toLowerCase()))) return;
+        if (signal.without && signal.without.some((name) => present(name.toLowerCase()))) return;
         if (signal.os && (os === null || !signal.os.includes(os))) return;
         const fromProduct = signal.versionFrom
           ? scanned.products.find((item) => item.name === (signal.versionFrom as string).toLowerCase())
