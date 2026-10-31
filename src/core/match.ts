@@ -1,4 +1,3 @@
-import type { OSId } from '../constants';
 import type { Version } from '../types';
 import { readVersion, type Scan } from './scan';
 
@@ -14,7 +13,7 @@ export type Signal<X = unknown> = {
   readonly valueIs?: readonly string[];
   readonly with?: readonly string[];
   readonly without?: readonly string[];
-  readonly os?: readonly OSId[];
+  readonly os?: readonly string[];
   readonly versionFrom?: string;
   readonly versionOptional?: true;
   readonly fallback?: true;
@@ -36,7 +35,7 @@ export interface Candidate<K extends string, X = unknown> {
 }
 
 export interface Matcher<K extends string, X> {
-  find(scanned: Scan, os: OSId | null): Candidate<K, X>[];
+  find(scanned: Scan, os: string | null): Candidate<K, X>[];
   beats(a: K, b: K): boolean;
   productNames(): readonly string[];
 }
@@ -47,7 +46,7 @@ function normalize<X>(match: Match<X>): Signal<X> {
 
 
 export function compileMatcher<K extends string, X = unknown>(
-  rows: Readonly<Record<K, RowSpec<K, X>>>,
+  rows: Readonly<Record<K, RowSpec<string, X>>>,
 ): Matcher<K, X> {
   type Entry = { readonly id: K; readonly signal: Signal<X> };
   const index = new Map<string, Entry[]>();
@@ -71,7 +70,7 @@ export function compileMatcher<K extends string, X = unknown>(
       if (entries) entries.push({ id, signal });
       else target.set(key, [{ id, signal }]);
     }
-    beaten.set(id, rows[id].beats ?? []);
+    beaten.set(id, (rows[id].beats ?? []) as readonly K[]);
   }
 
   const beats = (a: K, b: K): boolean => {

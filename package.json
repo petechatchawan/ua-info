@@ -1,6 +1,6 @@
 {
     "name": "user-agent-parser-ts",
-    "version": "3.0.1",
+    "version": "4.0.0",
     "description": "Zero-dependency User-Agent parser for TypeScript with Client Hints, browser, OS, device, bot and WebView detection for Node.js and browsers",
     "author": "Chatchawan Koedsawas",
     "license": "MIT",
@@ -46,6 +46,12 @@
             "import": "./dist/esm/browser.js",
             "require": "./dist/cjs/browser.js",
             "default": "./dist/esm/browser.js"
+        },
+        "./labels": {
+            "types": "./dist/esm/labels.d.ts",
+            "import": "./dist/esm/labels.js",
+            "require": "./dist/cjs/labels.js",
+            "default": "./dist/esm/labels.js"
         },
         "./package.json": "./package.json"
     },

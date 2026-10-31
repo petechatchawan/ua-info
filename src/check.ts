@@ -1,138 +1,86 @@
-import { BrowserId, ContextId, EngineId, OSId } from './constants';
 import type {
+  AppId,
   BrowserFamily,
-  BrowserInfo,
+  BrowserId,
   BrowserMode,
+  ClientId,
+  ClientInfo,
   ClientType,
-  ContextInfo,
+  ContextId,
+  ContextType,
   DeviceType,
-  EngineInfo,
-  OSInfo,
+  EngineId,
+  OSId,
   UAInfo,
+  VendorId,
 } from './types';
 
-export function isBrowser<T extends string>(
-  info: UAInfo,
-  name: T,
-): info is UAInfo & { readonly browser: BrowserInfo & { readonly name: T } } {
-  return info.browser.name === name;
+type Many<T> = T | readonly T[];
+
+/**
+ * What to look for. Keys combine with AND and the values of one key combine with OR, so
+ * `{ browser: 'chrome', os: ['android', 'harmonyos'] }` is Chrome on Android or HarmonyOS.
+ * Every value is a stable lowercase ID, and a misspelled one fails to compile.
+ */
+export interface Query {
+  readonly browser?: Many<BrowserId>;
+  readonly family?: Many<BrowserFamily>;
+  readonly mode?: Many<BrowserMode>;
+  readonly engine?: Many<EngineId>;
+  readonly os?: Many<OSId>;
+  readonly device?: Many<DeviceType>;
+  readonly vendor?: Many<VendorId>;
+  readonly client?: Many<ClientId>;
+  readonly clientType?: Many<ClientType>;
+  readonly context?: Many<ContextId>;
+  readonly contextType?: Many<ContextType>;
+  readonly app?: Many<AppId>;
 }
 
-export function isBrowserFamily<T extends BrowserFamily>(
-  info: UAInfo,
-  family: T,
-): info is UAInfo & { readonly browser: BrowserInfo & { readonly family: T } } {
-  return info.browser.family === family;
+type Element<T> = T extends readonly (infer U)[] ? U : T;
+type Has<Q extends Query, K extends keyof Query> = K extends keyof Q ? true : false;
+
+type Narrowed<Q extends Query> =
+  & (Has<Q, 'browser'> extends true ? { readonly browser: { readonly name: Element<Q['browser']> } } : unknown)
+  & (Has<Q, 'family'> extends true ? { readonly browser: { readonly family: Element<Q['family']> } } : unknown)
+  & (Has<Q, 'mode'> extends true ? { readonly browser: { readonly mode: Element<Q['mode']> } } : unknown)
+  & (Has<Q, 'engine'> extends true ? { readonly engine: { readonly name: Element<Q['engine']> } } : unknown)
+  & (Has<Q, 'os'> extends true ? { readonly os: { readonly name: Element<Q['os']> } } : unknown)
+  & (Has<Q, 'device'> extends true ? { readonly device: { readonly type: Element<Q['device']> } } : unknown)
+  & (Has<Q, 'vendor'> extends true ? { readonly device: { readonly vendor: Element<Q['vendor']> } } : unknown)
+  & (Has<Q, 'client'> extends true ? { readonly client: { readonly name: Element<Q['client']> } } : unknown)
+  & (Has<Q, 'clientType'> extends true ? { readonly client: { readonly type: Element<Q['clientType']> } } : unknown)
+  & (Has<Q, 'context'> extends true ? { readonly context: { readonly name: Element<Q['context']> } } : unknown)
+  & (Has<Q, 'contextType'> extends true ? { readonly context: { readonly type: Element<Q['contextType']> } } : unknown)
+  & (Has<Q, 'app'> extends true ? { readonly context: { readonly app: Element<Q['app']> } } : unknown);
+
+function matches<T>(actual: T | null, wanted: Many<T> | undefined): boolean {
+  if (wanted === undefined) return true;
+  if (actual === null) return false;
+  return Array.isArray(wanted) ? (wanted as readonly T[]).includes(actual) : actual === wanted;
 }
 
-export function isBrowserMode<T extends BrowserMode>(
-  info: UAInfo,
-  mode: T,
-): info is UAInfo & { readonly browser: BrowserInfo & { readonly mode: T } } {
-  return info.browser.mode === mode;
+/** True when `info` satisfies every key of the query, and narrows the fields that the query names. */
+export function is<Q extends Query>(info: UAInfo, query: Q): info is UAInfo & Narrowed<Q> {
+  return (
+    matches(info.browser.name, query.browser) &&
+    matches(info.browser.family, query.family) &&
+    matches(info.browser.mode, query.mode) &&
+    matches(info.engine.name, query.engine) &&
+    matches(info.os.name, query.os) &&
+    matches(info.device.type, query.device) &&
+    matches(info.device.vendor, query.vendor) &&
+    matches(info.client.name, query.client) &&
+    matches(info.client.type, query.clientType) &&
+    matches(info.context.name, query.context) &&
+    matches(info.context.type, query.contextType) &&
+    matches(info.context.app, query.app)
+  );
 }
 
-export function isEngine<T extends string>(
-  info: UAInfo,
-  name: T,
-): info is UAInfo & { readonly engine: EngineInfo & { readonly name: T } } {
-  return info.engine.name === name;
-}
+const BOT_TYPES: readonly (ClientInfo['type'])[] = ['bot', 'crawler', 'ai-crawler'];
 
-export function isOS<T extends string>(
-  info: UAInfo,
-  name: T,
-): info is UAInfo & { readonly os: OSInfo & { readonly name: T } } {
-  return info.os.name === name;
-}
-
-export function isDevice<T extends DeviceType>(
-  info: UAInfo,
-  type: T,
-): info is UAInfo & { readonly device: UAInfo['device'] & { readonly type: T } } {
-  return info.device.type === type;
-}
-
-export function isClient<T extends ClientType>(
-  info: UAInfo,
-  type: T,
-): info is UAInfo & { readonly client: UAInfo['client'] & { readonly type: T } } {
-  return info.client.type === type;
-}
-
-export function isContext<T extends string>(
-  info: UAInfo,
-  name: T,
-): info is UAInfo & { readonly context: ContextInfo & { readonly name: T } } {
-  return info.context.name === name;
-}
-
-export const isChrome = (info: UAInfo): boolean => isBrowser(info, BrowserId.Chrome);
-export const isChromium = (info: UAInfo): boolean => isBrowser(info, BrowserId.Chromium);
-export const isSafari = (info: UAInfo): boolean => isBrowser(info, BrowserId.Safari);
-export const isFirefox = (info: UAInfo): boolean => isBrowser(info, BrowserId.Firefox);
-export const isEdge = (info: UAInfo): boolean => isBrowser(info, BrowserId.Edge);
-export const isOpera = (info: UAInfo): boolean => isBrowser(info, BrowserId.Opera);
-export const isSamsungInternet = (info: UAInfo): boolean => isBrowser(info, BrowserId.SamsungInternet);
-export const isBrave = (info: UAInfo): boolean => isBrowser(info, BrowserId.Brave);
-export const isVivaldi = (info: UAInfo): boolean => isBrowser(info, BrowserId.Vivaldi);
-export const isMiBrowser = (info: UAInfo): boolean => isBrowser(info, BrowserId.MiBrowser);
-export const isHuaweiBrowser = (info: UAInfo): boolean => isBrowser(info, BrowserId.HuaweiBrowser);
-export const isUCBrowser = (info: UAInfo): boolean => isBrowser(info, BrowserId.UCBrowser);
-export const isYandexBrowser = (info: UAInfo): boolean => isBrowser(info, BrowserId.YandexBrowser);
-export const isArc = (info: UAInfo): boolean => isBrowser(info, BrowserId.Arc);
-
-export const isAndroid = (info: UAInfo): boolean => isOS(info, OSId.Android);
-export const isIOS = (info: UAInfo): boolean => isOS(info, OSId.IOS);
-export const isIPadOS = (info: UAInfo): boolean => isOS(info, OSId.IPadOS);
-export const isWindows = (info: UAInfo): boolean => isOS(info, OSId.Windows);
-export const isMacOS = (info: UAInfo): boolean => isOS(info, OSId.MacOS);
-export const isLinux = (info: UAInfo): boolean => isOS(info, OSId.Linux);
-export const isChromeOS = (info: UAInfo): boolean => isOS(info, OSId.ChromeOS);
-export const isHarmonyOS = (info: UAInfo): boolean => isOS(info, OSId.HarmonyOS);
-export const isKaiOS = (info: UAInfo): boolean => isOS(info, OSId.KaiOS);
-export const isTizen = (info: UAInfo): boolean => isOS(info, OSId.Tizen);
-
-export const isMobile = (info: UAInfo): boolean => isDevice(info, 'mobile');
-export const isTablet = (info: UAInfo): boolean => isDevice(info, 'tablet');
-export const isDesktop = (info: UAInfo): boolean => isDevice(info, 'desktop');
-export const isSmartTV = (info: UAInfo): boolean => isDevice(info, 'smart-tv');
-export const isConsole = (info: UAInfo): boolean => isDevice(info, 'console');
-export const isWearable = (info: UAInfo): boolean => isDevice(info, 'wearable');
-export const isXR = (info: UAInfo): boolean => isDevice(info, 'xr');
-export const isEmbeddedDevice = (info: UAInfo): boolean => isDevice(info, 'embedded');
-
+/** True for the client types that fetch pages on their own: `bot`, `crawler` and `ai-crawler`. */
 export function isBot(info: UAInfo): boolean {
-  return info.client.type === 'bot' || info.client.type === 'crawler' || info.client.type === 'ai-crawler';
+  return BOT_TYPES.includes(info.client.type);
 }
-
-export function isCrawler(info: UAInfo): boolean {
-  return info.client.type === 'crawler' || info.client.type === 'ai-crawler';
-}
-
-export const isAICrawler = (info: UAInfo): boolean => isClient(info, 'ai-crawler');
-export const isAIAssistant = (info: UAInfo): boolean => isClient(info, 'ai-assistant');
-export const isAutomation = (info: UAInfo): boolean => isClient(info, 'automation');
-export const isHttpClient = (info: UAInfo): boolean => isClient(info, 'http-client');
-export const isEmailClient = (info: UAInfo): boolean => isClient(info, 'email-client');
-export const isMediaPlayer = (info: UAInfo): boolean => isClient(info, 'media-player');
-
-export const isWebView = (info: UAInfo): boolean => isBrowserMode(info, 'webview');
-export const isHeadless = (info: UAInfo): boolean => isBrowserMode(info, 'headless');
-export const isInAppBrowser = (info: UAInfo): boolean => info.context.type === 'in-app-browser';
-export const isPWA = (info: UAInfo): boolean => info.context.type === 'pwa';
-
-export function isLine(info: UAInfo): boolean {
-  return isContext(info, ContextId.Line) || info.context.host?.name === ContextId.Line;
-}
-
-export function isLiff(info: UAInfo): boolean {
-  return info.context.type === 'mini-app' && isContext(info, ContextId.Liff);
-}
-
-export const isFacebook = (info: UAInfo): boolean => isContext(info, ContextId.Facebook);
-export const isInstagram = (info: UAInfo): boolean => isContext(info, ContextId.Instagram);
-export const isMessenger = (info: UAInfo): boolean => isContext(info, ContextId.Messenger);
-export const isWeChat = (info: UAInfo): boolean => isContext(info, ContextId.WeChat);
-
-void EngineId;

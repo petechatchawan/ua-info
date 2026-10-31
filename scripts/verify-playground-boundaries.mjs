@@ -12,6 +12,7 @@ const allowedUaSpecifiers = new Set([
   'user-agent-parser-ts',
   'user-agent-parser-ts/browser',
   'user-agent-parser-ts/check',
+  'user-agent-parser-ts/labels',
   'user-agent-parser-ts/server',
 ]);
 const forbiddenText = [

@@ -1,11 +1,13 @@
 import { readFileSync } from 'node:fs';
-import * as root from '../index';
 import * as check from '../check';
+import * as root from '../index';
 
-// @ts-expect-error v3 root no longer exports generic predicates
-const removedRootPredicate = root.isBrowser;
-// @ts-expect-error v3 removes the UAResult type
-type RemovedUAResult = (typeof import('../index'))['UAResult'];
+// @ts-expect-error the root exports no predicates
+const removedRootPredicate = root.is;
+// @ts-expect-error v4 has no value objects for ids, only types
+const removedIdObject = root.BrowserId;
+// @ts-expect-error parseVersion is not part of the public API
+const removedParseVersion = root.parseVersion;
 
 const CHROME_DESKTOP =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 ' +
@@ -14,34 +16,31 @@ const CHROME_DESKTOP =
 describe('user-agent-parser-ts package root', () => {
   it('keeps the root parser-first', () => {
     const result = root.parse(CHROME_DESKTOP);
-    expect(result.browser.name).toBe(root.BrowserId.Chrome);
-    expect(result.os.name).toBe(root.OSId.Windows);
+    expect(result.browser.name).toBe('chrome');
+    expect(result.os.name).toBe('windows');
     expect(result.device.type).toBe('desktop');
-    expect('isBrowser' in root).toBe(false);
-    expect(typeof check.isChrome).toBe('function');
+    expect(Object.keys(root)).toEqual(['parse']);
   });
 
-  it('exports check, server, and browser as dedicated package subpaths', () => {
+  it('exports exactly is and isBot from check', () => {
+    expect(Object.keys(check).sort()).toEqual(['is', 'isBot']);
+  });
+
+  it('exports check, server, browser and labels as dedicated package subpaths', () => {
     const packageJson = JSON.parse(readFileSync('package.json', 'utf8')) as {
-      exports: Record<string, { import?: string; require?: string } | string>;
+      exports: Record<string, { import?: string; require?: string; types?: string } | string>;
     };
-    expect(packageJson.exports['./check']).toMatchObject({
-      import: './dist/esm/check.js',
-      require: './dist/cjs/check.js',
-    });
-    expect(packageJson.exports['./server']).toMatchObject({
-      import: './dist/esm/server.js',
-      require: './dist/cjs/server.js',
-    });
-    expect(packageJson.exports['./browser']).toMatchObject({
-      import: './dist/esm/browser.js',
-      require: './dist/cjs/browser.js',
-    });
+    for (const name of ['check', 'server', 'browser', 'labels']) {
+      expect(packageJson.exports[`./${name}`]).toEqual({
+        types: `./dist/esm/${name}.d.ts`,
+        import: `./dist/esm/${name}.js`,
+        require: `./dist/cjs/${name}.js`,
+        default: `./dist/esm/${name}.js`,
+      });
+    }
   });
 });
 
 void removedRootPredicate;
-function consumeRemovedType(value: RemovedUAResult): void {
-  void value;
-}
-void consumeRemovedType;
+void removedIdObject;
+void removedParseVersion;

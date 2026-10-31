@@ -2,6 +2,46 @@
 
 All notable changes to `user-agent-parser-ts` (formerly `ua-info`) are documented in this file.
 
+## 4.0.0 — 2026-11-01
+
+Migration guide, with a replacement for every removed export: `MIGRATION.md`.
+
+### Breaking
+
+- `user-agent-parser-ts/check` exports `is()` and `isBot()` only. `is(info, { browser: 'chrome', os: 'android' })` replaces the 60 named and generic predicates, narrows every field it names, and rejects a misspelled id at compile time.
+- The id value objects (`BrowserId`, `EngineId`, `OSId`, `CPUArchitecture`, `ContextId`) are removed. Ids are string literals, and the id types come from the catalog.
+- `parseVersion` and `readHeader` are no longer exported.
+- `Version` is `{ full, major, minor, patch }`. `major` is always a number, and a string with no leading integer is `null` instead of a version.
+- `device.vendor` is a lowercase id (`'samsung'`). Display text is in the new `user-agent-parser-ts/labels` subpath.
+- `client.name` is a listed client id or `null`, and `client.token` carries the product name. `ChatGPT-User`, `Claude-User` and `Perplexity-User` have their own names.
+- `context.host` is replaced by `context.app` and `context.version`.
+- Windows XP and Vista report no version, and Windows 11 from Client Hints reports `11`.
+- The deep `dist/*/v3/*` paths are now `dist/*/*`. Only the package subpaths are supported.
+
+### Fixed
+
+- An unlisted Chromium fork reports `name: null, family: 'chromium'` instead of `chrome`. Edge Legacy reports `edge`. The Android stock browser reports no browser. Safari needs an Apple OS.
+- `device.model` is no longer `K` (Chrome reduced User-Agent), `rv:126.0` (Firefox on Android) or `HarmonyOS`.
+- Android TV and Fire TV are `smart-tv`. Windows Phone is `mobile`.
+- Vendor detection has no catch-all rules, so `Primo RX8` is not Oppo and `M5 Note` is not Xiaomi. `SAMSUNG SM-G960F` is Samsung.
+- HarmonyOS keeps its identity when a Client Hints platform says Android. A mobile hint no longer turns an iPad into mobile. A hint model brings its own vendor.
+- A phone brand or URL that contains `bot` is not a bot. `YandexBot` is a `crawler` and `Bytespider` an `ai-crawler`.
+- Opera Mini reports Android. `Mac OS X 10.15` reports `10.15` instead of `10`.
+
+### Changed
+
+- Detection is data. Browsers, operating systems, CPUs, devices, vendors, clients and in-app contexts are rows in `src/catalog/`, read by one scanner and one precedence rule. Adding a row is one entry plus one corpus User-Agent.
+- No regular expression remains in `src`, so no input can trigger backtracking, and ESLint rejects a new one.
+- A Client Hints brand takes part in the same precedence as User-Agent tokens. A `Brave` or `Edge` brand replaces a Samsung Internet User-Agent, where 3.x kept Samsung.
+- The release gate compares bundle sizes with a reviewed baseline, and `npm run budget:update` refreshes it. The 64-file and 150,000-byte ceilings are gone.
+- Tests run on vitest, with a corpus of real and composed User-Agents in `test/corpus`.
+
+### Added
+
+- `user-agent-parser-ts/labels` with display names for every id.
+- `Version.minor` and `Version.patch`.
+- `parse()` accepts `null` and `undefined`.
+
 ## 3.0.1 — 2026-10-30
 
 ### Security

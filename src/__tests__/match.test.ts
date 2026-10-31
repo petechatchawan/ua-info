@@ -97,7 +97,7 @@ describe('pick', () => {
 
 describe('strongestVersion', () => {
   it('takes the version of the strongest source that has one', () => {
-    const version = (full: string) => ({ full, major: Number.parseInt(full, 10) });
+    const version = (full: string) => ({ full, major: Number.parseInt(full, 10), minor: null, patch: null });
     const candidates = [
       candidate('special', { version: version('1.0') }),
       candidate('special', { source: 'hints', version: version('2.0') }),

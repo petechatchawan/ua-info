@@ -1,10 +1,8 @@
-import { BROWSERS, NEUTRAL_PRODUCTS, type BrowserSignal } from '../catalog/browsers';
-import { CLIENTS, GENERIC_BOT_SUFFIXES } from '../catalog/clients';
-import { CONTEXTS, type UserAgentContextId } from '../catalog/contexts';
-import { CPUS, type CPUSignal } from '../catalog/cpus';
-import { OPERATING_SYSTEMS } from '../catalog/os';
-import type { BrowserId, CPUArchitecture, EngineId, OSId } from '../constants';
-import { ContextId, EngineId as Engines } from '../constants';
+import { BROWSERS, NEUTRAL_PRODUCTS, type BrowserId, type BrowserSignal } from '../catalog/browsers';
+import { CLIENTS, GENERIC_BOT_SUFFIXES, type ClientId } from '../catalog/clients';
+import { CONTEXTS, type AppId } from '../catalog/contexts';
+import { CPUS, type CPUArchitecture, type CPUSignal } from '../catalog/cpus';
+import { OPERATING_SYSTEMS, type OSId } from '../catalog/os';
 import { normalizeArchitecture } from '../client-hints';
 import type { ClientHints, RuntimeEvidence } from '../input';
 import type {
@@ -14,6 +12,7 @@ import type {
   ClientInfo,
   ContextInfo,
   CPUInfo,
+  EngineId,
   EngineInfo,
   OSInfo,
   UAInfo,
@@ -24,8 +23,8 @@ import { compileMatcher, pick, strongestVersion, type Candidate } from './match'
 import { MAX_UA_LENGTH, readVersion, scan, type Scan } from './scan';
 
 const BROWSER_MATCHER = compileMatcher<BrowserId, BrowserSignal>(BROWSERS);
-const CONTEXT_MATCHER = compileMatcher<UserAgentContextId>(CONTEXTS);
-const CLIENT_MATCHER = compileMatcher<string>(CLIENTS);
+const CONTEXT_MATCHER = compileMatcher<AppId>(CONTEXTS);
+const CLIENT_MATCHER = compileMatcher<ClientId>(CLIENTS);
 const OS_MATCHER = compileMatcher<OSId>(OPERATING_SYSTEMS);
 const CPU_MATCHER = compileMatcher<CPUArchitecture, CPUSignal>(CPUS);
 
@@ -119,18 +118,18 @@ function resolveEngine(
   declared: EngineId | null | undefined,
 ): EngineInfo {
   const webKitVersion = (): EngineInfo => ({
-    name: Engines.WebKit,
+    name: 'webkit',
     version: readVersion(scanned.products.find((product) => product.name === 'applewebkit')?.version ?? null),
   });
   const geckoVersion = (): EngineInfo => {
     const rv = scanned.parts.find((part) => part.startsWith('rv:'));
-    return { name: Engines.Gecko, version: readVersion(rv ? rv.slice(3) : null) };
+    return { name: 'gecko', version: readVersion(rv ? rv.slice(3) : null) };
   };
 
   if (os === 'ios' || os === 'ipados') return webKitVersion();
-  if (declared === Engines.Blink) return { name: Engines.Blink, version: null };
-  if (declared === Engines.Gecko) return geckoVersion();
-  if (declared === Engines.WebKit) return webKitVersion();
+  if (declared === 'blink') return { name: 'blink', version: null };
+  if (declared === 'gecko') return geckoVersion();
+  if (declared === 'webkit') return webKitVersion();
   if (declared === null) return { name: null, version: null };
 
   const gecko = scanned.products.find((product) => product.name === 'gecko');
@@ -141,30 +140,26 @@ function resolveEngine(
   return { name: null, version: null };
 }
 
-const NO_CONTEXT: ContextInfo = { type: null, name: null, host: null };
+const NO_CONTEXT: ContextInfo = { type: null, name: null, app: null, version: null };
 
 function resolveContext(scanned: Scan, runtime: RuntimeEvidence | null): ContextInfo {
   const candidates = CONTEXT_MATCHER.find(scanned, null);
   const { id } = pick(candidates, CONTEXT_MATCHER.beats);
   let context: ContextInfo = NO_CONTEXT;
   if (id !== null) {
-    context = {
-      type: CONTEXTS[id].type,
-      name: id,
-      host: { name: id, version: strongestVersion(candidates, id) },
-    };
+    context = { type: CONTEXTS[id].type, name: id, app: id, version: strongestVersion(candidates, id) };
   }
 
   if (runtime?.liffInClient === true) {
-    const lineVersion = context.host?.name === ContextId.Line ? context.host.version : null;
     return {
       type: 'mini-app',
-      name: ContextId.Liff,
-      host: { name: ContextId.Line, version: lineVersion },
+      name: 'liff',
+      app: 'line',
+      version: context.app === 'line' ? context.version : null,
     };
   }
   if (runtime?.standalonePWA === true && context.type === null) {
-    return { type: 'pwa', name: ContextId.PWA, host: null };
+    return { type: 'pwa', name: 'pwa', app: null, version: null };
   }
   return context;
 }
@@ -220,17 +215,25 @@ function resolveCPU(scanned: Scan, hints: ClientHints | null): CPUInfo {
   return hints.bitness !== null ? { ...base, bitness: hints.bitness } : base;
 }
 
-const NO_CLIENT: ClientInfo = { type: null, name: null, version: null };
+const NO_CLIENT: ClientInfo = { type: null, name: null, token: null, version: null };
 
 function resolveClient(scanned: Scan): ClientInfo {
   const candidates = CLIENT_MATCHER.find(scanned, null);
-  const { id } = pick(candidates, CLIENT_MATCHER.beats);
-  if (id !== null) return { type: CLIENTS[id].type, name: id, version: strongestVersion(candidates, id) };
+  const { id, survivors } = pick(candidates, CLIENT_MATCHER.beats);
+  if (id !== null) {
+    const signal = survivors.find((candidate) => candidate.id === id)?.signal;
+    return {
+      type: CLIENTS[id].type,
+      name: id,
+      token: (signal?.product ?? signal?.words ?? id).toLowerCase(),
+      version: strongestVersion(candidates, id),
+    };
+  }
 
   const generic = scanned.products.find((product) =>
     GENERIC_BOT_SUFFIXES.some((suffix) => product.name.endsWith(suffix)),
   );
-  if (generic) return { type: 'bot', name: generic.name, version: readVersion(generic.version) };
+  if (generic) return { type: 'bot', name: null, token: generic.name, version: readVersion(generic.version) };
   return NO_CLIENT;
 }
 

@@ -128,7 +128,7 @@ jobs:
         shell: bash
         run: |
           published=false
-          for attempt in $(seq 1 12); do
+          for attempt in $(seq 1 60); do
             if npm view "${{ steps.package.outputs.name }}@${{ steps.package.outputs.version }}" version >/dev/null 2>&1; then
               published=true
               break

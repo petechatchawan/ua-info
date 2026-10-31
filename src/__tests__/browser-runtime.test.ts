@@ -92,7 +92,7 @@ describe('detect', () => {
 
     const result = await detect();
     expect(result.browser.name).toBe('chrome');
-    expect(result.browser.version).toEqual({ full: '150.0.0.0', major: 150 });
+    expect(result.browser.version).toEqual({ full: '150.0.0.0', major: 150, minor: 0, patch: 0 });
   });
 
   it('falls back to low-entropy brands when high-entropy contains only GREASE', async () => {
@@ -119,7 +119,7 @@ describe('detect', () => {
 
     const result = await detect({ highEntropy: true });
     expect(result.browser.name).toBe('chrome');
-    expect(result.browser.version).toEqual({ full: '150', major: 150 });
+    expect(result.browser.version).toEqual({ full: '150', major: 150, minor: null, patch: null });
   });
 
   it('falls back when high entropy access rejects', async () => {
@@ -137,7 +137,7 @@ describe('detect', () => {
     expect(result.context).toMatchObject({
       type: 'mini-app',
       name: 'liff',
-      host: { name: 'line' },
+      app: 'line',
     });
   });
 
@@ -157,7 +157,7 @@ describe('detect', () => {
   it('establishes PWA only when no app context exists', async () => {
     installNavigator();
     installStandalone(true);
-    expect((await detect()).context).toEqual({ type: 'pwa', name: 'pwa', host: null });
+    expect((await detect()).context).toEqual({ type: 'pwa', name: 'pwa', app: null, version: null });
   });
 
   it('keeps LINE context ahead of standalone PWA', async () => {

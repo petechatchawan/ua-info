@@ -65,7 +65,7 @@ export const BUNDLE_SCENARIOS = Object.freeze([
   Object.freeze({
     id: 'root-predicate',
     platform: 'node',
-    source: `import { isChrome } from 'user-agent-parser-ts/check';\nconst result = { browser: { name: 'chrome' } };\nconsole.log(isChrome(result));\n`,
+    source: `import { is } from 'user-agent-parser-ts/check';\nconst info = globalThis.__uaInfo;\nconsole.log(is(info, { browser: 'chrome' }));\n`,
   }),
   Object.freeze({
     id: 'server-parse-request',

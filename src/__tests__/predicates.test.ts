@@ -1,100 +1,102 @@
-import { BrowserId, type UAInfo } from '../index';
-import {
-  isAICrawler,
-  isAndroid,
-  isAutomation,
-  isBot,
-  isBrowser,
-  isBrowserFamily,
-  isChrome,
-  isChromium,
-  isCrawler,
-  isDevice,
-  isEdge,
-  isLiff,
-  isLine,
-  isMiBrowser,
-  isMobile,
-  isOS,
-  isTablet,
-  isWebView,
-} from '../check';
+import { is, isBot } from '../check';
 import { parse } from '../parse';
+import type { UAInfo } from '../types';
 
-function assertNarrowing(info: UAInfo): void {
-  if (isBrowser(info, BrowserId.Chrome)) {
-    const name: typeof BrowserId.Chrome = info.browser.name;
-    void name;
-  }
-  if (isDevice(info, 'mobile')) {
-    const type: 'mobile' = info.device.type;
-    void type;
-  }
-}
-void assertNarrowing;
-
-const chrome = parse(
+const chromeAndroid = parse(
   'Mozilla/5.0 (Linux; Android 16; Pixel 10 Pro) AppleWebKit/537.36 ' +
   '(KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36',
 );
-const edge = parse(
+const edgeWindows = parse(
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 ' +
   '(KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36 Edg/150.0.0.0',
 );
-const mi = parse(
-  'Mozilla/5.0 (Linux; U; Android 14; en-us; 23127PN0CG) AppleWebKit/537.36 ' +
-  '(KHTML, like Gecko) Version/4.0 Chrome/120.0.0.0 Mobile Safari/537.36 XiaoMi/MiuiBrowser/18.4.110316',
-);
-const tablet = parse(
+const ipad = parse(
   'Mozilla/5.0 (iPad; CPU OS 18_7 like Mac OS X) AppleWebKit/605.1.15 ' +
   '(KHTML, like Gecko) Version/18.7 Mobile/15E148 Safari/604.1',
 );
-const gptBot = parse('GPTBot/1.2');
-const playwright = parse('Playwright/1.57.0');
-const line = parse(
+const lineWebView = parse(
   'Mozilla/5.0 (Linux; Android 16; Pixel 10 Pro; wv) AppleWebKit/537.36 ' +
-  '(KHTML, like Gecko) Version/4.0 Chrome/150.0.0.0 Mobile Safari/537.36 Line/26.11.0 LIFF',
+  '(KHTML, like Gecko) Version/4.0 Chrome/150.0.0.0 Mobile Safari/537.36 Line/26.11.0',
 );
+const googlebot = parse('Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)');
+const gptbot = parse('Mozilla/5.0 AppleWebKit/537.36 (compatible; GPTBot/1.2; +https://openai.com/gptbot)');
+const chatgptUser = parse('Mozilla/5.0 AppleWebKit/537.36 (compatible; ChatGPT-User/1.0)');
+const curl = parse('curl/8.7.1');
 
-describe('check predicates', () => {
-  it('uses exact generic checks', () => {
-    expect(isBrowser(chrome, 'chrome')).toBe(true);
-    expect(isBrowserFamily(chrome, 'chromium')).toBe(true);
-    expect(isOS(chrome, 'android')).toBe(true);
-    expect(isDevice(chrome, 'mobile')).toBe(true);
+// Compile-time contract. A failing line here fails `npm run typecheck`.
+function assertTypes(info: UAInfo): void {
+  if (is(info, { browser: 'chrome' })) {
+    const name: 'chrome' = info.browser.name;
+    void name;
+  }
+  if (is(info, { browser: ['chrome', 'edge'], os: ['android', 'harmonyos'], device: 'mobile' })) {
+    const browser: 'chrome' | 'edge' = info.browser.name;
+    const os: 'android' | 'harmonyos' = info.os.name;
+    const device: 'mobile' = info.device.type;
+    void [browser, os, device];
+  }
+  if (is(info, { client: 'gptbot' })) {
+    const name: 'gptbot' = info.client.name;
+    void name;
+  }
+  if (is(info, { app: 'line', vendor: 'google' })) {
+    const app: 'line' = info.context.app;
+    const vendor: 'google' = info.device.vendor;
+    void [app, vendor];
+  }
+
+  // @ts-expect-error a misspelled browser id does not compile
+  is(info, { browser: 'chrom' });
+  // @ts-expect-error an OS id is not a browser id
+  is(info, { browser: 'android' });
+  // @ts-expect-error vendor ids are lowercase
+  is(info, { vendor: 'Samsung' });
+  // @ts-expect-error unknown query keys do not compile
+  is(info, { colour: 'red' });
+}
+void assertTypes;
+
+describe('is', () => {
+  it('matches every key of the query', () => {
+    expect(is(chromeAndroid, { browser: 'chrome', os: 'android', device: 'mobile' })).toBe(true);
+    expect(is(chromeAndroid, { browser: 'chrome', os: 'ios' })).toBe(false);
+    expect(is(chromeAndroid, {})).toBe(true);
   });
 
-  it('distinguishes product identity from family', () => {
-    expect(isChrome(chrome)).toBe(true);
-    expect(isChromium(chrome)).toBe(false);
-    expect(isEdge(edge)).toBe(true);
-    expect(isChrome(edge)).toBe(false);
-    expect(isMiBrowser(mi)).toBe(true);
-    expect(isBrowserFamily(mi, 'chromium')).toBe(true);
+  it('matches any value of an array', () => {
+    expect(is(edgeWindows, { browser: ['chrome', 'edge'] })).toBe(true);
+    expect(is(edgeWindows, { browser: ['chrome', 'firefox'] })).toBe(false);
   });
 
-  it('keeps device predicates exact', () => {
-    expect(isMobile(chrome)).toBe(true);
-    expect(isTablet(chrome)).toBe(false);
-    expect(isMobile(tablet)).toBe(false);
-    expect(isTablet(tablet)).toBe(true);
+  it('never matches an unknown field', () => {
+    const unknown = parse('CustomAgent/1.0');
+    expect(is(unknown, { browser: 'chrome' })).toBe(false);
+    expect(is(unknown, { os: ['android', 'ios'] })).toBe(false);
+    expect(is(unknown, { vendor: 'samsung' })).toBe(false);
   });
 
-  it('keeps client umbrella membership explicit', () => {
-    expect(isBot(gptBot)).toBe(true);
-    expect(isCrawler(gptBot)).toBe(true);
-    expect(isAICrawler(gptBot)).toBe(true);
-    expect(isBot(playwright)).toBe(false);
-    expect(isAutomation(playwright)).toBe(true);
+  it('reads family, mode, engine, client type, context and app', () => {
+    expect(is(chromeAndroid, { family: 'chromium', engine: 'blink', mode: 'browser' })).toBe(true);
+    expect(is(lineWebView, { mode: 'webview', contextType: 'in-app-browser', context: 'line', app: 'line' })).toBe(true);
+    expect(is(googlebot, { clientType: 'crawler', client: 'googlebot' })).toBe(true);
   });
 
-  it('keeps LINE and LIFF distinct during pure parsing', () => {
-    expect(isLine(line)).toBe(true);
-    expect(isLiff(line)).toBe(false);
-    expect(isWebView(line)).toBe(true);
+  it('keeps a tablet distinct from mobile', () => {
+    expect(is(ipad, { device: 'tablet', os: 'ipados', vendor: 'apple' })).toBe(true);
+    expect(is(ipad, { device: 'mobile' })).toBe(false);
+  });
+});
+
+describe('isBot', () => {
+  it('is true for bot, crawler and ai-crawler', () => {
+    expect(isBot(googlebot)).toBe(true);
+    expect(isBot(gptbot)).toBe(true);
+    expect(isBot(parse('Mozilla/5.0 (compatible; MJ12bot/v1.4.8)'))).toBe(true);
   });
 
-  it('exposes named OS checks', () => {
-    expect(isAndroid(chrome)).toBe(true);
+  it('is false for assistants, HTTP clients and people', () => {
+    expect(isBot(chatgptUser)).toBe(false);
+    expect(isBot(curl)).toBe(false);
+    expect(isBot(chromeAndroid)).toBe(false);
   });
 });

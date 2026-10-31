@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "policy": "report-only",
-  "generatedAt": "2026-10-31T18:25:08.277Z",
+  "generatedAt": "2026-10-31T18:38:04.823Z",
   "package": {
     "name": "user-agent-parser-ts",
-    "version": "3.0.1"
+    "version": "4.0.0"
   },
   "environment": {
     "platform": "linux",
@@ -16,50 +16,50 @@
   },
   "sizes": {
     "package": {
-      "tarballBytes": 31063,
-      "unpackedBytes": 167472,
-      "fileCount": 71
+      "tarballBytes": 34981,
+      "unpackedBytes": 192775,
+      "fileCount": 65
     },
     "distributions": [
       {
         "id": "esm",
-        "rawBytes": 78939,
-        "fileCount": 45
+        "rawBytes": 101623,
+        "fileCount": 41
       },
       {
         "id": "cjs",
-        "rawBytes": 67115,
-        "fileCount": 22
+        "rawBytes": 61447,
+        "fileCount": 20
       }
     ],
     "bundles": [
       {
         "id": "root-parse",
         "platform": "node",
-        "rawBytes": 20560,
-        "gzipBytes": 7226,
-        "brotliBytes": 6623
+        "rawBytes": 21952,
+        "gzipBytes": 7456,
+        "brotliBytes": 6849
       },
       {
         "id": "root-predicate",
         "platform": "node",
-        "rawBytes": 405,
-        "gzipBytes": 260,
-        "brotliBytes": 227
+        "rawBytes": 503,
+        "gzipBytes": 262,
+        "brotliBytes": 222
       },
       {
         "id": "server-parse-request",
         "platform": "node",
-        "rawBytes": 22341,
-        "gzipBytes": 7886,
-        "brotliBytes": 7208
+        "rawBytes": 23733,
+        "gzipBytes": 8110,
+        "brotliBytes": 7417
       },
       {
         "id": "browser-detect-current",
         "platform": "browser",
-        "rawBytes": 22670,
-        "gzipBytes": 7951,
-        "brotliBytes": 7273
+        "rawBytes": 24062,
+        "gzipBytes": 8174,
+        "brotliBytes": 7485
       }
     ]
   },
@@ -155,7 +155,7 @@
   },
   "baselineSource": {
     "runId": "budget-update",
-    "commit": "5cd8952bedd9179f5a2f65dac1e1df2d000002a7",
+    "commit": "b2c0ff1982ef81cae6d9f0b447ba32737e1d768e",
     "runner": "darwin-arm64 Node.js v24.18.0 (static sizes only)"
   }
 }

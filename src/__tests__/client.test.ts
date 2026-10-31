@@ -18,7 +18,7 @@ describe('client', () => {
 
   it('finds a bot named by a bare word in a comment', () => {
     const ua = 'Mozilla/5.0 (Linux; Android 5.0) Mobile Safari/537.36 (compatible; Bytespider; spider-feedback@bytedance.com)';
-    expect(parse(ua).client).toEqual({ type: 'ai-crawler', name: 'bytespider', version: null });
+    expect(parse(ua).client).toEqual({ type: 'ai-crawler', name: 'bytespider', token: 'bytespider', version: null });
   });
 
   it('keeps a distinct name for each AI assistant', () => {
@@ -29,10 +29,11 @@ describe('client', () => {
   it('classifies an unlisted bot by its product name only', () => {
     expect(parse('Mozilla/5.0 (compatible; MJ12bot/v1.4.8; http://mj12bot.com/)').client).toEqual({
       type: 'bot',
-      name: 'mj12bot',
+      name: null,
+      token: 'mj12bot',
       version: null,
     });
-    expect(parse('ExampleCrawler').client).toMatchObject({ type: 'bot', name: 'examplecrawler' });
+    expect(parse('ExampleCrawler').client).toMatchObject({ type: 'bot', name: null, token: 'examplecrawler' });
   });
 
   it('does not take a phone brand or a URL for a bot', () => {

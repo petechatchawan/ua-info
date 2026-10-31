@@ -1,8 +1,8 @@
 import type { UAInfo } from '../services/ua-detection-service';
 
 function version(full: string) {
-  const major = Number.parseInt(full.split('.')[0] ?? '', 10);
-  return { full, major: Number.isSafeInteger(major) ? major : null };
+  const parts = full.split('.').map((part) => Number.parseInt(part, 10));
+  return { full, major: parts[0] ?? 0, minor: parts[1] ?? null, patch: parts[2] ?? null };
 }
 
 export const chromeResult: UAInfo = {
@@ -17,8 +17,8 @@ export const chromeResult: UAInfo = {
   os: { name: 'windows', version: version('10.0') },
   device: { type: 'desktop', vendor: null, model: null },
   cpu: { architecture: 'x86_64', bitness: 64 },
-  client: { type: null, name: null, version: null },
-  context: { type: null, name: null, host: null },
+  client: { type: null, name: null, token: null, version: null },
+  context: { type: null, name: null, app: null, version: null },
 };
 
 export const lineLiffResult: UAInfo = {
@@ -31,12 +31,13 @@ export const lineLiffResult: UAInfo = {
   },
   engine: { name: 'blink', version: null },
   os: { name: 'android', version: version('16.0.0') },
-  device: { type: 'mobile', vendor: 'Google', model: 'Pixel 10 Pro' },
+  device: { type: 'mobile', vendor: 'google', model: 'Pixel 10 Pro' },
   cpu: { architecture: 'arm64', bitness: 64 },
-  client: { type: null, name: null, version: null },
+  client: { type: null, name: null, token: null, version: null },
   context: {
     type: 'mini-app',
     name: 'liff',
-    host: { name: 'line', version: version('26.11.0') },
+    app: 'line',
+    version: version('26.11.0'),
   },
 };

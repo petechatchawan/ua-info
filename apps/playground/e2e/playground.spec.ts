@@ -29,7 +29,7 @@ test('keeps pure LINE parsing distinct from runtime LIFF', async ({ page }) => {
   const raw = JSON.parse((await page.getByTestId('raw-json').textContent()) ?? '{}');
   expect(raw.browser.mode).toBe('webview');
   expect(raw.context.name).toBe('line');
-  expect(raw.context.host.name).toBe('line');
+  expect(raw.context.app).toBe('line');
 });
 
 test('fits a 320px viewport and makes no third-party request', async ({ page }) => {

@@ -36,7 +36,7 @@ describe('parseRequest', () => {
       'sec-ch-ua-full-version-list':
         '"Chromium";v="150.0.7339.80", "Google Chrome";v="150.0.7339.80"',
     });
-    expect(result.browser.version).toEqual({ full: '150.0.7339.80', major: 150 });
+    expect(result.browser.version).toEqual({ full: '150.0.7339.80', major: 150, minor: 0, patch: 7339 });
   });
 
   it('falls back to significant versions when the full-version list is malformed', () => {
@@ -46,7 +46,7 @@ describe('parseRequest', () => {
       'sec-ch-ua-full-version-list': '"Google Chrome";v="oops"',
     });
     expect(result.browser.name).toBe('chrome');
-    expect(result.browser.version).toEqual({ full: '150', major: 150 });
+    expect(result.browser.version).toEqual({ full: '150', major: 150, minor: null, patch: null });
   });
 
   it('decodes every supported request hint', () => {
@@ -60,7 +60,7 @@ describe('parseRequest', () => {
       'sec-ch-ua-bitness': '"64"',
       'sec-ch-ua-model': '"Pixel 10 Pro"',
     });
-    expect(result.os).toEqual({ name: 'android', version: { full: '16.0.0', major: 16 } });
+    expect(result.os).toEqual({ name: 'android', version: { full: '16.0.0', major: 16, minor: 0, patch: 0 } });
     expect(result.device).toMatchObject({ type: 'mobile', model: 'Pixel 10 Pro' });
     expect(result.cpu).toEqual({ architecture: 'arm64', bitness: 64 });
   });

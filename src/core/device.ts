@@ -1,8 +1,8 @@
 import { DEVICE_TYPES, type DeviceSignal } from '../catalog/devices';
-import { VENDORS, type ModelRule } from '../catalog/vendors';
-import type { OSId } from '../constants';
+import { VENDORS, type ModelRule, type VendorId } from '../catalog/vendors';
 import type { ClientHints } from '../input';
-import type { DeviceInfo, DeviceType } from '../types';
+import type { DeviceInfo } from '../types';
+import type { DeviceType } from '../catalog/devices';
 import { compileMatcher, pick, type Candidate } from './match';
 import type { Scan } from './scan';
 
@@ -17,17 +17,17 @@ const NOT_A_MODEL_PREFIXES: readonly string[] = ['rv:', 'hmscore', 'android'];
 const DEVICE_MATCHER = compileMatcher<DeviceType, DeviceSignal>(DEVICE_TYPES);
 
 interface ModelMatch {
-  readonly vendor: string;
+  readonly vendor: VendorId;
   readonly type: DeviceType | null;
 }
 
 const MODEL_PREFIXES = new Map<string, ModelMatch>();
-const WORD_VENDORS = new Map<string, string>();
-for (const row of Object.values(VENDORS)) {
-  for (const word of row.words) WORD_VENDORS.set(word, row.label);
-  for (const rule of row.models as readonly ModelRule[]) {
+const WORD_VENDORS = new Map<string, VendorId>();
+for (const id of Object.keys(VENDORS) as VendorId[]) {
+  for (const word of VENDORS[id].words) WORD_VENDORS.set(word, id);
+  for (const rule of VENDORS[id].models as readonly ModelRule[]) {
     const prefix = typeof rule === 'string' ? rule : rule.prefix;
-    MODEL_PREFIXES.set(prefix.toLowerCase(), { vendor: row.label, type: typeof rule === 'string' ? null : rule.type });
+    MODEL_PREFIXES.set(prefix.toLowerCase(), { vendor: id, type: typeof rule === 'string' ? null : rule.type });
   }
 }
 const PREFIX_LENGTHS: readonly number[] = [...new Set([...MODEL_PREFIXES.keys()].map((prefix) => prefix.length))].sort(
@@ -77,7 +77,7 @@ function vendorForModel(model: string): ModelMatch | null {
 }
 
 /** Splits a leading brand word off a model string: `SAMSUNG SM-G960F` is Samsung and `SM-G960F`. */
-function splitBrand(model: string): { readonly vendor: string | null; readonly model: string } {
+function splitBrand(model: string): { readonly vendor: VendorId | null; readonly model: string } {
   const space = model.indexOf(' ');
   if (space > 0) {
     const vendor = WORD_VENDORS.get(model.slice(0, space).toLowerCase());
@@ -90,7 +90,7 @@ function splitBrand(model: string): { readonly vendor: string | null; readonly m
   return { vendor: null, model };
 }
 
-export function resolveDevice(scanned: Scan, os: OSId | null, hints: ClientHints | null): DeviceInfo {
+export function resolveDevice(scanned: Scan, os: string | null, hints: ClientHints | null): DeviceInfo {
   const candidates: Candidate<DeviceType, DeviceSignal>[] = DEVICE_MATCHER.find(scanned, os);
 
   const extracted = extractModel(scanned);
@@ -106,7 +106,7 @@ export function resolveDevice(scanned: Scan, os: OSId | null, hints: ClientHints
   const { id, survivors } = pick(candidates, DEVICE_MATCHER.beats);
   const seed = survivors.find((candidate) => candidate.id === id && candidate.signal?.vendor)?.signal ?? null;
 
-  let vendor: string | null = split?.vendor ?? vendorMatch?.vendor ?? seed?.vendor ?? null;
+  let vendor: VendorId | null = split?.vendor ?? vendorMatch?.vendor ?? ((seed?.vendor as VendorId | undefined) ?? null);
   let model: string | null = split?.model ?? seed?.model ?? null;
 
   const hinted = hints?.model?.trim();
@@ -118,6 +118,6 @@ export function resolveDevice(scanned: Scan, os: OSId | null, hints: ClientHints
   return { type: id, vendor, model };
 }
 
-function labelOf(match: ModelMatch | null): string | null {
+function labelOf(match: ModelMatch | null): VendorId | null {
   return match === null ? null : match.vendor;
 }

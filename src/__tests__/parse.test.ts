@@ -9,8 +9,8 @@ describe('parse', () => {
       os: { name: null, version: null },
       device: { type: null, vendor: null, model: null },
       cpu: { architecture: null, bitness: null },
-      client: { type: null, name: null, version: null },
-      context: { type: null, name: null, host: null },
+      client: { type: null, name: null, token: null, version: null },
+      context: { type: null, name: null, app: null, version: null },
     });
   });
 
@@ -20,8 +20,8 @@ describe('parse', () => {
       '(KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36 (arm64)',
     );
     expect(result.browser).toMatchObject({ name: 'chrome', family: 'chromium', mode: 'browser' });
-    expect(result.os).toMatchObject({ name: 'android', version: { full: '16', major: 16 } });
-    expect(result.device).toMatchObject({ type: 'mobile', vendor: 'Google', model: 'Pixel 10 Pro' });
+    expect(result.os).toMatchObject({ name: 'android', version: { full: '16', major: 16, minor: null, patch: null } });
+    expect(result.device).toMatchObject({ type: 'mobile', vendor: 'google', model: 'Pixel 10 Pro' });
     expect(result.cpu).toEqual({ architecture: 'arm64', bitness: 64 });
   });
 
@@ -33,7 +33,7 @@ describe('parse', () => {
     expect(result.context).toMatchObject({
       type: 'in-app-browser',
       name: 'line',
-      host: { name: 'line' },
+      app: 'line',
     });
     expect(result.context.name).not.toBe('liff');
     expect(result.browser.mode).toBe('webview');
@@ -47,7 +47,7 @@ describe('parse', () => {
     expect(result.browser.name).toBeNull();
     expect(result.engine).toEqual({
       name: 'webkit',
-      version: { full: '605.1.15', major: 605 },
+      version: { full: '605.1.15', major: 605, minor: 1, patch: 15 },
     });
   });
 
@@ -59,7 +59,7 @@ describe('parse', () => {
     expect(result.browser.name).toBeNull();
     expect(result.engine).toEqual({
       name: 'gecko',
-      version: { full: '140.0', major: 140 },
+      version: { full: '140.0', major: 140, minor: 0, patch: null },
     });
   });
 
@@ -67,7 +67,8 @@ describe('parse', () => {
     expect(parse('Mozilla/5.0 Electron/39.0.0').context).toEqual({
       type: null,
       name: null,
-      host: null,
+      app: null,
+      version: null,
     });
   });
 

@@ -45,7 +45,7 @@ describe('bounded User-Agent input', () => {
   it('requires a token boundary before the LINE product token', () => {
     const result = parse('my-command-line/1.2.3');
 
-    expect(result.context).toEqual({ type: null, name: null, host: null });
+    expect(result.context).toEqual({ type: null, name: null, app: null, version: null });
     expect(result.browser.mode).toBeNull();
     expect(parse(`${CHROME_DESKTOP} Line/13.1.0`).context.name).toBe('line');
   });

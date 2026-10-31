@@ -41,7 +41,7 @@ describe('OS from the User-Agent', () => {
     expect(parse('Mozilla/5.0 (iPad; CPU iPhone OS 3_2 like Mac OS X)').os).toMatchObject({ name: 'ipados' });
     expect(parse('Mozilla/5.0 (iPhone; CPU iPhone OS 17_5_1 like Mac OS X)').os).toMatchObject({
       name: 'ios',
-      version: { full: '17.5.1', major: 17 },
+      version: { full: '17.5.1', major: 17, minor: 5, patch: 1 },
     });
   });
 

@@ -86,11 +86,15 @@ export function readVersion(raw: string | null): Version | null {
     end++;
   }
   while (full.endsWith('.')) full = full.slice(0, -1);
-  let major = 0;
-  for (let index = 0; index < full.length && isDigit(full.charCodeAt(index)); index++) {
-    major = major * 10 + (full.charCodeAt(index) - 48);
-  }
-  return { full, major: Number.isSafeInteger(major) ? major : null };
+  const numbers = full.split('.').map((segment) => (segment.length > 0 ? Number(segment) : Number.NaN));
+  const [major, minor, patch] = numbers;
+  if (!Number.isSafeInteger(major)) return null;
+  return {
+    full,
+    major,
+    minor: Number.isSafeInteger(minor) ? minor : null,
+    patch: Number.isSafeInteger(patch) ? patch : null,
+  };
 }
 
 /**

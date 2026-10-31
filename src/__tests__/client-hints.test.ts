@@ -58,7 +58,7 @@ describe('Client Hints enrichment', () => {
     expect(result.browser).toMatchObject({
       name: 'brave',
       family: 'chromium',
-      version: { full: '150.0.7339.80', major: 150 },
+      version: { full: '150.0.7339.80', major: 150, minor: 0, patch: 7339 },
     });
   });
 
@@ -85,7 +85,7 @@ describe('Client Hints enrichment', () => {
       runtime: null,
     });
     expect(result.browser.name).toBe('chrome');
-    expect(result.browser.version).toEqual({ full: '150.0.7339.80', major: 150 });
+    expect(result.browser.version).toEqual({ full: '150.0.7339.80', major: 150, minor: 0, patch: 7339 });
   });
 
   it('does not apply a Chrome version to an incompatible Edge identity', () => {
@@ -214,7 +214,7 @@ describe('Client Hints enrichment', () => {
       runtime: null,
     });
     expect(result.browser.name).toBe('chromium');
-    expect(result.browser.version).toEqual({ full: '150.0.7339.80', major: 150 });
+    expect(result.browser.version).toEqual({ full: '150.0.7339.80', major: 150, minor: 0, patch: 7339 });
   });
 
   it('generic Chromium evidence can establish family without inventing a product', () => {

@@ -46,18 +46,18 @@ describe('device model', () => {
 
   it('reads the model of a Huawei HarmonyOS device past the OS segments', () => {
     const ua = 'Mozilla/5.0 (Linux; Android 10; HarmonyOS; ELS-AN00; HMSCore 6.13.0.302) AppleWebKit/537.36';
-    expect(parse(ua).device).toMatchObject({ vendor: 'Huawei', model: 'ELS-AN00' });
+    expect(parse(ua).device).toMatchObject({ vendor: 'huawei', model: 'ELS-AN00' });
   });
 });
 
 describe('device vendor', () => {
   it.each([
-    ['SAMSUNG SM-G960F', 'Samsung', 'SM-G960F'],
-    ['SM-S928B', 'Samsung', 'SM-S928B'],
-    ['Redmi Note 13', 'Xiaomi', 'Redmi Note 13'],
-    ['RMX3511', 'Realme', 'RMX3511'],
-    ['ONEPLUS A6013', 'OnePlus', 'ONEPLUS A6013'],
-    ['XT2201-2', 'Motorola', 'XT2201-2'],
+    ['SAMSUNG SM-G960F', 'samsung', 'SM-G960F'],
+    ['SM-S928B', 'samsung', 'SM-S928B'],
+    ['Redmi Note 13', 'xiaomi', 'Redmi Note 13'],
+    ['RMX3511', 'realme', 'RMX3511'],
+    ['ONEPLUS A6013', 'oneplus', 'ONEPLUS A6013'],
+    ['XT2201-2', 'motorola', 'XT2201-2'],
     ['Primo RX8', null, 'Primo RX8'],
     ['M5 Note', null, 'M5 Note'],
     ['PHPG50', null, 'PHPG50'],
@@ -68,12 +68,12 @@ describe('device vendor', () => {
   it('names Apple hardware from the device word', () => {
     expect(parse('Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X)').device).toEqual({
       type: 'mobile',
-      vendor: 'Apple',
+      vendor: 'apple',
       model: 'iPhone',
     });
     expect(parse('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)').device).toEqual({
       type: 'desktop',
-      vendor: 'Apple',
+      vendor: 'apple',
       model: null,
     });
   });
@@ -113,12 +113,12 @@ describe('device from Client Hints', () => {
   });
 
   it('gives the hint model its own vendor and never keeps the UA vendor', () => {
-    expect(resolve(pixel, hints({ model: 'SM-S928B' }), null).device).toMatchObject({ vendor: 'Samsung', model: 'SM-S928B' });
+    expect(resolve(pixel, hints({ model: 'SM-S928B' }), null).device).toMatchObject({ vendor: 'samsung', model: 'SM-S928B' });
     expect(resolve(pixel, hints({ model: 'Mystery 1' }), null).device).toMatchObject({ vendor: null, model: 'Mystery 1' });
-    expect(resolve(pixel, hints({ model: 'SAMSUNG SM-S928B' }), null).device).toMatchObject({ vendor: 'Samsung', model: 'SM-S928B' });
+    expect(resolve(pixel, hints({ model: 'SAMSUNG SM-S928B' }), null).device).toMatchObject({ vendor: 'samsung', model: 'SM-S928B' });
   });
 
   it('keeps the UA model when the hint model is empty', () => {
-    expect(resolve(pixel, hints({ model: '  ' }), null).device).toMatchObject({ vendor: 'Google', model: 'Pixel 8' });
+    expect(resolve(pixel, hints({ model: '  ' }), null).device).toMatchObject({ vendor: 'google', model: 'Pixel 8' });
   });
 });

@@ -1,9 +1,8 @@
-import { CPUArchitecture } from './constants';
+import type { CPUArchitecture } from './catalog/cpus';
 import type { BrandVersion, ClientHints } from './input';
-import type { CPUArchitecture as CPUArchitectureType } from './constants';
 
 export interface NormalizedArchitecture {
-  readonly architecture: CPUArchitectureType;
+  readonly architecture: CPUArchitecture;
   readonly bitness: 32 | 64 | null;
 }
 
@@ -15,23 +14,23 @@ export function normalizeArchitecture(
   switch (architecture.trim().toLowerCase()) {
     case 'arm64':
     case 'aarch64':
-      return { architecture: CPUArchitecture.ARM64, bitness: 64 };
+      return { architecture: 'arm64', bitness: 64 };
     case 'arm':
-      if (bitness === 64) return { architecture: CPUArchitecture.ARM64, bitness: 64 };
-      return { architecture: CPUArchitecture.ARM, bitness };
+      if (bitness === 64) return { architecture: 'arm64', bitness: 64 };
+      return { architecture: 'arm', bitness };
     case 'armv7':
     case 'armv8':
-      return { architecture: CPUArchitecture.ARM, bitness: bitness ?? 32 };
+      return { architecture: 'arm', bitness: bitness ?? 32 };
     case 'x86_64':
     case 'x64':
     case 'amd64':
-      return { architecture: CPUArchitecture.X86_64, bitness: 64 };
+      return { architecture: 'x86_64', bitness: 64 };
     case 'x86':
-      if (bitness === 64) return { architecture: CPUArchitecture.X86_64, bitness: 64 };
-      return { architecture: CPUArchitecture.X86, bitness };
+      if (bitness === 64) return { architecture: 'x86_64', bitness: 64 };
+      return { architecture: 'x86', bitness };
     case 'i386':
     case 'i686':
-      return { architecture: CPUArchitecture.X86, bitness: bitness ?? 32 };
+      return { architecture: 'x86', bitness: bitness ?? 32 };
     default:
       return null;
   }

@@ -61,20 +61,21 @@ describe('scan', () => {
 
 describe('readVersion', () => {
   it.each([
-    ['130.0.6723.92', '130.0.6723.92', 130],
-    ['17_5_1', '17.5.1', 17],
-    ['9.80', '9.80', 9],
-    ['36.2.2254/119.132', '36.2.2254', 36],
-    ['1.2.', '1.2', 1],
-  ])('reads %s', (raw, full, major) => {
-    expect(readVersion(raw)).toEqual({ full, major });
+    ['130.0.6723.92', '130.0.6723.92', 130, 0, 6723],
+    ['17_5_1', '17.5.1', 17, 5, 1],
+    ['9.80', '9.80', 9, 80, null],
+    ['36.2.2254/119.132', '36.2.2254', 36, 2, 2254],
+    ['1.2.', '1.2', 1, 2, null],
+    ['7', '7', 7, null, null],
+  ])('reads %s', (raw, full, major, minor, patch) => {
+    expect(readVersion(raw)).toEqual({ full, major, minor, patch });
   });
 
   it.each([null, '', 'garbage', '.5', 'v1'])('rejects %p', (raw) => {
     expect(readVersion(raw)).toBeNull();
   });
 
-  it('keeps an overlong major as null', () => {
-    expect(readVersion('99999999999999999999')?.major).toBeNull();
+  it('reports a version whose major is not a safe integer as no version', () => {
+    expect(readVersion('99999999999999999999')).toBeNull();
   });
 });

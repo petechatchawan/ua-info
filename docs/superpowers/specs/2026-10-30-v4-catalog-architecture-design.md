@@ -419,3 +419,16 @@ PR 1: the 3.0.1 hotfix on the current engine, test-first. Write the timing tests
 - **ESLint now bans regular expressions in all of `src`** (tests excluded), where PR 5 banned them in `core/` and `catalog/` only. The stale `src/mappings` override is removed. `parser/` and `enrich.ts` no longer exist.
 - **All corpus entries are closed.** No open defect remains. `facebookexternalhit` stays `bot`, because the result type has no link-preview type.
 - **Cost.** `root-parse` is 20,560 raw bytes. The interleaved harness measured about 279,000 operations per second, up from 220,000 to 230,000 in PR 7 because the quadratic client regex is gone.
+
+### PR 9 (the 4.0.0 surface)
+
+- **Ids come from the catalogs.** Each catalog file declares its rows `as const satisfies Record<string, Row>` and exports `keyof typeof rows` as the id type. The five id value objects and `constants.ts` are gone. A row cannot be missing a required field, and `catalog.test.ts` checks the references the types cannot: every `beats` entry names a row, `beats` has no cycle, each Client Hints brand and platform has one owner, vendor model prefixes are at least two characters and not shared, and every id has a label.
+- **`beats` and `os` gates are checked by tests and a helper, not by types.** `RowSpec.beats` is `readonly string[]` because a row's own type cannot name the union that it defines. `osIn('ios', 'ipados')` types the OS gate, so a misspelled OS id fails to compile.
+- **`is()` has no `const` type parameter.** TypeScript 4.9 emits our declarations and has none. The query type's literal unions give the same inference for ids and arrays.
+- **`labels` ships in 4.0.0, not 4.1.** Results now carry ids, so the display names are needed at the same time. It is a fifth subpath and not part of the root bundle.
+- **Row proof is a test.** `catalog.test.ts` fails for a row that no corpus entry produces. Adding it needed 37 more synthetic entries. The vendor and CPU rows were the least covered.
+- **`client.token` is lowercased.** The design said "as written". The scanner lowercases every product name, and a lowercase token is stable to log and compare.
+- **`Version.major` is a number.** A value with no leading safe integer is `null` instead of a version, as in the design. `minor` and `patch` come from the audit.
+- **Release tooling hard-coded 3.x.** `verify-package-identity.mjs` required a 3.x version and `verify-package.mjs` forbade `types.js` as a legacy v2 name. Both are fixed. The registry check in `publish.yml` now waits up to 5 minutes, because the 3.0.1 run reported a false failure when the registry was slow.
+- **Migration is enforced.** `migration.test.ts` lists every 3.0.1 export that 4.0 removed and requires `MIGRATION.md` to name its replacement.
+- **Cost.** `root-parse` is 21,952 raw bytes. The packed size grew by about 25 KB, mostly the new `MIGRATION.md` and the declarations for the catalogs.

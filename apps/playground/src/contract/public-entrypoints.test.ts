@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { BrowserId, parse } from 'user-agent-parser-ts';
-import { isChrome } from 'user-agent-parser-ts/check';
+import { parse } from 'user-agent-parser-ts';
+import { is } from 'user-agent-parser-ts/check';
+import { labels } from 'user-agent-parser-ts/labels';
 import { detect } from 'user-agent-parser-ts/browser';
 import { parseRequest } from 'user-agent-parser-ts/server';
 
@@ -20,8 +21,9 @@ describe('packed user-agent-parser-ts browser consumer contract', () => {
       },
     });
 
-    expect(parsed.browser.name).toBe(BrowserId.Chrome);
-    expect(isChrome(parsed)).toBe(true);
+    expect(parsed.browser.name).toBe('chrome');
+    expect(is(parsed, { browser: 'chrome' })).toBe(true);
+    expect(labels.browser.chrome).toBe('Google Chrome');
     expect(enriched.browser.version?.major).toBe(151);
     expect(enriched.device.type).toBe('mobile');
     expect(typeof detect).toBe('function');
