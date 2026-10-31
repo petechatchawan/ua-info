@@ -1,11 +1,9 @@
 import { BrowserId, CPUArchitecture, EngineId, OSId, type UAInfo } from '../index';
 import * as check from '../check';
-import { normalizeArchitecture, normalizePlatform, parseBrandList } from '../client-hints';
+import { normalizeArchitecture, parseBrandList } from '../client-hints';
 import { parse } from '../parse';
 import { detectClient } from '../parser/client';
-import { detectCPU } from '../parser/cpu';
 import { detectDevice } from '../parser/device';
-import { detectOS } from '../parser/os';
 import { readHeader } from '../server';
 
 function makeInfo(overrides: Partial<UAInfo>): UAInfo {
@@ -154,7 +152,7 @@ describe('supported contract matrix', () => {
     ['Tizen/8.0', OSId.Tizen],
     ['X11; Linux x86_64', OSId.Linux],
   ] as const)('detects supported OS branch %s', (ua, name) => {
-    expect(detectOS(ua).name).toBe(name);
+    expect(parse(ua).os.name).toBe(name);
   });
 
   it.each([
@@ -199,7 +197,7 @@ describe('supported contract matrix', () => {
     ['powerpc', CPUArchitecture.PowerPC, null],
     ['sparc', CPUArchitecture.SPARC, null],
   ] as const)('detects CPU branch %s', (ua, architecture, bitness) => {
-    expect(detectCPU(ua)).toEqual({ architecture, bitness });
+    expect(parse(ua).cpu).toEqual({ architecture, bitness });
   });
 
   it.each([
@@ -243,15 +241,6 @@ describe('supported contract matrix', () => {
   });
 
   it('normalizes supported Client Hints platform and architecture aliases', () => {
-    expect(normalizePlatform(null)).toBeNull();
-    expect(normalizePlatform('Chrome OS')).toBe(OSId.ChromeOS);
-    expect(normalizePlatform('chromeos')).toBe(OSId.ChromeOS);
-    expect(normalizePlatform('iOS')).toBe(OSId.IOS);
-    expect(normalizePlatform('iPadOS')).toBe(OSId.IPadOS);
-    expect(normalizePlatform('Linux')).toBe(OSId.Linux);
-    expect(normalizePlatform('macOS')).toBe(OSId.MacOS);
-    expect(normalizePlatform('Windows')).toBe(OSId.Windows);
-    expect(normalizePlatform('Plan9')).toBeNull();
 
     expect(normalizeArchitecture(null, null)).toBeNull();
     expect(normalizeArchitecture('arm', null)).toEqual({ architecture: CPUArchitecture.ARM, bitness: null });

@@ -390,3 +390,12 @@ Accepted by the operator's go-ahead to start PR 5, and checked against the corpu
 ## Next implementation step
 
 PR 1: the 3.0.1 hotfix on the current engine, test-first. Write the timing tests, confirm they fail on `master`, then apply the root fixes.
+
+### PR 6 (OS and CPU)
+
+- **Signals match runs of words as well as products.** The scanner now also yields a flat word list (split at spaces, brackets, `;`, `,` and `/`). OS and CPU rows name a run of up to four words (`windows nt`, `cpu iphone os`, `x86_64`), and the matcher looks each one up in a `Map` keyed by its first word. The design had OS rows match comment parts. Words also match bare test strings such as `Windows Phone OS 10.0` that have no parentheses, as v3 did, and keep per-parse cost flat as rows are added.
+- **CPU uses `beats` only where two architectures can share a UA.** `arm64` beats `arm`, `x86_64` and `x86`, and `x86_64` beats `x86`. v3 got this from regex order. The hint merge for CPU keeps v3's rules: a hint without bitness never weakens a compatible UA architecture.
+- **Android and HarmonyOS no longer need a version.** `Android;` (Opera Mini) and a bare `HarmonyOS` segment now identify the OS. HarmonyOS beats Android, so an Android Client Hint no longer replaces it (defect #12).
+- **Windows uses one marketing scale for both sources.** The NT map gives `10`, `8.1`, `8`, `7`. NT 6.0, 5.2, 5.1 and 5.0 are Windows with no version, not the strings `Vista` or `XP`. A `platformVersion` of 13 or more is `11`, and 1 to 12 is `10` (defect #14). Unknown NT numbers pass through.
+- **macOS keeps its decimals.** `Mac OS X 10.15` gives `10.15`. v3 cut it at the dot and gave `10`.
+- **Cost.** Same-harness parse throughput on five common UAs went from 272,000 (PR 5) to between 217,000 and 243,000 operations per second across runs, a drop of 10 to 20 percent. The profile shows `find`, `scan` and `splitWords` as the cost. PRs 7 and 8 remove the remaining regex detectors, so the figure is measured again there. The raw bundle grew from 15,872 to 17,473 bytes for `root-parse`.
