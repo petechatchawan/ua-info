@@ -54,18 +54,56 @@ export function isGreaseBrand(brand: string): boolean {
 }
 
 export function isValidBrandVersion(value: string): boolean {
-  return /^\d+(?:\.\d+)*$/.test(value);
+  let digitsInSegment = 0;
+  for (let index = 0; index < value.length; index++) {
+    const code = value.charCodeAt(index);
+    if (code >= 48 && code <= 57) {
+      digitsInSegment++;
+    } else if (code === 46 && digitsInSegment > 0) {
+      digitsInSegment = 0;
+    } else {
+      return false;
+    }
+  }
+  return digitsInSegment > 0;
 }
 
+const MAX_HEADER_LENGTH = 1024;
+
+// Reads `"Brand";v="123", "Other";v="4"`. An entry that does not fit is skipped up to the next comma.
 export function parseBrandList(value: string | null): readonly BrandVersion[] {
   if (!value) return [];
+  const text = value.length > MAX_HEADER_LENGTH ? value.slice(0, MAX_HEADER_LENGTH) : value;
   const brands: BrandVersion[] = [];
-  const regex = /"([^"]+)"\s*;\s*v\s*=\s*"([^"]+)"/g;
-  for (const match of value.matchAll(regex)) {
-    const brand = match[1];
-    const version = match[2];
-    if (!brand || !isValidBrandVersion(version) || isGreaseBrand(brand)) continue;
-    brands.push({ brand, version });
+  let index = 0;
+
+  const skipSpaces = (): void => {
+    while (index < text.length && (text[index] === ' ' || text[index] === '\t')) index++;
+  };
+  const readQuoted = (): string | null => {
+    if (text[index] !== '"') return null;
+    const end = text.indexOf('"', index + 1);
+    if (end < 0) return null;
+    const quoted = text.slice(index + 1, end);
+    index = end + 1;
+    return quoted;
+  };
+  const expect = (char: string): boolean => {
+    skipSpaces();
+    if (text[index] !== char) return false;
+    index++;
+    skipSpaces();
+    return true;
+  };
+
+  while (index < text.length) {
+    skipSpaces();
+    const brand = readQuoted();
+    let version: string | null = null;
+    if (brand !== null && expect(';') && expect('v') && expect('=')) version = readQuoted();
+    if (brand && version && isValidBrandVersion(version) && !isGreaseBrand(brand)) brands.push({ brand, version });
+    const comma = text.indexOf(',', index);
+    index = comma < 0 ? text.length : comma + 1;
   }
   return brands;
 }
@@ -84,7 +122,11 @@ function parseBitness(value: string | null): 32 | 64 | null {
   return null;
 }
 
-export function decodeClientHints(readHeader: HeaderReader): ClientHints {
+export function decodeClientHints(rawReader: HeaderReader): ClientHints {
+  const readHeader: HeaderReader = (name) => {
+    const value = rawReader(name);
+    return value !== null && value.length > MAX_HEADER_LENGTH ? value.slice(0, MAX_HEADER_LENGTH) : value;
+  };
   const significant = parseBrandList(readHeader('sec-ch-ua'));
   const full = parseBrandList(readHeader('sec-ch-ua-full-version-list'));
   return {

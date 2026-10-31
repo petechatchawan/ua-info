@@ -410,3 +410,12 @@ PR 1: the 3.0.1 hotfix on the current engine, test-first. Write the timing tests
 - **Windows Phone is mobile.** It carries an Android token and a `Mobile` token, and v3 only got it right by checking Android first.
 - **Vendor values stay display strings** (`Samsung`) until PR 9 changes them to stable IDs.
 - **Cost.** On the interleaved same-machine harness, `master` after PR 5 measured about 401,000 operations per second and this branch about 220,000 to 230,000, a drop of roughly 45 percent. The profile shows `scan`, `find` and garbage collection, which come from building the word list and many small candidate objects. Against the reviewed runtime baseline the gate passes with no warning, because that baseline is the older 2.2.0 measurement. A single-pass scanner is the known fix and is left as a follow-up, so that behavior ships first.
+
+### PR 8 (clients, and no regular expression left)
+
+- **`catalog/clients.ts` holds 30 clients** with the taxonomy written once in its header comment: crawler, ai-crawler, ai-assistant, bot, automation, http-client, library. Each row's key is the client name in the result. `ChatGPT-User`, `Claude-User` and `Perplexity-User` now have their own names instead of all being `ai-assistant` (use `client.type`). `YandexBot` is a `crawler` and `Bytespider` an `ai-crawler`, both judgments rather than facts checked against a crawler list.
+- **The generic bot rule tests product names only.** A product whose name ends in `bot`, `spider` or `crawler` is an unclassified bot. A phone brand in a comment (`CUBOT P50`) and a URL (`mybot.html`) are not products, so they cannot match (#10). The old rule was the quadratic regex.
+- **Client Hints headers are read by hand.** `parseBrandList` is a hand-written reader with a 1,024 character limit on every header, and `parseVersion` and `isValidBrandVersion` read characters. A malformed entry is skipped up to the next comma.
+- **ESLint now bans regular expressions in all of `src`** (tests excluded), where PR 5 banned them in `core/` and `catalog/` only. The stale `src/mappings` override is removed. `parser/` and `enrich.ts` no longer exist.
+- **All corpus entries are closed.** No open defect remains. `facebookexternalhit` stays `bot`, because the result type has no link-preview type.
+- **Cost.** `root-parse` is 20,560 raw bytes. The interleaved harness measured about 279,000 operations per second, up from 220,000 to 230,000 in PR 7 because the quadratic client regex is gone.

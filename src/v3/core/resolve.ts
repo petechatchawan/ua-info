@@ -1,4 +1,5 @@
 import { BROWSERS, NEUTRAL_PRODUCTS, type BrowserSignal } from '../catalog/browsers';
+import { CLIENTS, GENERIC_BOT_SUFFIXES } from '../catalog/clients';
 import { CONTEXTS, type UserAgentContextId } from '../catalog/contexts';
 import { CPUS, type CPUSignal } from '../catalog/cpus';
 import { OPERATING_SYSTEMS } from '../catalog/os';
@@ -6,11 +7,11 @@ import type { BrowserId, CPUArchitecture, EngineId, OSId } from '../constants';
 import { ContextId, EngineId as Engines } from '../constants';
 import { normalizeArchitecture } from '../client-hints';
 import type { ClientHints, RuntimeEvidence } from '../input';
-import { detectClient } from '../parser/client';
 import type {
   BrowserFamily,
   BrowserInfo,
   BrowserMode,
+  ClientInfo,
   ContextInfo,
   CPUInfo,
   EngineInfo,
@@ -24,6 +25,7 @@ import { MAX_UA_LENGTH, readVersion, scan, type Scan } from './scan';
 
 const BROWSER_MATCHER = compileMatcher<BrowserId, BrowserSignal>(BROWSERS);
 const CONTEXT_MATCHER = compileMatcher<UserAgentContextId>(CONTEXTS);
+const CLIENT_MATCHER = compileMatcher<string>(CLIENTS);
 const OS_MATCHER = compileMatcher<OSId>(OPERATING_SYSTEMS);
 const CPU_MATCHER = compileMatcher<CPUArchitecture, CPUSignal>(CPUS);
 
@@ -218,6 +220,20 @@ function resolveCPU(scanned: Scan, hints: ClientHints | null): CPUInfo {
   return hints.bitness !== null ? { ...base, bitness: hints.bitness } : base;
 }
 
+const NO_CLIENT: ClientInfo = { type: null, name: null, version: null };
+
+function resolveClient(scanned: Scan): ClientInfo {
+  const candidates = CLIENT_MATCHER.find(scanned, null);
+  const { id } = pick(candidates, CLIENT_MATCHER.beats);
+  if (id !== null) return { type: CLIENTS[id].type, name: id, version: strongestVersion(candidates, id) };
+
+  const generic = scanned.products.find((product) =>
+    GENERIC_BOT_SUFFIXES.some((suffix) => product.name.endsWith(suffix)),
+  );
+  if (generic) return { type: 'bot', name: generic.name, version: readVersion(generic.version) };
+  return NO_CLIENT;
+}
+
 export function resolve(ua: string, hints: ClientHints | null, runtime: RuntimeEvidence | null): UAInfo {
   const text = ua.length > MAX_UA_LENGTH ? ua.slice(0, MAX_UA_LENGTH) : ua;
   const scanned = scan(text);
@@ -236,7 +252,7 @@ export function resolve(ua: string, hints: ClientHints | null, runtime: RuntimeE
     os,
     device: resolveDevice(scanned, uaOS.name, hints),
     cpu: resolveCPU(scanned, hints),
-    client: detectClient(text),
+    client: resolveClient(scanned),
     context,
   };
 }
