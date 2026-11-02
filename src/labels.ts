@@ -23,7 +23,7 @@ const CONTEXT_LABELS: Readonly<Record<ContextId, string>> = {
 
 /**
  * Display names for the stable IDs in a result. Results carry IDs, so a program branches on a
- * lowercase ID and shows `labels.browser[info.browser.name]` to a person.
+ * lowercase ID and shows `labels.browser[id]` to a person once `id` is not `null`.
  */
 export const labels: {
   readonly browser: Readonly<Record<BrowserId, string>>;

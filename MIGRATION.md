@@ -143,11 +143,13 @@ Values, helpers and types.
 Results carry ids. For a person, import the display names from `user-agent-parser-ts/labels`.
 
 ```ts
-import {{ labels }} from 'user-agent-parser-ts/labels';
+import { labels } from 'user-agent-parser-ts/labels';
 
-labels.browser[info.browser.name]; // 'Google Chrome'
-labels.vendor.samsung;             // 'Samsung'
+const browser = info.browser.name ? labels.browser[info.browser.name] : null;  // 'Google Chrome'
+const vendor = info.device.vendor ? labels.vendor[info.device.vendor] : null;  // 'Samsung'
 ```
+
+Every id in a result can be `null`, and `labels` has no entry for `null`. Narrow the id before the lookup.
 
 ### Behavior that changed
 
