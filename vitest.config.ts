@@ -7,6 +7,7 @@ export default defineConfig({
     include: [
       'src/**/__tests__/**/*.test.ts',
       'test/**/*.test.ts',
+      'scripts/__tests__/**/*.test.cjs',
       'scripts/performance/__tests__/**/*.test.cjs',
     ],
     coverage: {

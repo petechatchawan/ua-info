@@ -6,7 +6,7 @@
 
 ### Checks: `is()` and `isBot()`
 
-```ts
+```ts skip
 // 3.x
 import { isChrome, isAndroid, isMobile } from 'user-agent-parser-ts/check';
 if (isChrome(info) && isAndroid(info) && isMobile(info)) { /* ... */ }
@@ -194,7 +194,7 @@ npm install user-agent-parser-ts
 
 `UAResult` is replaced by `UAInfo`. Every top-level dimension is always present; unknown fields are `null` instead of making the whole dimension nullable.
 
-```ts
+```ts skip
 // v2
 result.browser?.id
 result.os?.id
@@ -210,7 +210,7 @@ Stable identity fields use lowercase machine names. Xiaomi Browser is now `mi-br
 
 ## Parser and predicates
 
-```ts
+```ts skip
 // v2
 import { BrowserId, isBrowser, parse } from 'user-agent-parser-ts';
 if (isBrowser(parse(ua), BrowserId.Chrome)) {}
@@ -225,7 +225,7 @@ Generic predicate renames include `isOperatingSystem()` -> `isOS()` and `isDevic
 
 ## Browser runtime detection
 
-```ts
+```ts skip
 // v2
 import { detectCurrent } from 'user-agent-parser-ts/browser';
 const info = await detectCurrent();
@@ -241,7 +241,7 @@ High-entropy Client Hints are no longer requested by default. Opt in with `detec
 
 A LINE-looking User-Agent can establish a LINE in-app context, but pure User-Agent parsing no longer claims that the page is running inside LIFF. LIFF requires runtime evidence:
 
-```ts
+```ts skip
 const info = await detect({ liff });
 ```
 
@@ -251,7 +251,7 @@ where the adapter provides `liff.isInClient()`.
 
 `parseRequest()` accepts either a header source directly or a Request-like object:
 
-```ts
+```ts skip
 import { parseRequest } from 'user-agent-parser-ts/server';
 
 parseRequest({ 'user-agent': ua, 'sec-ch-ua': ch });

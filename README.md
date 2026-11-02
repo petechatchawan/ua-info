@@ -95,7 +95,7 @@ The high-entropy opt-in requests exactly `architecture`, `bitness`, `fullVersion
 
 `parse()`, `parseRequest()`, and `detect()` all return the same fixed-shape `UAInfo` object:
 
-```ts
+```ts skip
 interface UAInfo {
   ua: string;
   browser: BrowserInfo;
@@ -122,7 +122,7 @@ info.context; // { type: null, name: null, app: null, version: null }
 
 Versions use one shape. A version is a product or platform version, not SemVer:
 
-```ts
+```ts skip
 type Version = {
   full: string;
   major: number;
@@ -158,7 +158,7 @@ Every id in a result can be `null`, and `labels` has no entry for `null`. Narrow
 
 `browser.name` and `browser.family` are independent evidence fields. Both of these states are valid:
 
-```ts
+```ts skip
 // Product known, lineage not established.
 { name: 'brave', family: null }
 
