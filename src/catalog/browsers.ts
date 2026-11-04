@@ -32,6 +32,16 @@ const rows = {
       'QihooBrowser',
     ],
   },
+  // The stock Android browser is the only client that reports `Version/` with no Chrome token.
+  // Android 4.4 rebuilt it on Chromium, so those builds carry `Chrome/`, and a modern in-app
+  // WebView carries the same tokens as that build, so both keep the Chrome identity.
+  'android-browser': {
+    label: 'Android Browser',
+    family: null,
+    engine: 'webkit',
+    brands: [],
+    match: [{ product: 'Version', with: ['safari'], without: ['chrome'], os: osIn('android'), fallback: true }],
+  },
   arc: { label: 'Arc', family: 'chromium', engine: 'blink', brands: [], match: ['Arc'] },
   brave: {
     label: 'Brave',

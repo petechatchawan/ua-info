@@ -181,6 +181,7 @@ The parser does not invent a family to fill a field. A Chromium fork that has no
 | Google Chrome | `chrome` |
 | Chrome Mobile | `chrome-mobile` |
 | Chromium | `chromium` |
+| Android Browser | `android-browser` |
 | Safari | `safari` |
 | Safari Mobile | `safari-mobile` |
 | Firefox | `firefox` |
@@ -211,11 +212,13 @@ Android WebView is `browser.mode === 'webview'`, not a separate browser.
 
 Chrome on a phone is `chrome-mobile`, and Safari on iOS or iPadOS is `safari-mobile`. Desktop and tablet builds stay `chrome` and `safari`. A phone build carries the `Mobile` token; both new rows are fallbacks, so a specific product such as Samsung Internet or a specific fork still wins.
 
+The stock Android browser is `android-browser`. It is the only client that sends a `Version/` token on Android with no Chrome token. Android 4.4 rebuilt it on Chromium, so those builds carry `Chrome/` and stay `chrome-mobile`, which a modern in-app WebView also reports.
+
 ### Supported dimensions
 
 | Dimension | Count | Ids |
 | --- | --- | --- |
-| Browser | 28 | the table above |
+| Browser | 29 | the table above |
 | Rendering engine | 5 | `blink`, `edgehtml`, `gecko`, `presto`, `webkit` |
 | Operating system | 20 | `android`, `ios`, `ipados`, `windows`, `macos`, `linux`, `chromeos`, `harmonyos`, `openharmony`, `fuchsia`, `tizen`, `kaios`, `blackberry`, `symbian`, `webos`, `windows-phone`, `firefox-os`, `steamos`, `tvos`, `watchos` |
 | Device type | 8 | `desktop`, `mobile`, `tablet`, `smart-tv`, `console`, `wearable`, `xr`, `embedded` |

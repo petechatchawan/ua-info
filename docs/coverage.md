@@ -14,7 +14,7 @@ Tier 1 shipped. The counts below are the catalog today.
 
 | Dimension | Now | Tier 2 left | After tier 2 |
 |---|---|---|---|
-| Browsers | 28 | 8 | 36 |
+| Browsers | 29 | 8 | 37 |
 | Operating systems | 20 | 4 | 24 |
 | Device vendors | 22 | 5 | 27 |
 | In-app contexts | 6 | 1 | 7 |
@@ -24,16 +24,20 @@ strings and pins the behaviour that matters; it is not a coverage score.
 
 ## 1. Browsers
 
-### Have (28)
+### Have (29)
 
-`360`, `arc`, `brave`, `chrome`, `chromium`, `coc-coc`, `duckduckgo`, `ecosia`, `edge`,
-`edge-legacy`, `firefox`, `huawei-browser`, `ie`, `mi-browser`, `opera`, `opera-gx`,
-`opera-mini`, `pale-moon`, `puffin`, `qq`, `safari`, `safari-mobile`, `samsung-internet`, `uc-browser`,
-`vivaldi`, `whale`, `yandex-browser`
+`360`, `android-browser`, `arc`, `brave`, `chrome`, `chrome-mobile`, `chromium`, `coc-coc`,
+`duckduckgo`, `ecosia`, `edge`, `edge-legacy`, `firefox`, `huawei-browser`, `ie`, `mi-browser`,
+`opera`, `opera-gx`, `opera-mini`, `pale-moon`, `puffin`, `qq`, `safari`, `safari-mobile`,
+`samsung-internet`, `uc-browser`, `vivaldi`, `whale`, `yandex-browser`
 
 `chrome-mobile` and `safari-mobile` are form-factor variants, not separate products. A phone build
 carries the `Mobile` token: Chrome on Android or HarmonyOS reports `chrome-mobile`, Safari on iOS or
 iPadOS reports `safari-mobile`, and the desktop and tablet builds keep `chrome` and `safari`.
+
+`android-browser` is the stock Android browser: the only client that sends `Version/` on Android
+with no Chrome token. Android 4.4 rebuilt it on Chromium, so those builds carry `Chrome/` and stay
+`chrome-mobile`, which a modern in-app WebView also reports.
 
 These cover roughly 99% of measured traffic. The tail below is where forks, in-app WebViews and
 old enterprise clients live.
@@ -194,3 +198,6 @@ entry must be captured, not copied from another library.
 - An iPad in desktop mode sends a Macintosh User-Agent, so `parse()` follows the string and reports
   a Mac. `detect()` recovers it from the runtime: a Mac-like platform that reports more than one
   touch point is an iPad, and a real Mac reports zero.
+- `Version/` plus a Chrome token on Android is not separable from a modern in-app WebView. The
+  Facebook capture sends the same tokens as an Android 4.4 stock browser, so both stay
+  `chrome-mobile`; only a `Version/` token with no Chrome token is `android-browser`.

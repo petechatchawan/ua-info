@@ -105,4 +105,42 @@ describe('browser detection', () => {
       '(KHTML, like Gecko) Version/26.5 Safari/605.1.15';
     expect(parse(ua).browser.name).toBe('safari');
   });
+
+  it('reports the stock Android browser from the Version token', () => {
+    const nexus =
+      'Mozilla/5.0 (Linux; U; Android 4.0.2; en-us; Galaxy Nexus Build/ICL53F) AppleWebKit/534.30 ' +
+      '(KHTML, like Gecko) Version/4.0 Mobile Safari/534.30';
+    const flyer =
+      'Mozilla/5.0 (Linux; U; Android 3.2.1; ru-ru; HTC Flyer P510e Build/HTK75C) AppleWebKit/534.13 ' +
+      '(KHTML, like Gecko) Version/4.0 Safari/534.13';
+
+    expect(parse(nexus).browser).toMatchObject({
+      name: 'android-browser',
+      family: null,
+      version: { full: '4.0', major: 4 },
+    });
+    expect(parse(nexus).engine.name).toBe('webkit');
+    expect(parse(flyer).browser.name).toBe('android-browser');
+    expect(parse(flyer).device.type).toBe('tablet');
+  });
+
+  it('keeps a Version-plus-Chrome Android string as chrome-mobile', () => {
+    const kitkat =
+      'Mozilla/5.0 (Linux; Android 4.4.4; HUAWEI H891L Build/HuaweiH891L) AppleWebKit/537.36 ' +
+      '(KHTML, like Gecko) Version/4.0 Chrome/33.0.0.0 Mobile Safari/537.36';
+    const galaxyS3 =
+      'Mozilla/5.0 (Linux; Android 4.4.4; en-us; SAMSUNG GT-I9300I Build/KTU84P) AppleWebKit/537.36 ' +
+      '(KHTML, like Gecko) Version/1.5 Chrome/28.0.1500.94 Mobile Safari/537.36';
+
+    expect(parse(kitkat).browser.name).toBe('chrome-mobile');
+    expect(parse(galaxyS3).browser.name).toBe('chrome-mobile');
+  });
+
+  it('does not name the stock browser when an unknown product is present', () => {
+    const ua =
+      'Mozilla/5.0 (Linux; U; Android 4.0.4; ru-by; HUAWEI U9508 Build/HuaweiU9508) AppleWebKit/534.30 ' +
+      '(KHTML, like Gecko) Version/4.0 Mobile Safari/534.30 ACHEETAHI/2100050044';
+
+    expect(parse(ua).browser.name).toBeNull();
+  });
 });
