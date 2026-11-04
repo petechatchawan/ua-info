@@ -29,13 +29,13 @@ Node.js 18 or newer is required for server-side usage. TypeScript declarations, 
 
 ## Entry points
 
-| Use case | Import | Main API |
-| --- | --- | --- |
-| Pure User-Agent parsing | `ua-inspect` | `parse()` |
-| Queries | `ua-inspect/check` | `is()`, `isBot()` |
-| HTTP request + Client Hints | `ua-inspect/server` | `parseRequest()` |
-| Current browser + runtime signals | `ua-inspect/browser` | `detect()` |
-| Display names | `ua-inspect/labels` | `labels` |
+| Use case                          | Import               | Main API          |
+| --------------------------------- | -------------------- | ----------------- |
+| Pure User-Agent parsing           | `ua-inspect`         | `parse()`         |
+| Queries                           | `ua-inspect/check`   | `is()`, `isBot()` |
+| HTTP request + Client Hints       | `ua-inspect/server`  | `parseRequest()`  |
+| Current browser + runtime signals | `ua-inspect/browser` | `detect()`        |
+| Display names                     | `ua-inspect/labels`  | `labels`          |
 
 ### Pure parser
 
@@ -176,37 +176,37 @@ The parser does not invent a family to fill a field. A Chromium fork that has no
 
 ### Browsers
 
-| Browser | Id |
-| --- | --- |
-| Google Chrome | `chrome` |
-| Chrome Mobile | `chrome-mobile` |
-| Chromium | `chromium` |
-| Android Browser | `android-browser` |
-| Safari | `safari` |
-| Safari Mobile | `safari-mobile` |
-| Firefox | `firefox` |
-| Microsoft Edge | `edge` |
-| Microsoft Edge Legacy | `edge-legacy` |
-| Internet Explorer | `ie` |
-| Opera | `opera` |
-| Opera GX | `opera-gx` |
-| Opera Mini | `opera-mini` |
-| Samsung Internet | `samsung-internet` |
-| Brave | `brave` |
-| Vivaldi | `vivaldi` |
-| Arc | `arc` |
-| Whale | `whale` |
-| DuckDuckGo Browser | `duckduckgo` |
-| Ecosia | `ecosia` |
-| Pale Moon | `pale-moon` |
-| Puffin | `puffin` |
-| QQ Browser | `qq` |
-| 360 Browser | `360` |
-| Coc Coc | `coc-coc` |
-| Mi Browser | `mi-browser` |
-| Huawei Browser | `huawei-browser` |
-| UC Browser | `uc-browser` |
-| Yandex Browser | `yandex-browser` |
+| Browser               | Id                 |
+| --------------------- | ------------------ |
+| Google Chrome         | `chrome`           |
+| Chrome Mobile         | `chrome-mobile`    |
+| Chromium              | `chromium`         |
+| Android Browser       | `android-browser`  |
+| Safari                | `safari`           |
+| Safari Mobile         | `safari-mobile`    |
+| Firefox               | `firefox`          |
+| Microsoft Edge        | `edge`             |
+| Microsoft Edge Legacy | `edge-legacy`      |
+| Internet Explorer     | `ie`               |
+| Opera                 | `opera`            |
+| Opera GX              | `opera-gx`         |
+| Opera Mini            | `opera-mini`       |
+| Samsung Internet      | `samsung-internet` |
+| Brave                 | `brave`            |
+| Vivaldi               | `vivaldi`          |
+| Arc                   | `arc`              |
+| Whale                 | `whale`            |
+| DuckDuckGo Browser    | `duckduckgo`       |
+| Ecosia                | `ecosia`           |
+| Pale Moon             | `pale-moon`        |
+| Puffin                | `puffin`           |
+| QQ Browser            | `qq`               |
+| 360 Browser           | `360`              |
+| Coc Coc               | `coc-coc`          |
+| Mi Browser            | `mi-browser`       |
+| Huawei Browser        | `huawei-browser`   |
+| UC Browser            | `uc-browser`       |
+| Yandex Browser        | `yandex-browser`   |
 
 Android WebView is `browser.mode === 'webview'`, not a separate browser.
 
@@ -216,16 +216,16 @@ The stock Android browser is `android-browser`. It is the only client that sends
 
 ### Supported dimensions
 
-| Dimension | Count | Ids |
-| --- | --- | --- |
-| Browser | 29 | the table above |
-| Rendering engine | 5 | `blink`, `edgehtml`, `gecko`, `presto`, `webkit` |
-| Operating system | 20 | `android`, `ios`, `ipados`, `windows`, `macos`, `linux`, `chromeos`, `harmonyos`, `openharmony`, `fuchsia`, `tizen`, `kaios`, `blackberry`, `symbian`, `webos`, `windows-phone`, `firefox-os`, `steamos`, `tvos`, `watchos` |
-| Device type | 8 | `desktop`, `mobile`, `tablet`, `smart-tv`, `console`, `wearable`, `xr`, `embedded` |
-| In-app context | 6 | `line`, `facebook`, `instagram`, `tiktok`, `messenger`, `wechat` |
-| Non-browser client | 31 | `labels.client` |
-| CPU architecture | 8 | `x86`, `x86_64`, `arm`, `arm64`, `mips`, `powerpc`, `sparc`, `riscv` |
-| Device vendor | 22 | `labels.vendor` |
+| Dimension          | Count | Ids                                                                                                                                                                                                                         |
+| ------------------ | ----- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Browser            | 29    | the table above                                                                                                                                                                                                             |
+| Rendering engine   | 5     | `blink`, `edgehtml`, `gecko`, `presto`, `webkit`                                                                                                                                                                            |
+| Operating system   | 20    | `android`, `ios`, `ipados`, `windows`, `macos`, `linux`, `chromeos`, `harmonyos`, `openharmony`, `fuchsia`, `tizen`, `kaios`, `blackberry`, `symbian`, `webos`, `windows-phone`, `firefox-os`, `steamos`, `tvos`, `watchos` |
+| Device type        | 8     | `desktop`, `mobile`, `tablet`, `smart-tv`, `console`, `wearable`, `xr`, `embedded`                                                                                                                                          |
+| In-app context     | 6     | `line`, `facebook`, `instagram`, `tiktok`, `messenger`, `wechat`                                                                                                                                                            |
+| Non-browser client | 31    | `labels.client`                                                                                                                                                                                                             |
+| CPU architecture   | 8     | `x86`, `x86_64`, `arm`, `arm64`, `mips`, `powerpc`, `sparc`, `riscv`                                                                                                                                                        |
+| Device vendor      | 22    | `labels.vendor`                                                                                                                                                                                                             |
 
 `labels` maps every id to display text.
 
@@ -261,15 +261,15 @@ An unknown field never matches. `device: 'tablet'` is exact, so a tablet is not 
 
 `isBot(info)` is true for the client types `bot`, `crawler` and `ai-crawler`. The types are:
 
-| Type | Meaning |
-| --- | --- |
-| `crawler` | Fetches pages to build a search or preview index. |
-| `ai-crawler` | Fetches pages to train or ground an AI model. |
-| `ai-assistant` | Fetches one page because a person asked an assistant to. |
-| `bot` | An automated agent that no row classifies. |
-| `automation` | Drives a browser. |
-| `http-client`, `library` | Make raw requests. |
-| `email-client`, `media-player` | Desktop applications. |
+| Type                           | Meaning                                                  |
+| ------------------------------ | -------------------------------------------------------- |
+| `crawler`                      | Fetches pages to build a search or preview index.        |
+| `ai-crawler`                   | Fetches pages to train or ground an AI model.            |
+| `ai-assistant`                 | Fetches one page because a person asked an assistant to. |
+| `bot`                          | An automated agent that no row classifies.               |
+| `automation`                   | Drives a browser.                                        |
+| `http-client`, `library`       | Make raw requests.                                       |
+| `email-client`, `media-player` | Desktop applications.                                    |
 
 Predicate results describe parsed evidence. They do not authenticate a browser, bot, application, or request origin.
 
@@ -416,8 +416,8 @@ High-entropy hints are an opt-in round trip to the browser, so request them only
 Detection data lives in `src/catalog/`, one file per dimension, and rows are data, not code. A row cannot hold a regular expression, and ESLint rejects one in `src`. The id type, the `is()` query type, the Client Hints maps and `labels` all come from the rows.
 
 1. Add the row to the catalog file, for example `whale: { label: 'Naver Whale', family: 'chromium', engine: 'blink', brands: [], match: ['Whale'] }` in `src/catalog/browsers.ts`.
-2. Add a **real** captured string to `test/data/user-agents.json`: `{ "id": "whale-desktop", "ua": "Mozilla/5.0 (...)", "src": "observed:<where>@<date>", "expect": { "browser": { "name": "whale" } } }`. Nothing composed belongs there.
-3. Run `npm test`. The row's `beats` references must exist, every id needs a label, and the new string must parse as its `expect` says.
+2. Add a **real** captured string to `test/data/user-agents.json`: `{ "id": "whale-desktop", "ua": "Mozilla/5.0 (...)", "src": "observed:<where>@<date>", "expect": { "browser": { "name": "whale" } } }`. Nothing composed belongs there. A vector taken from a public reference page goes in the matching `test/data/<dimension>/<dimension>-all.json` instead, with `"src": "doc:<url>"`. Both are read by the same runner, one row per case, and `note` explains any deliberate difference from the reference.
+3. Run `npm test`. The row's `beats` references must exist, every id needs a label, every `src` must name an observed capture or a reference page, and the new string must parse as its `expect` says.
 
 ## Trust boundary
 

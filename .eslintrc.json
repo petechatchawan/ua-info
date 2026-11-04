@@ -1,44 +1,44 @@
 {
-  "env": {
-    "node": true,
-    "jest": true
-  },
-  "parser": "@typescript-eslint/parser",
-  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
-  "parserOptions": {
-    "ecmaVersion": 2021,
-    "sourceType": "module"
-  },
-  "rules": {
-    "no-magic-numbers": "off"
-  },
-  "overrides": [
-    {
-      "files": ["**/*.cjs"],
-      "env": { "node": true, "commonjs": true },
-      "rules": {
-        "@typescript-eslint/no-require-imports": "off"
-      }
+    "env": {
+        "node": true,
+        "jest": true
     },
-    {
-      "files": ["src/**/*.ts"],
-      "rules": {
-        "no-restricted-syntax": [
-          "error",
-          {
-            "selector": "Literal[regex]",
-            "message": "Use a catalog signal. Regular expressions are banned here so matching stays linear."
-          },
-          {
-            "selector": "NewExpression[callee.name='RegExp']",
-            "message": "Use a catalog signal. Regular expressions are banned here so matching stays linear."
-          },
-          {
-            "selector": "CallExpression[callee.property.name=/^(match|matchAll|search)$/]",
-            "message": "Use a catalog signal. Regular expressions are banned here so matching stays linear."
-          }
-        ]
-      }
-    }
-  ]
+    "parser": "@typescript-eslint/parser",
+    "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
+    "parserOptions": {
+        "ecmaVersion": 2021,
+        "sourceType": "module"
+    },
+    "rules": {
+        "no-magic-numbers": "off"
+    },
+    "overrides": [
+        {
+            "files": ["**/*.cjs"],
+            "env": { "node": true, "commonjs": true },
+            "rules": {
+                "@typescript-eslint/no-require-imports": "off"
+            }
+        },
+        {
+            "files": ["src/**/*.ts"],
+            "rules": {
+                "no-restricted-syntax": [
+                    "error",
+                    {
+                        "selector": "Literal[regex]",
+                        "message": "Use a catalog signal. Regular expressions are banned here so matching stays linear."
+                    },
+                    {
+                        "selector": "NewExpression[callee.name='RegExp']",
+                        "message": "Use a catalog signal. Regular expressions are banned here so matching stays linear."
+                    },
+                    {
+                        "selector": "CallExpression[callee.property.name=/^(match|matchAll|search)$/]",
+                        "message": "Use a catalog signal. Regular expressions are banned here so matching stays linear."
+                    }
+                ]
+            }
+        }
+    ]
 }

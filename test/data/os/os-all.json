@@ -1,0 +1,123 @@
+[
+    {
+        "id": "os-windows-8",
+        "ua": "Mozilla/5.0 (Windows NT 6.2) AppleWebKit/536.6 (KHTML, like Gecko) Chrome/20.0.1090.0 Safari/536.6",
+        "src": "doc:https://docs.uaparser.dev/info/browser/name/chrome.html",
+        "note": "Windows NT 6.2 is published as Windows 8, not as 6.2.",
+        "expect": {
+            "os": {
+                "name": "windows",
+                "version": {
+                    "full": "8"
+                }
+            }
+        }
+    },
+    {
+        "id": "os-windows-10",
+        "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
+        "src": "doc:https://docs.uaparser.dev/info/browser/name/chrome.html",
+        "expect": {
+            "os": {
+                "name": "windows",
+                "version": {
+                    "full": "10"
+                }
+            }
+        }
+    },
+    {
+        "id": "os-macos-10-15-7",
+        "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4758.102 Safari/537.36",
+        "src": "doc:https://docs.uaparser.dev/info/browser/name/chrome.html",
+        "expect": {
+            "os": {
+                "name": "macos",
+                "version": {
+                    "full": "10.15.7"
+                }
+            }
+        }
+    },
+    {
+        "id": "os-linux",
+        "ua": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
+        "src": "doc:https://docs.uaparser.dev/info/browser/name/chrome.html",
+        "expect": {
+            "os": {
+                "name": "linux",
+                "version": null
+            }
+        }
+    },
+    {
+        "id": "os-chromeos",
+        "ua": "Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
+        "src": "doc:https://docs.uaparser.dev/info/browser/name/chrome.html",
+        "note": "The number is the Chrome OS platform build, not a marketing version.",
+        "expect": {
+            "os": {
+                "name": "chromeos",
+                "version": {
+                    "full": "14541.0.0"
+                }
+            }
+        }
+    },
+    {
+        "id": "os-android-4-0-3-dashed",
+        "ua": "Mozilla/5.0 (Linux; U; Android-4.0.3; en-us; Galaxy Nexus Build/IML74K) AppleWebKit/535.7 (KHTML, like Gecko) CrMo/16.0.912.75 Mobile Safari/535.7",
+        "src": "doc:https://docs.uaparser.dev/info/browser/name/mobile-chrome.html",
+        "note": "This string writes the version with a dash, which earlier builds did.",
+        "expect": {
+            "os": {
+                "name": "android",
+                "version": {
+                    "full": "4.0.3",
+                    "major": 4,
+                    "minor": 0,
+                    "patch": 3
+                }
+            }
+        }
+    },
+    {
+        "id": "os-android-5-1-1",
+        "ua": "Mozilla/5.0 (Linux; Android 5.1.1; Nexus 5 Build/LMY48B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/43.0.2357.65 Mobile Safari/537.36",
+        "src": "doc:https://docs.uaparser.dev/info/browser/name/chrome-webview.html",
+        "expect": {
+            "os": {
+                "name": "android",
+                "version": {
+                    "full": "5.1.1"
+                }
+            }
+        }
+    },
+    {
+        "id": "os-android-3-2-1",
+        "ua": "Mozilla/5.0 (Linux; U; Android 3.2.1; ru-ru; HTC Flyer P510e Build/HTK75C) AppleWebKit/534.13 (KHTML, like Gecko) Version/4.0 Safari/534.13",
+        "src": "doc:https://docs.uaparser.dev/info/browser/name/android.html",
+        "expect": {
+            "os": {
+                "name": "android",
+                "version": {
+                    "full": "3.2.1"
+                }
+            }
+        }
+    },
+    {
+        "id": "os-ios-5-1-1",
+        "ua": "Mozilla/5.0 (iPhone; U; CPU iPhone OS 5_1_1 like Mac OS X; en) AppleWebKit/534.46.0 (KHTML, like Gecko) CriOS/19.0.1084.60 Mobile/9B206 Safari/7534.48.3",
+        "src": "doc:https://docs.uaparser.dev/info/browser/name/mobile-chrome.html",
+        "expect": {
+            "os": {
+                "name": "ios",
+                "version": {
+                    "full": "5.1.1"
+                }
+            }
+        }
+    }
+]

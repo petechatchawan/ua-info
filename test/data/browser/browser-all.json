@@ -1,0 +1,287 @@
+[
+    {
+        "id": "chrome-20-windows-8",
+        "ua": "Mozilla/5.0 (Windows NT 6.2) AppleWebKit/536.6 (KHTML, like Gecko) Chrome/20.0.1090.0 Safari/536.6",
+        "src": "doc:https://docs.uaparser.dev/info/browser/name/chrome.html",
+        "expect": {
+            "browser": {
+                "name": "chrome",
+                "version": {
+                    "full": "20.0.1090.0",
+                    "major": 20
+                },
+                "family": "chromium",
+                "mode": "browser"
+            }
+        }
+    },
+    {
+        "id": "chrome-112-windows-10",
+        "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
+        "src": "doc:https://docs.uaparser.dev/info/browser/name/chrome.html",
+        "expect": {
+            "browser": {
+                "name": "chrome",
+                "version": {
+                    "full": "112.0.0.0",
+                    "major": 112
+                },
+                "family": "chromium",
+                "mode": "browser"
+            }
+        }
+    },
+    {
+        "id": "chrome-100-macos",
+        "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4758.102 Safari/537.36",
+        "src": "doc:https://docs.uaparser.dev/info/browser/name/chrome.html",
+        "expect": {
+            "browser": {
+                "name": "chrome",
+                "version": {
+                    "full": "100.0.4758.102",
+                    "major": 100
+                },
+                "family": "chromium",
+                "mode": "browser"
+            }
+        }
+    },
+    {
+        "id": "chrome-111-linux",
+        "ua": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
+        "src": "doc:https://docs.uaparser.dev/info/browser/name/chrome.html",
+        "expect": {
+            "browser": {
+                "name": "chrome",
+                "version": {
+                    "full": "111.0.0.0",
+                    "major": 111
+                },
+                "family": "chromium",
+                "mode": "browser"
+            }
+        }
+    },
+    {
+        "id": "chrome-111-chromeos",
+        "ua": "Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
+        "src": "doc:https://docs.uaparser.dev/info/browser/name/chrome.html",
+        "expect": {
+            "browser": {
+                "name": "chrome",
+                "version": {
+                    "full": "111.0.0.0",
+                    "major": 111
+                },
+                "family": "chromium",
+                "mode": "browser"
+            }
+        }
+    },
+    {
+        "id": "chrome-webview-43-android-5-1-1",
+        "ua": "Mozilla/5.0 (Linux; Android 5.1.1; Nexus 5 Build/LMY48B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/43.0.2357.65 Mobile Safari/537.36",
+        "src": "doc:https://docs.uaparser.dev/info/browser/name/chrome-webview.html",
+        "note": "The doc gives Chrome WebView its own name. We keep the product id and mark mode.",
+        "expect": {
+            "browser": {
+                "name": "chrome-mobile",
+                "version": {
+                    "full": "43.0.2357.65",
+                    "major": 43
+                },
+                "family": "chromium",
+                "mode": "webview"
+            }
+        }
+    },
+    {
+        "id": "crmo-16-android-4-0-3",
+        "ua": "Mozilla/5.0 (Linux; U; Android-4.0.3; en-us; Galaxy Nexus Build/IML74K) AppleWebKit/535.7 (KHTML, like Gecko) CrMo/16.0.912.75 Mobile Safari/535.7",
+        "src": "doc:https://docs.uaparser.dev/info/browser/name/mobile-chrome.html",
+        "expect": {
+            "browser": {
+                "name": "chrome-mobile",
+                "version": {
+                    "full": "16.0.912.75",
+                    "major": 16
+                },
+                "family": "chromium",
+                "mode": "browser"
+            }
+        }
+    },
+    {
+        "id": "chrome-58-android-7-1-2",
+        "ua": "Mozilla/5.0 (Linux; Android 7.1.2; Nexus 5X Build/N2G47W) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.83 Mobile Safari/537.36",
+        "src": "doc:https://docs.uaparser.dev/info/browser/name/mobile-chrome.html",
+        "expect": {
+            "browser": {
+                "name": "chrome-mobile",
+                "version": {
+                    "full": "58.0.3029.83",
+                    "major": 58
+                },
+                "family": "chromium",
+                "mode": "browser"
+            }
+        }
+    },
+    {
+        "id": "crios-19-ios-5-1-1",
+        "ua": "Mozilla/5.0 (iPhone; U; CPU iPhone OS 5_1_1 like Mac OS X; en) AppleWebKit/534.46.0 (KHTML, like Gecko) CriOS/19.0.1084.60 Mobile/9B206 Safari/7534.48.3",
+        "src": "doc:https://docs.uaparser.dev/info/browser/name/mobile-chrome.html",
+        "note": "The doc calls this Mobile Chrome. On iOS the engine is WebKit, so the id stays chrome.",
+        "expect": {
+            "browser": {
+                "name": "chrome",
+                "version": {
+                    "full": "19.0.1084.60",
+                    "major": 19
+                },
+                "family": "chromium",
+                "mode": "browser"
+            }
+        }
+    },
+    {
+        "id": "headless-chrome-60-macos",
+        "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/60.0.3112.113 Safari/537.36",
+        "src": "doc:https://docs.uaparser.dev/info/browser/name/chrome-headless.html",
+        "expect": {
+            "browser": {
+                "name": "chrome",
+                "version": {
+                    "full": "60.0.3112.113",
+                    "major": 60
+                },
+                "family": "chromium",
+                "mode": "headless"
+            }
+        }
+    },
+    {
+        "id": "headless-chrome-no-version-linux",
+        "ua": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome Safari/537.36",
+        "src": "doc:https://docs.uaparser.dev/info/browser/name/chrome-headless.html",
+        "expect": {
+            "browser": {
+                "name": "chrome",
+                "version": null,
+                "family": "chromium",
+                "mode": "headless"
+            }
+        }
+    },
+    {
+        "id": "chromium-16-ubuntu-11-10-i686",
+        "ua": "Mozilla/5.0 (X11; Linux i686) AppleWebKit/535.7 (KHTML, like Gecko) Ubuntu/11.10 Chromium/16.0.912.21 Chrome/16.0.912.21 Safari/535.7",
+        "src": "doc:https://docs.uaparser.dev/info/browser/name/chromium.html",
+        "expect": {
+            "browser": {
+                "name": "chromium",
+                "version": {
+                    "full": "16.0.912.21",
+                    "major": 16
+                },
+                "family": "chromium",
+                "mode": "browser"
+            }
+        }
+    },
+    {
+        "id": "android-browser-4-galaxy-nexus",
+        "ua": "Mozilla/5.0 (Linux; U; Android 4.0.2; en-us; Galaxy Nexus Build/ICL53F) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30",
+        "src": "doc:https://docs.uaparser.dev/info/browser/name/android.html",
+        "expect": {
+            "browser": {
+                "name": "android-browser",
+                "version": {
+                    "full": "4.0",
+                    "major": 4
+                },
+                "family": null,
+                "mode": "browser"
+            }
+        }
+    },
+    {
+        "id": "android-browser-1-5-galaxy-s3",
+        "ua": "Mozilla/5.0 (Linux; Android 4.4.4; en-us; SAMSUNG GT-I9300I Build/KTU84P) AppleWebKit/537.36 (KHTML, like Gecko) Version/1.5 Chrome/28.0.1500.94 Mobile Safari/537.36",
+        "src": "doc:https://docs.uaparser.dev/info/browser/name/android.html",
+        "note": "The doc calls this Android Browser 1.5. The Version/ plus Chrome/ shape is a Chromium WebView, so it stays chrome-mobile.",
+        "expect": {
+            "browser": {
+                "name": "chrome-mobile",
+                "version": {
+                    "full": "28.0.1500.94",
+                    "major": 28
+                },
+                "family": "chromium",
+                "mode": "browser"
+            }
+        }
+    },
+    {
+        "id": "android-browser-4-htc-flyer",
+        "ua": "Mozilla/5.0 (Linux; U; Android 3.2.1; ru-ru; HTC Flyer P510e Build/HTK75C) AppleWebKit/534.13 (KHTML, like Gecko) Version/4.0 Safari/534.13",
+        "src": "doc:https://docs.uaparser.dev/info/browser/name/android.html",
+        "expect": {
+            "browser": {
+                "name": "android-browser",
+                "version": {
+                    "full": "4.0",
+                    "major": 4
+                },
+                "family": null,
+                "mode": "browser"
+            }
+        }
+    },
+    {
+        "id": "android-browser-4-huawei-u9508",
+        "ua": "Mozilla/5.0 (Linux; U; Android 4.0.4; ru-by; HUAWEI U9508 Build/HuaweiU9508) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30 ACHEETAHI/2100050044",
+        "src": "doc:https://docs.uaparser.dev/info/browser/name/android.html",
+        "note": "An unknown top-level product suppresses the generic row, so no browser is named.",
+        "expect": {
+            "browser": {
+                "name": null
+            }
+        }
+    },
+    {
+        "id": "android-browser-4-huawei-h891l",
+        "ua": "Mozilla/5.0 (Linux; Android 4.4.4; HUAWEI H891L Build/HuaweiH891L) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/33.0.0.0 Mobile Safari/537.36",
+        "src": "doc:https://docs.uaparser.dev/info/browser/name/android.html",
+        "note": "Same Version/ plus Chrome/ shape as the Facebook in-app capture, so it stays chrome-mobile with mode webview.",
+        "expect": {
+            "browser": {
+                "name": "chrome-mobile",
+                "version": {
+                    "full": "33.0.0.0",
+                    "major": 33
+                },
+                "family": "chromium",
+                "mode": "webview"
+            }
+        }
+    },
+    {
+        "id": "samsung-internet-3-galaxy-s6",
+        "ua": "Mozilla/5.0 (Linux; Android 5.0.2; SAMSUNG SM-G925F Build/LRX22G) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/3.0 Chrome/38.0.2125.102 Mobile Safari/537.36",
+        "src": "doc:https://docs.uaparser.dev/info/browser/name/android.html",
+        "note": "The doc lists this under Android Browser, but the SamsungBrowser token names a specific product.",
+        "expect": {
+            "browser": {
+                "name": "samsung-internet",
+                "version": {
+                    "full": "3.0",
+                    "major": 3
+                },
+                "family": "chromium",
+                "mode": "browser"
+            }
+        }
+    }
+]
