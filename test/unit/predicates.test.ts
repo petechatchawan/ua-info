@@ -58,8 +58,8 @@ void assertTypes;
 
 describe('is', () => {
   it('matches every key of the query', () => {
-    expect(is(chromeAndroid, { browser: 'chrome', os: 'android', device: 'mobile' })).toBe(true);
-    expect(is(chromeAndroid, { browser: 'chrome', os: 'ios' })).toBe(false);
+    expect(is(chromeAndroid, { browser: 'chrome-mobile', os: 'android', device: 'mobile' })).toBe(true);
+    expect(is(chromeAndroid, { browser: 'chrome-mobile', os: 'ios' })).toBe(false);
     expect(is(chromeAndroid, {})).toBe(true);
   });
 

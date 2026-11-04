@@ -19,7 +19,7 @@ describe('parse', () => {
       'Mozilla/5.0 (Linux; Android 16; Pixel 10 Pro) AppleWebKit/537.36 ' +
       '(KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36 (arm64)',
     );
-    expect(result.browser).toMatchObject({ name: 'chrome', family: 'chromium', mode: 'browser' });
+    expect(result.browser).toMatchObject({ name: 'chrome-mobile', family: 'chromium', mode: 'browser' });
     expect(result.os).toMatchObject({ name: 'android', version: { full: '16', major: 16, minor: null, patch: null } });
     expect(result.device).toMatchObject({ type: 'mobile', vendor: 'google', model: 'Pixel 10 Pro' });
     expect(result.cpu).toEqual({ architecture: 'arm64', bitness: 64 });

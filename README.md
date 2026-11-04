@@ -13,8 +13,8 @@ import { is, isBot } from 'ua-inspect/check';
 
 const info = parse(userAgent);
 
-if (is(info, { browser: 'chrome', os: ['android', 'harmonyos'], device: 'mobile' })) {
-  info.browser.name; // narrowed to 'chrome'
+if (is(info, { browser: 'chrome-mobile', os: 'android', device: 'mobile' })) {
+  info.browser.name; // narrowed to 'chrome-mobile'
 }
 if (isBot(info)) return new Response(null, { status: 403 });
 ```
@@ -177,8 +177,10 @@ The parser does not invent a family to fill a field. A Chromium fork that has no
 | Browser | Id |
 | --- | --- |
 | Google Chrome | `chrome` |
+| Chrome Mobile | `chrome-mobile` |
 | Chromium | `chromium` |
 | Safari | `safari` |
+| Safari Mobile | `safari-mobile` |
 | Firefox | `firefox` |
 | Microsoft Edge | `edge` |
 | Microsoft Edge Legacy | `edge-legacy` |
@@ -205,11 +207,13 @@ The parser does not invent a family to fill a field. A Chromium fork that has no
 
 Android WebView is `browser.mode === 'webview'`, not a separate browser.
 
+Chrome on a phone is `chrome-mobile`, and Safari on iOS or iPadOS is `safari-mobile`. Desktop and tablet builds stay `chrome` and `safari`. A phone build carries the `Mobile` token; both new rows are fallbacks, so a specific product such as Samsung Internet or a specific fork still wins.
+
 ### Supported dimensions
 
 | Dimension | Count | Ids |
 | --- | --- | --- |
-| Browser | 26 | the table above |
+| Browser | 28 | the table above |
 | Rendering engine | 5 | `blink`, `edgehtml`, `gecko`, `presto`, `webkit` |
 | Operating system | 20 | `android`, `ios`, `ipados`, `windows`, `macos`, `linux`, `chromeos`, `harmonyos`, `openharmony`, `fuchsia`, `tizen`, `kaios`, `blackberry`, `symbian`, `webos`, `windows-phone`, `firefox-os`, `steamos`, `tvos`, `watchos` |
 | Device type | 8 | `desktop`, `mobile`, `tablet`, `smart-tv`, `console`, `wearable`, `xr`, `embedded` |
@@ -228,7 +232,8 @@ Android WebView is `browser.mode === 'webview'`, not a separate browser.
 import { is } from 'ua-inspect/check';
 
 is(info, { browser: 'chrome' });
-is(info, { browser: ['chrome', 'edge'], os: 'android' });
+is(info, { browser: 'chrome-mobile' });      // Chrome on a phone
+is(info, { browser: ['chrome', 'edge'], os: 'windows' });
 is(info, { family: 'chromium', mode: 'webview' });
 is(info, { clientType: ['crawler', 'ai-crawler'] });
 is(info, { app: 'line' });   // the LINE in-app browser or LIFF
@@ -320,7 +325,7 @@ const { parse } = require('ua-inspect');
 const { is } = require('ua-inspect/check');
 
 const info = parse(userAgent);
-if (is(info, { browser: 'chrome', device: 'mobile' })) {
+if (is(info, { browser: 'chrome-mobile', device: 'mobile' })) {
   // ...
 }
 ```

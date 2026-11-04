@@ -62,7 +62,7 @@
     "src": "observed:user-supplied@2026-11-05",
     "expect": {
       "browser": {
-        "name": "chrome",
+        "name": "chrome-mobile",
         "version": {
           "full": "142.0.7444.102",
           "major": 142,
@@ -119,7 +119,7 @@
     "src": "observed:user-supplied@2026-11-05",
     "expect": {
       "browser": {
-        "name": "chrome",
+        "name": "chrome-mobile",
         "version": {
           "full": "153.0.8010.36",
           "major": 153,
@@ -290,7 +290,7 @@
     "src": "observed:user-supplied@2026-11-05",
     "expect": {
       "browser": {
-        "name": "chrome",
+        "name": "chrome-mobile",
         "version": {
           "full": "154.0.0.0",
           "major": 154,
@@ -565,7 +565,7 @@
     "src": "observed:user-supplied@2026-11-05",
     "expect": {
       "browser": {
-        "name": "chrome",
+        "name": "chrome-mobile",
         "version": {
           "full": "155.0.0.0",
           "major": 155,

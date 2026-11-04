@@ -14,22 +14,26 @@ Tier 1 shipped. The counts below are the catalog today.
 
 | Dimension | Now | Tier 2 left | After tier 2 |
 |---|---|---|---|
-| Browsers | 26 | 8 | 34 |
+| Browsers | 28 | 8 | 36 |
 | Operating systems | 20 | 4 | 24 |
 | Device vendors | 22 | 5 | 27 |
 | In-app contexts | 6 | 1 | 7 |
 
-This table is **capability**: every row is implemented. `test/user-agents.json` holds real captured
+This table is **capability**: every row is implemented. `test/data/user-agents.json` holds real captured
 strings and pins the behaviour that matters; it is not a coverage score.
 
 ## 1. Browsers
 
-### Have (26)
+### Have (28)
 
 `360`, `arc`, `brave`, `chrome`, `chromium`, `coc-coc`, `duckduckgo`, `ecosia`, `edge`,
 `edge-legacy`, `firefox`, `huawei-browser`, `ie`, `mi-browser`, `opera`, `opera-gx`,
-`opera-mini`, `pale-moon`, `puffin`, `qq`, `safari`, `samsung-internet`, `uc-browser`,
+`opera-mini`, `pale-moon`, `puffin`, `qq`, `safari`, `safari-mobile`, `samsung-internet`, `uc-browser`,
 `vivaldi`, `whale`, `yandex-browser`
+
+`chrome-mobile` and `safari-mobile` are form-factor variants, not separate products. A phone build
+carries the `Mobile` token: Chrome on Android or HarmonyOS reports `chrome-mobile`, Safari on iOS or
+iPadOS reports `safari-mobile`, and the desktop and tablet builds keep `chrome` and `safari`.
 
 These cover roughly 99% of measured traffic. The tail below is where forks, in-app WebViews and
 old enterprise clients live.
@@ -148,7 +152,7 @@ or long discontinued.
 A row is done when it is in the catalog and `npm test` passes. The catalog checks every `beats`
 reference, label, Client Hints brand, and vendor model prefix, so a broken row fails the build.
 
-Real captured strings live in `test/user-agents.json` and are checked by `test/user-agents.test.ts`.
+Real captured strings live in `test/data/user-agents.json` and are checked by `test/unit/user-agents.test.ts`.
 Adding one is a single entry in that file. Nothing composed goes in: a string that was not captured
 proves nothing about a real client.
 
@@ -164,7 +168,7 @@ Goanna. `puffin` reports `null` for engine and family because its rendering is s
 
 ## 6. Fixture provenance
 
-`test/user-agents.json` holds this project's own captures and nothing else. Each entry has a `src`:
+`test/data/user-agents.json` holds this project's own captures and nothing else. Each entry has a `src`:
 
 - `observed:<where>@<date>` is the norm: a string captured from real traffic. 27 entries today.
 - `doc:<url>` is valid for a string quoted verbatim by a vendor page or a standard. No entry uses it.

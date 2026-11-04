@@ -52,6 +52,16 @@ const rows = {
       { product: 'HeadlessChrome', mode: 'headless' },
     ],
   },
+  // A phone build carries the `Mobile` token; a desktop or tablet build does not. The row is a
+  // fallback, so a specific product such as Samsung Internet still beats it.
+  'chrome-mobile': {
+    label: 'Chrome Mobile',
+    family: 'chromium',
+    engine: 'blink',
+    brands: [],
+    beats: ['chrome'],
+    match: [{ product: 'Chrome', os: osIn('android', 'harmonyos'), with: ['mobile'], fallback: true }],
+  },
   chromium: { label: 'Chromium', family: 'chromium', engine: 'blink', brands: [], match: ['Chromium'] },
   'coc-coc': {
     label: 'Coc Coc',
@@ -141,6 +151,16 @@ const rows = {
     engine: 'webkit',
     brands: [],
     match: [{ product: 'Version', with: ['Safari'], os: osIn('ios', 'ipados', 'macos'), fallback: true }],
+  },
+  // Safari on iOS and iPadOS is the mobile build; macOS stays `safari`. Both rows are fallbacks,
+  // so a specific product such as Edge on iOS still wins.
+  'safari-mobile': {
+    label: 'Safari Mobile',
+    family: 'safari',
+    engine: 'webkit',
+    brands: [],
+    beats: ['safari'],
+    match: [{ product: 'Version', with: ['Safari'], os: osIn('ios', 'ipados'), fallback: true }],
   },
   'samsung-internet': { label: 'Samsung Internet', family: 'chromium', engine: 'blink', brands: [], match: ['SamsungBrowser'] },
   'uc-browser': { label: 'UC Browser', family: 'chromium', engine: 'blink', brands: [], match: ['UCBrowser'] },

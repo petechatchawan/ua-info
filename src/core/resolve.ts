@@ -106,7 +106,7 @@ function resolveBrowser(scanned: Scan, os: OSId | null, hints: ClientHints | nul
   if (signal?.mode) {
     mode = signal.mode;
   } else if (id !== null || family !== null) {
-    const generic = id === null ? family === 'chromium' : id === 'chrome' || id === 'chromium';
+    const generic = id === null ? family === 'chromium' : id === 'chrome' || id === 'chrome-mobile' || id === 'chromium';
     mode = generic && isWebViewUserAgent(scanned) ? 'webview' : 'browser';
   }
   return { browser: { name: id, version, family, mode }, engine };

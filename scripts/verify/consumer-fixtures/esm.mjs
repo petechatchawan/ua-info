@@ -7,14 +7,14 @@ import { labels } from 'ua-inspect/labels';
 
 const ua = 'Mozilla/5.0 (Linux; Android 16; Pixel 10 Pro) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36';
 const result = parse(ua);
-assert.equal(result.browser.name, 'chrome');
-assert.equal(is(result, { browser: 'chrome', os: 'android', device: 'mobile' }), true);
+assert.equal(result.browser.name, 'chrome-mobile');
+assert.equal(is(result, { browser: 'chrome-mobile', os: 'android', device: 'mobile' }), true);
 assert.equal(is(result, { browser: 'firefox' }), false);
 assert.equal(isBot(result), false);
 assert.equal(isBot(parse('Googlebot/2.1')), true);
 assert.equal(result.browser.version.major, 150);
 assert.equal(result.device.vendor, 'google');
 assert.equal(labels.vendor.google, 'Google');
-assert.equal(labels.browser[result.browser.name], 'Google Chrome');
+assert.equal(labels.browser[result.browser.name], 'Chrome Mobile');
 assert.equal(parseRequest({ 'user-agent': ua }).os.name, 'android');
 assert.equal(typeof detect, 'function');

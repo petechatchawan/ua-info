@@ -2,6 +2,23 @@
 
 All notable changes to `ua-inspect` are documented in this file.
 
+## 1.1.0 — 2026-11-05
+
+Splits the phone builds of Chrome and Safari into their own browser ids.
+
+This is a minor version by request, but it changes `browser.name` for phone builds. Read the breaking list before upgrading.
+
+### Breaking
+
+- Chrome on a phone is now `chrome-mobile`, and Safari on iOS or iPadOS is `safari-mobile`. Desktop and tablet builds keep `chrome` and `safari`.
+- `is(info, { browser: 'chrome' })` no longer matches a phone build. Use `chrome-mobile`, or `{ family: 'chromium' }` for any Chromium product.
+- Chrome on Android or HarmonyOS WebView now reports `chrome-mobile` with `mode: 'webview'`, including LINE, Facebook and Instagram in-app browsers.
+
+### Added
+
+- Browser ids `chrome-mobile` and `safari-mobile`, with display names in `labels`.
+- A phone build is a fallback: a specific product such as Samsung Internet, Edge or Brave still wins, and the desktop and tablet builds are unchanged.
+
 ## 1.0.1 — 2026-11-05
 
 Expands the catalog and tightens detection. Test data is now first-party only: every vector is a real captured string, with no material from another parser.

@@ -27,7 +27,7 @@ export const BROWSER_FIXTURES: readonly BrowserFixture[] = Object.freeze([
     userAgent:
       'Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 ' +
       '(KHTML, like Gecko) Version/18.7 Mobile/15E148 Safari/604.1',
-    expected: { name: 'safari', family: 'safari', mode: 'browser' },
+    expected: { name: 'safari-mobile', family: 'safari', mode: 'browser' },
     source: REGRESSION_SOURCE,
   },
   {
@@ -106,7 +106,7 @@ export const BROWSER_FIXTURES: readonly BrowserFixture[] = Object.freeze([
     userAgent:
       'Mozilla/5.0 (Linux; Android 16; Pixel 10 Pro Build/BP2A; wv) AppleWebKit/537.36 ' +
       '(KHTML, like Gecko) Version/4.0 Chrome/150.0.0.0 Mobile Safari/537.36',
-    expected: { name: 'chrome', family: 'chromium', mode: 'webview' },
+    expected: { name: 'chrome-mobile', family: 'chromium', mode: 'webview' },
     source: REGRESSION_SOURCE,
   },
   {
