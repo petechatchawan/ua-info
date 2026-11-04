@@ -22,7 +22,7 @@ export interface Version {
 
 export type BrowserFamily = 'chromium' | 'firefox' | 'safari';
 export type BrowserMode = 'browser' | 'webview' | 'headless';
-export type EngineId = 'blink' | 'gecko' | 'webkit';
+export type EngineId = 'blink' | 'edgehtml' | 'gecko' | 'presto' | 'webkit';
 
 export interface BrowserInfo {
   readonly name: BrowserId | null;

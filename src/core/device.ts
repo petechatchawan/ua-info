@@ -10,7 +10,7 @@ const MIN_MODEL_LENGTH = 2;
 const MAX_MODEL_LENGTH = 48;
 const BUILD_MARKER = ' build/';
 const NOT_A_MODEL: ReadonlySet<string> = new Set([
-  'wv', 'mobile', 'tablet', 'u', 'linux', 'harmonyos', 'arm', 'arm64', 'aarch64', 'x86', 'x86_64',
+  'wv', 'mobile', 'tablet', 'u', 'linux', 'harmonyos', 'arm', 'arm64', 'aarch64', 'x86', 'x86_64', 'touch',
 ]);
 const NOT_A_MODEL_PREFIXES: readonly string[] = ['rv:', 'hmscore', 'android'];
 

@@ -66,6 +66,15 @@ function isLetter(code: number): boolean {
   return code >= 97 && code <= 122;
 }
 
+/** `312.0.0.34.111` is a version that follows a spaced name, never a product name. */
+function isVersionToken(name: string): boolean {
+  for (let index = 0; index < name.length; index++) {
+    const code = name.charCodeAt(index);
+    if (code !== DOT && code !== UNDERSCORE && !isDigit(code)) return false;
+  }
+  return true;
+}
+
 function countSpaces(text: string): number {
   let spaces = 0;
   for (let index = 0; index < text.length; index++) {
@@ -113,6 +122,7 @@ export function scan(input: string): Scan {
 
   const addProduct = (name: string, version: string | null, top: boolean): void => {
     if (products.length >= MAX_PRODUCTS || name.length === 0 || name.length > MAX_NAME_LENGTH) return;
+    if (isVersionToken(name)) return;
     products.push({ name, version, top });
   };
 

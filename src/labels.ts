@@ -13,7 +13,13 @@ function labelsOf<K extends string>(rows: Readonly<Record<K, { readonly label: s
   return result;
 }
 
-const ENGINE_LABELS: Readonly<Record<EngineId, string>> = { blink: 'Blink', gecko: 'Gecko', webkit: 'WebKit' };
+const ENGINE_LABELS: Readonly<Record<EngineId, string>> = {
+  blink: 'Blink',
+  edgehtml: 'EdgeHTML',
+  gecko: 'Gecko',
+  presto: 'Presto',
+  webkit: 'WebKit',
+};
 
 const CONTEXT_LABELS: Readonly<Record<ContextId, string>> = {
   ...labelsOf<AppId>(CONTEXTS),

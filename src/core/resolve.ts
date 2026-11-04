@@ -130,6 +130,14 @@ function resolveEngine(
   if (declared === 'blink') return { name: 'blink', version: null };
   if (declared === 'gecko') return geckoVersion();
   if (declared === 'webkit') return webKitVersion();
+  if (declared === 'edgehtml') {
+    const edge = scanned.products.find((product) => product.name === 'edge');
+    return { name: 'edgehtml', version: readVersion(edge?.version ?? null) };
+  }
+  if (declared === 'presto') {
+    const presto = scanned.products.find((product) => product.name === 'presto');
+    return { name: 'presto', version: readVersion(presto?.version ?? null) };
+  }
   if (declared === null) return { name: null, version: null };
 
   const gecko = scanned.products.find((product) => product.name === 'gecko');

@@ -18,7 +18,12 @@ const rows = {
   console: {
     label: 'Game console',
     beats: [...specific],
-    match: [{ words: 'playstation', versionOptional: true }, { words: 'xbox', versionOptional: true }, { words: 'nintendo', versionOptional: true }],
+    match: [
+      { words: 'playstation', versionOptional: true },
+      { words: 'xbox', versionOptional: true },
+      { words: 'nintendo', versionOptional: true },
+      { words: 'steamdeck', versionOptional: true },
+    ],
   },
   desktop: {
     label: 'Desktop',
@@ -38,10 +43,11 @@ const rows = {
   mobile: {
     label: 'Mobile',
     match: [
-      { words: 'iphone', versionOptional: true, vendor: 'apple', model: 'iPhone' },
+      { words: 'iphone*', versionOptional: true, vendor: 'apple', model: 'iPhone' },
       { words: 'ipod', versionOptional: true, vendor: 'apple', model: 'iPod' },
       { words: 'windows phone', versionOptional: true },
-      { words: 'mobile', os: osIn('android', 'harmonyos'), versionOptional: true },
+      { words: 'windows', os: osIn('windows-phone'), versionOptional: true },
+      { words: 'mobile', os: osIn('android', 'blackberry', 'firefox-os', 'harmonyos'), versionOptional: true },
     ],
   },
   'smart-tv': {
@@ -55,6 +61,7 @@ const rows = {
       { words: 'web0s', versionOptional: true },
       { words: 'webos.tv', versionOptional: true },
       { words: 'crkey', versionOptional: true },
+      { words: 'appletv*', versionOptional: true },
       { words: 'tv', with: ['tizen'], versionOptional: true },
     ],
   },
@@ -68,7 +75,11 @@ const rows = {
   wearable: {
     label: 'Wearable',
     beats: [...specific],
-    match: [{ words: 'watch', versionOptional: true }, { words: 'wear os', versionOptional: true }],
+    match: [
+      { words: 'watch', versionOptional: true },
+      { words: 'watchos*', versionOptional: true },
+      { words: 'wear os', versionOptional: true },
+    ],
   },
   xr: {
     label: 'XR headset',

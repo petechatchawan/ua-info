@@ -14,7 +14,10 @@ export type Signal<X = unknown> = {
   readonly with?: readonly string[];
   readonly without?: readonly string[];
   readonly os?: readonly string[];
+  /** Read the version from this source instead of the token. A missing source fails the signal. */
   readonly versionFrom?: string;
+  /** Like `versionFrom`, but a missing source keeps the token's own version instead of failing. */
+  readonly versionPrefer?: string;
   readonly versionOptional?: true;
   readonly fallback?: true;
 } & X;
@@ -49,26 +52,33 @@ export function compileMatcher<K extends string, X = unknown>(
   rows: Readonly<Record<K, RowSpec<string, X>>>,
 ): Matcher<K, X> {
   type Entry = { readonly id: K; readonly signal: Signal<X> };
+  type PrefixEntry = Entry & { readonly prefix: string };
   const index = new Map<string, Entry[]>();
   const wordIndex = new Map<string, Entry[]>();
+  const wordPrefixes: PrefixEntry[] = [];
   const longestKey = new Map<string, number>();
   const beaten = new Map<K, readonly K[]>();
 
   for (const id of Object.keys(rows) as K[]) {
     for (const match of rows[id].match) {
       const signal = normalize(match);
-      const target = signal.words === undefined ? index : wordIndex;
       const key = (signal.words ?? signal.product ?? '').toLowerCase();
       if (key.length === 0 || (signal.words === undefined) === (signal.product === undefined)) {
         throw new Error(`Row ${id} needs exactly one of product or words.`);
       }
-      if (signal.words !== undefined) {
+      if (signal.words === undefined) {
+        const entries = index.get(key);
+        if (entries) entries.push({ id, signal });
+        else index.set(key, [{ id, signal }]);
+      } else if (key.endsWith('*')) {
+        wordPrefixes.push({ id, signal, prefix: key.slice(0, -1) });
+      } else {
         const keyWords = key.split(' ');
         longestKey.set(keyWords[0], Math.max(longestKey.get(keyWords[0]) ?? 0, keyWords.length));
+        const entries = wordIndex.get(key);
+        if (entries) entries.push({ id, signal });
+        else wordIndex.set(key, [{ id, signal }]);
       }
-      const entries = target.get(key);
-      if (entries) entries.push({ id, signal });
-      else target.set(key, [{ id, signal }]);
     }
     beaten.set(id, (rows[id].beats ?? []) as readonly K[]);
   }
@@ -100,10 +110,16 @@ export function compileMatcher<K extends string, X = unknown>(
         if (signal.with && !signal.with.every((name) => present(name.toLowerCase()))) return;
         if (signal.without && signal.without.some((name) => present(name.toLowerCase()))) return;
         if (signal.os && (os === null || !signal.os.includes(os))) return;
-        const fromProduct = signal.versionFrom
-          ? scanned.products.find((item) => item.name === (signal.versionFrom as string).toLowerCase())
-          : undefined;
-        const version = readVersion(signal.versionFrom ? fromProduct?.version ?? null : versionRaw);
+        const from = (signal.versionFrom ?? signal.versionPrefer)?.toLowerCase();
+        let source: string | null = null;
+        if (from !== undefined) {
+          const fromProduct = scanned.products.find((item) => item.name === from);
+          const fromPart = scanned.parts.find((part) => part.startsWith(`${from}:`) || part.startsWith(`${from} `));
+          source = fromProduct?.version ?? (fromPart === undefined ? null : fromPart.slice(from.length + 1));
+        }
+        const hasSource = source !== null && source.length > 0;
+        const raw = hasSource ? source : signal.versionFrom === undefined ? versionRaw : null;
+        const version = readVersion(raw);
         if (version === null && !signal.versionOptional) return;
         found.push({ id, source: 'ua', version, fallback: signal.fallback === true, signal });
       };
@@ -119,7 +135,7 @@ export function compileMatcher<K extends string, X = unknown>(
         }
       }
 
-      const words = longestKey.size === 0 ? [] : scanned.words;
+      const words = longestKey.size === 0 && wordPrefixes.length === 0 ? [] : scanned.words;
       for (let start = 0; start < words.length; start++) {
         const longest = longestKey.get(words[start]);
         if (longest === undefined) continue;
@@ -129,6 +145,23 @@ export function compileMatcher<K extends string, X = unknown>(
           for (const { id, signal } of wordIndex.get(key) ?? []) {
             accept(id, signal, words[start + length + (signal.skip ?? 0)] ?? null);
           }
+        }
+      }
+
+      // A prefix signal matches a word that carries its own version (`musical_ly_34.3.1`), so the
+      // digits that follow the prefix are the version and the next word is only the fallback.
+      for (let start = 0; start < words.length; start++) {
+        const word = words[start];
+        for (const { id, signal, prefix } of wordPrefixes) {
+          if (!word.startsWith(prefix)) continue;
+          const rest = word.slice(prefix.length);
+          let digit = 0;
+          while (digit < rest.length) {
+            const code = rest.charCodeAt(digit);
+            if (code >= 48 && code <= 57) break;
+            digit++;
+          }
+          accept(id, signal, digit < rest.length ? rest.slice(digit) : (words[start + 1] ?? null));
         }
       }
       return found;
