@@ -1,6 +1,6 @@
 # Performance and Bundle Size
 
-`user-agent-parser-ts` measures package size, consumer bundle size, module import cost, and parsing throughput. The release checks deliberately separate deterministic hard limits from noisy advisory metrics.
+`ua-inspect` measures package size, consumer bundle size, module import cost, and parsing throughput. The release checks deliberately separate deterministic hard limits from noisy advisory metrics.
 
 ## Commands
 
@@ -56,9 +56,9 @@ Only raw consumer-bundle bytes are a performance hard gate against the reviewed 
 Bundle scenarios cover:
 
 - root `parse()` usage;
-- `isChrome()` from `user-agent-parser-ts/check`;
-- `parseRequest()` from `user-agent-parser-ts/server`;
-- `detect()` from `user-agent-parser-ts/browser`.
+- `isChrome()` from `ua-inspect/check`;
+- `parseRequest()` from `ua-inspect/server`;
+- `detect()` from `ua-inspect/browser`.
 
 An increase in a blocking raw bundle metric fails `performance:gate` with `PERF_GATE_STATIC_BUDGET_EXCEEDED`.
 

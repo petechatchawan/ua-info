@@ -6,21 +6,21 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const packageJson = JSON.parse(await readFile(path.join(root, 'package.json'), 'utf8'));
 
 const expected = Object.freeze({
-  name: 'user-agent-parser-ts',
-  repository: 'git+https://github.com/petechatchawan/ua-info.git',
-  homepage: 'https://petechatchawan.github.io/ua-info/',
-  bugs: 'https://github.com/petechatchawan/ua-info/issues',
+  name: 'ua-inspect',
+  repository: 'git+https://github.com/petechatchawan/ua-inspect.git',
+  homepage: 'https://petechatchawan.github.io/ua-inspect/',
+  bugs: 'https://github.com/petechatchawan/ua-inspect/issues',
 });
 
 const failures = [];
 
 if (packageJson.name !== expected.name) failures.push(`name: ${packageJson.name}`);
-if (!/^(?:[3-9]|[1-9]\d+)\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(packageJson.version)) failures.push(`version must be a user-agent-parser-ts 3.0 or later semantic version: ${packageJson.version}`);
+if (!/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(packageJson.version)) failures.push(`version must be a semantic version: ${packageJson.version}`);
 if (packageJson.repository?.url !== expected.repository) failures.push(`repository: ${packageJson.repository?.url}`);
 if (packageJson.homepage !== expected.homepage) failures.push(`homepage: ${packageJson.homepage}`);
 if (packageJson.bugs?.url !== expected.bugs) failures.push(`bugs: ${packageJson.bugs?.url}`);
 
-const requiredFiles = new Set(['dist', 'README.md', 'MIGRATION.md', 'LICENSE']);
+const requiredFiles = new Set(['dist', 'README.md', 'LICENSE']);
 for (const entry of requiredFiles) {
   if (!packageJson.files?.includes(entry)) failures.push(`files is missing ${entry}`);
 }
@@ -28,8 +28,8 @@ for (const entry of requiredFiles) {
 const publishWorkflow = await readFile(path.join(root, '.github/workflows/publish.yml'), 'utf8');
 const requiredWorkflowFragments = [
   'id-token: write',
-  'expected_repository="petechatchawan/ua-info"',
-  'if [ "$package_name" != "user-agent-parser-ts" ]; then',
+  'expected_repository="petechatchawan/ua-inspect"',
+  'if [ "$package_name" != "ua-inspect" ]; then',
   'needs: release-context',
   "if: needs.release-context.outputs.can-publish == 'true'",
 ];
@@ -47,12 +47,7 @@ for (const fragment of forbiddenWorkflowFragments) {
 }
 
 const ignoredDirectories = new Set(['.git', 'dist', 'node_modules']);
-const allowedHistoricalFiles = new Set([
-  'docs/superpowers/specs/2026-07-22-user-agent-info-package-migration-design.md',
-  'docs/superpowers/plans/2026-07-22-user-agent-info-package-migration.md',
-  'docs/superpowers/specs/2026-07-22-ua-info-identity-restoration-design.md',
-  'docs/superpowers/plans/2026-07-22-ua-info-identity-restoration.md',
-]);
+const ignoredFiles = new Set(['scripts/verify-package-identity.mjs']);
 const forbiddenPatterns = [
   /from ['"]user-agent-info(?:\/[^'"]*)?['"]/g,
   /require\(['"]user-agent-info(?:\/[^'"]*)?['"]\)/g,
@@ -60,6 +55,8 @@ const forbiddenPatterns = [
   /github\.com\/petechatchawan\/user-agent-info/g,
   /npmjs\.com\/package\/user-agent-info/g,
   /shields\.io\/npm\/(?:v|l)\/user-agent-info/g,
+  /(?<![\w-])ua-info(?![\w-])/g,
+  /user-agent-parser-ts/g,
 ];
 
 async function collect(directory) {
@@ -78,7 +75,7 @@ async function collect(directory) {
 
 for (const absolute of await collect(root)) {
   const relative = path.relative(root, absolute).split(path.sep).join('/');
-  if (allowedHistoricalFiles.has(relative)) continue;
+  if (ignoredFiles.has(relative)) continue;
   const content = await readFile(absolute, 'utf8');
 
   for (const pattern of forbiddenPatterns) {

@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
-import { parse } from 'user-agent-parser-ts';
-import { is, isBot } from 'user-agent-parser-ts/check';
-import { parseRequest } from 'user-agent-parser-ts/server';
-import { detect } from 'user-agent-parser-ts/browser';
-import { labels } from 'user-agent-parser-ts/labels';
+import { parse } from 'ua-inspect';
+import { is, isBot } from 'ua-inspect/check';
+import { parseRequest } from 'ua-inspect/server';
+import { detect } from 'ua-inspect/browser';
+import { labels } from 'ua-inspect/labels';
 
 const ua = 'Mozilla/5.0 (Linux; Android 16; Pixel 10 Pro) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36';
 const result = parse(ua);

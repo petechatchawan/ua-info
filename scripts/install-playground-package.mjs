@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 const rootDirectory = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const playgroundDirectory = path.join(rootDirectory, 'apps', 'playground');
-const workspace = await mkdtemp(path.join(os.tmpdir(), 'ua-info-playground-pack-'));
+const workspace = await mkdtemp(path.join(os.tmpdir(), 'ua-inspect-playground-pack-'));
 
 try {
   const expected = JSON.parse(
@@ -43,7 +43,7 @@ try {
 
   const installed = JSON.parse(
     await readFile(
-      path.join(playgroundDirectory, 'node_modules', 'user-agent-parser-ts', 'package.json'),
+      path.join(playgroundDirectory, 'node_modules', 'ua-inspect', 'package.json'),
       'utf8',
     ),
   );

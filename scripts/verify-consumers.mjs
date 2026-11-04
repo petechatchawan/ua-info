@@ -13,7 +13,7 @@ const rootDirectory = path.resolve(path.dirname(fileURLToPath(import.meta.url)),
 const fixturesDirectory = path.join(rootDirectory, 'scripts', 'consumer-fixtures');
 const typescriptCommand = path.join(rootDirectory, 'node_modules', 'typescript', 'bin', 'tsc');
 const tarballPath = path.resolve(tarballArgument);
-const workspace = await mkdtemp(path.join(os.tmpdir(), 'ua-info-consumer-'));
+const workspace = await mkdtemp(path.join(os.tmpdir(), 'ua-inspect-consumer-'));
 
 try {
   await writeFile(path.join(workspace, 'package.json'), '{\n  "private": true,\n  "type": "module"\n}\n');

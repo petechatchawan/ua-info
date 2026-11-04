@@ -17,7 +17,7 @@ const defaultRootDirectory = path.resolve(path.dirname(modulePath), '../..');
 function parsePackReport(stdout) {
   const parsed = JSON.parse(stdout);
   const report = Array.isArray(parsed) ? parsed[0] : parsed;
-  if (!report || report.name !== 'user-agent-parser-ts') {
+  if (!report || report.name !== 'ua-inspect') {
     throw new Error(`Unexpected packed package identity: ${report?.name ?? 'missing'}.`);
   }
   if (typeof report.version !== 'string' || report.version.length === 0) {
@@ -114,7 +114,7 @@ async function collectBundles(consumerDirectory) {
 }
 
 export async function collectSizes({ rootDirectory = defaultRootDirectory } = {}) {
-  const temporaryDirectory = await mkdtemp(path.join(os.tmpdir(), 'ua-info-performance-size-'));
+  const temporaryDirectory = await mkdtemp(path.join(os.tmpdir(), 'ua-inspect-performance-size-'));
   try {
     const dryRun = parsePackReport(
       (

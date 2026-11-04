@@ -24,7 +24,7 @@ describe('performance utilities', () => {
   });
 
   test('counts directory bytes in stable lexical order', async () => {
-    const directory = await mkdtemp(path.join(os.tmpdir(), 'ua-info-perf-lib-'));
+    const directory = await mkdtemp(path.join(os.tmpdir(), 'ua-inspect-perf-lib-'));
     try {
       await mkdir(path.join(directory, 'nested'));
       await writeFile(path.join(directory, 'z.txt'), '12345');

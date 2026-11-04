@@ -1,10 +1,10 @@
 # UA Info Playground
 
-The UA Info Playground is a private Vite application deployed at <https://petechatchawan.github.io/ua-info/>. It demonstrates the public `user-agent-parser-ts` package contract without shipping playground code in the npm package.
+The UA Info Playground is a private Vite application deployed at <https://petechatchawan.github.io/ua-inspect/>. It demonstrates the public `ua-inspect` package contract without shipping playground code in the npm package.
 
 ## Package boundary
 
-The playground imports only the public `user-agent-parser-ts`, `user-agent-parser-ts/check`, `user-agent-parser-ts/browser`, and `user-agent-parser-ts/server` entries. Verification builds the root library, creates an `npm pack` tarball, installs that tarball into this application, and then type-checks, tests, bundles, and browser-smokes the consumer. Source aliases and private dist paths are forbidden.
+The playground imports only the public `ua-inspect`, `ua-inspect/check`, `ua-inspect/browser`, and `ua-inspect/server` entries. Verification builds the root library, creates an `npm pack` tarball, installs that tarball into this application, and then type-checks, tests, bundles, and browser-smokes the consumer. Source aliases and private dist paths are forbidden.
 
 ## Local setup
 
@@ -37,7 +37,7 @@ npm run playground:check
 - `src/services`: the public package adapter and browser-service boundaries.
 - `src/samples`: readonly User-Agent examples.
 - `src/styles`: custom CSS tokens, layout, components, and accessibility utilities.
-- `e2e`: production-build smoke tests at the real `/ua-info/` base path.
+- `e2e`: production-build smoke tests at the real `/ua-inspect/` base path.
 
 ## Adding a sample
 
@@ -45,11 +45,11 @@ Add a readonly `UserAgentSample` to the matching file under `src/samples`, give 
 
 ## Adding a component
 
-Implement `Component<TModel>`, create DOM nodes once, update through `textContent` and element properties, and clean owned listeners in `destroy()`. Components must not import `user-agent-parser-ts` or access the store directly.
+Implement `Component<TModel>`, create DOM nodes once, update through `textContent` and element properties, and clean owned listeners in `destroy()`. Components must not import `ua-inspect` or access the store directly.
 
 ## Test layers
 
-Vitest covers reducers, utilities, services, view models, components, application integration, and the packed public entry points. Playwright verifies the production build, `/ua-info/` asset paths, LINE LIFF identity separation, 320px layout, console health, and absence of third-party requests.
+Vitest covers reducers, utilities, services, view models, components, application integration, and the packed public entry points. Playwright verifies the production build, `/ua-inspect/` asset paths, LINE LIFF identity separation, 320px layout, console health, and absence of third-party requests.
 
 ## Privacy
 

@@ -1,8 +1,8 @@
-import { parse, type BrowserId, type UAInfo, type Version } from 'user-agent-parser-ts';
-import { is, isBot, type Query } from 'user-agent-parser-ts/check';
-import { detect, type DetectOptions } from 'user-agent-parser-ts/browser';
-import { parseRequest, type HeaderRecord } from 'user-agent-parser-ts/server';
-import { labels } from 'user-agent-parser-ts/labels';
+import { parse, type BrowserId, type UAInfo, type Version } from 'ua-inspect';
+import { is, isBot, type Query } from 'ua-inspect/check';
+import { detect, type DetectOptions } from 'ua-inspect/browser';
+import { parseRequest, type HeaderRecord } from 'ua-inspect/server';
+import { labels } from 'ua-inspect/labels';
 
 const result: UAInfo = parse('Mozilla/5.0 Chrome/150.0.0.0 Safari/537.36');
 if (is(result, { browser: 'chrome' })) {

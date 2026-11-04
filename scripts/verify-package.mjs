@@ -15,10 +15,10 @@ const budgetBaseline = JSON.parse(await readFile(path.join(root, gatePolicy.base
 // The unpacked size may exceed the reviewed baseline by this much before the release is blocked.
 // Bundle sizes are the exact gate (performance:gate); this only catches an accidental large file.
 const UNPACKED_SIZE_TOLERANCE = 1.1;
-const workspace = await mkdtemp(path.join(os.tmpdir(), 'ua-info-pack-'));
+const workspace = await mkdtemp(path.join(os.tmpdir(), 'ua-inspect-pack-'));
 
 try {
-  if (packageJson.name !== 'user-agent-parser-ts') throw new Error(`Expected package name user-agent-parser-ts, received ${packageJson.name}`);
+  if (packageJson.name !== 'ua-inspect') throw new Error(`Expected package name ua-inspect, received ${packageJson.name}`);
   if (!/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(packageJson.version)) {
     throw new Error(`Expected a valid semantic version, received ${packageJson.version}`);
   }
@@ -42,7 +42,7 @@ try {
   }
 
   const packedPaths = report.files.map((file) => file.path);
-  for (const required of ['README.md', 'LICENSE', 'MIGRATION.md']) {
+  for (const required of ['README.md', 'LICENSE']) {
     if (!packedPaths.includes(required)) throw new Error(`Package is missing required documentation: ${required}`);
   }
 
@@ -51,7 +51,7 @@ try {
     filePath.includes('__tests__') ||
     /(?:^|\/).*\.(?:spec|test)\.(?:js|cjs|mjs|ts)$/.test(filePath) ||
     /dist\/(?:esm|cjs)\/v2\//.test(filePath) ||
-    /dist\/(?:esm|cjs)\/(?:main\/ua-info|mappings\/)/.test(filePath),
+    /dist\/(?:esm|cjs)\/mappings\//.test(filePath),
   );
   if (forbiddenFiles.length > 0) {
     throw new Error(`Package contains forbidden implementation/test files: ${forbiddenFiles.join(', ')}`);

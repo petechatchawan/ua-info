@@ -2,7 +2,7 @@ import type { BrowserFixture, FixtureSource } from './fixture-types';
 
 const REGRESSION_SOURCE: FixtureSource = Object.freeze({
   kind: 'regression',
-  authority: 'ua-info regression suite',
+  authority: 'ua-inspect regression suite',
   reference: 'browser-catalog-v3',
   observedAt: '2026-09-09',
   notes: 'Representative UA strings used to lock product precedence and browser semantics.',

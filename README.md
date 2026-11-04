@@ -1,15 +1,15 @@
-# user-agent-parser-ts
+# ua-inspect
 
-[![npm version](https://img.shields.io/npm/v/user-agent-parser-ts.svg)](https://www.npmjs.com/package/user-agent-parser-ts)
-[![CI](https://github.com/petechatchawan/ua-info/actions/workflows/ci.yml/badge.svg)](https://github.com/petechatchawan/ua-info/actions/workflows/ci.yml)
-[![license](https://img.shields.io/npm/l/user-agent-parser-ts.svg)](LICENSE)
+[![npm version](https://img.shields.io/npm/v/ua-inspect.svg)](https://www.npmjs.com/package/ua-inspect)
+[![CI](https://github.com/petechatchawan/ua-inspect/actions/workflows/ci.yml/badge.svg)](https://github.com/petechatchawan/ua-inspect/actions/workflows/ci.yml)
+[![license](https://img.shields.io/npm/l/ua-inspect.svg)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-ready-blue.svg)](https://www.typescriptlang.org/)
 
-**user-agent-parser-ts** (formerly `ua-info`) is a zero-dependency TypeScript User-Agent parser with browser, operating-system, device, bot/client, WebView, in-app context, and User-Agent Client Hints support.
+**ua-inspect** is a zero-dependency TypeScript User-Agent parser with browser, operating-system, device, bot/client, WebView, in-app context, and User-Agent Client Hints support.
 
 ```ts
-import { parse } from 'user-agent-parser-ts';
-import { is, isBot } from 'user-agent-parser-ts/check';
+import { parse } from 'ua-inspect';
+import { is, isBot } from 'ua-inspect/check';
 
 const info = parse(userAgent);
 
@@ -22,7 +22,7 @@ if (isBot(info)) return new Response(null, { status: 403 });
 ## Installation
 
 ```bash
-npm install user-agent-parser-ts
+npm install ua-inspect
 ```
 
 Node.js 18 or newer is required for server-side usage. TypeScript declarations, ESM, and CommonJS exports are included.
@@ -31,16 +31,16 @@ Node.js 18 or newer is required for server-side usage. TypeScript declarations, 
 
 | Use case | Import | Main API |
 | --- | --- | --- |
-| Pure User-Agent parsing | `user-agent-parser-ts` | `parse()` |
-| Queries | `user-agent-parser-ts/check` | `is()`, `isBot()` |
-| HTTP request + Client Hints | `user-agent-parser-ts/server` | `parseRequest()` |
-| Current browser + runtime signals | `user-agent-parser-ts/browser` | `detect()` |
-| Display names | `user-agent-parser-ts/labels` | `labels` |
+| Pure User-Agent parsing | `ua-inspect` | `parse()` |
+| Queries | `ua-inspect/check` | `is()`, `isBot()` |
+| HTTP request + Client Hints | `ua-inspect/server` | `parseRequest()` |
+| Current browser + runtime signals | `ua-inspect/browser` | `detect()` |
+| Display names | `ua-inspect/labels` | `labels` |
 
 ### Pure parser
 
 ```ts
-import { parse } from 'user-agent-parser-ts';
+import { parse } from 'ua-inspect';
 
 const info = parse(userAgent);
 
@@ -55,7 +55,7 @@ info.device;           // { type: 'mobile', vendor: 'samsung', model: 'SM-S928B'
 ### Server requests
 
 ```ts
-import { parseRequest } from 'user-agent-parser-ts/server';
+import { parseRequest } from 'ua-inspect/server';
 
 const info = parseRequest(request);
 ```
@@ -76,7 +76,7 @@ It consumes the supported `Sec-CH-UA-*` headers that are already present. It doe
 ### Current browser
 
 ```ts
-import { detect } from 'user-agent-parser-ts/browser';
+import { detect } from 'ua-inspect/browser';
 
 const info = await detect();
 ```
@@ -148,7 +148,7 @@ info.device.vendor === 'samsung';
 Use ids for program logic. For a person, use `labels`:
 
 ```ts
-import { labels } from 'user-agent-parser-ts/labels';
+import { labels } from 'ua-inspect/labels';
 
 labels.browser[info.browser.name];  // 'Google Chrome'
 labels.vendor.samsung;              // 'Samsung'
@@ -198,7 +198,7 @@ Android WebView is `browser.mode === 'webview'`, not a separate browser. Operati
 `is(info, query)` is the one way to ask a question. Keys combine with AND, and the values of one key combine with OR:
 
 ```ts
-import { is } from 'user-agent-parser-ts/check';
+import { is } from 'ua-inspect/check';
 
 is(info, { browser: 'chrome' });
 is(info, { browser: ['chrome', 'edge'], os: 'android' });
@@ -252,7 +252,7 @@ LIFF is established only from browser runtime evidence. Pass a structural adapte
 
 ```ts
 import liff from '@line/liff';
-import { detect } from 'user-agent-parser-ts/browser';
+import { detect } from 'ua-inspect/browser';
 
 const info = await detect({ liff });
 
@@ -289,8 +289,8 @@ These are limits of the string, not parser defects:
 ## CommonJS
 
 ```js
-const { parse } = require('user-agent-parser-ts');
-const { is } = require('user-agent-parser-ts/check');
+const { parse } = require('ua-inspect');
+const { is } = require('ua-inspect/check');
 
 const info = parse(userAgent);
 if (is(info, { browser: 'chrome', device: 'mobile' })) {
@@ -311,10 +311,6 @@ Detection data lives in `src/catalog/`, one file per dimension, and rows are dat
 User-Agent strings and Client Hints are client-provided claims. Detection is useful for compatibility, diagnostics, analytics, and UX branching, but it is not authentication or a security boundary.
 
 Do not use a detected browser, device, bot, LINE context, or other identity as proof that a request originates from that product or platform.
-
-## Migration
-
-See [MIGRATION.md](MIGRATION.md) for the 3.x to 4.0 changes, with a replacement for every removed export, and for the older 2.x changes.
 
 ## License
 

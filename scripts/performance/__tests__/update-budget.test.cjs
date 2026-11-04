@@ -3,7 +3,7 @@ function createReport(overrides = {}) {
     schemaVersion: 1,
     policy: 'report-only',
     generatedAt: '2026-10-30T00:00:00.000Z',
-    package: { name: 'user-agent-parser-ts', version: '3.0.1' },
+    package: { name: 'ua-inspect', version: '3.0.1' },
     environment: {
       platform: 'darwin',
       arch: 'arm64',
@@ -57,14 +57,14 @@ describe('budget update', () => {
   });
 
   test('takes static sizes and package identity from the report', () => {
-    const baseline = createReport({ package: { name: 'user-agent-parser-ts', version: '2.2.0' } });
+    const baseline = createReport({ package: { name: 'ua-inspect', version: '2.2.0' } });
     const report = createReport();
     report.sizes.bundles[0].rawBytes = 1234;
 
     const updated = buildUpdatedBaseline({ baseline, report });
 
     expect(updated.sizes).toEqual(report.sizes);
-    expect(updated.package).toEqual({ name: 'user-agent-parser-ts', version: '3.0.1' });
+    expect(updated.package).toEqual({ name: 'ua-inspect', version: '3.0.1' });
     expect(updated.generatedAt).toBe(report.generatedAt);
   });
 

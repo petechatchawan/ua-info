@@ -24,8 +24,8 @@ describe('playground view models', () => {
   });
 
   it('creates examples for each public entry point', () => {
-    expect(createCodeExample({ mode: 'current', userAgent: '', hasClientHints: false })).toContain('user-agent-parser-ts/browser');
-    expect(createCodeExample({ mode: 'manual', userAgent: 'ua', hasClientHints: false })).toContain("from 'user-agent-parser-ts'");
-    expect(createCodeExample({ mode: 'manual', userAgent: 'ua', hasClientHints: true })).toContain('user-agent-parser-ts/server');
+    expect(createCodeExample({ mode: 'current', userAgent: '', hasClientHints: false })).toContain('ua-inspect/browser');
+    expect(createCodeExample({ mode: 'manual', userAgent: 'ua', hasClientHints: false })).toContain("from 'ua-inspect'");
+    expect(createCodeExample({ mode: 'manual', userAgent: 'ua', hasClientHints: true })).toContain('ua-inspect/server');
   });
 });

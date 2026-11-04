@@ -3,13 +3,13 @@ import { createRequire } from 'node:module';
 import { defineConfig } from 'vite';
 
 const require = createRequire(import.meta.url);
-const packagePath = require.resolve('user-agent-parser-ts/package.json');
+const packagePath = require.resolve('ua-inspect/package.json');
 const packageMetadata = JSON.parse(readFileSync(packagePath, 'utf8')) as {
   readonly version: string;
 };
 
 export default defineConfig({
-  base: '/ua-info/',
+  base: '/ua-inspect/',
   define: {
     __UA_INFO_VERSION__: JSON.stringify(packageMetadata.version),
   },

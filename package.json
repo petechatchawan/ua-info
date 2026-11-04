@@ -1,16 +1,16 @@
 {
-    "name": "user-agent-parser-ts",
-    "version": "4.0.0",
+    "name": "ua-inspect",
+    "version": "1.0.0",
     "description": "Zero-dependency User-Agent parser for TypeScript with Client Hints, browser, OS, device, bot and WebView detection for Node.js and browsers",
     "author": "Chatchawan Koedsawas",
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/petechatchawan/ua-info.git"
+        "url": "git+https://github.com/petechatchawan/ua-inspect.git"
     },
-    "homepage": "https://petechatchawan.github.io/ua-info/",
+    "homepage": "https://petechatchawan.github.io/ua-inspect/",
     "bugs": {
-        "url": "https://github.com/petechatchawan/ua-info/issues"
+        "url": "https://github.com/petechatchawan/ua-inspect/issues"
     },
     "engines": {
         "node": ">=18"
@@ -91,7 +91,6 @@
     "files": [
         "dist",
         "README.md",
-        "MIGRATION.md",
         "LICENSE"
     ],
     "keywords": [
@@ -117,7 +116,7 @@
         "line-liff",
         "pwa-detection",
         "typescript",
-        "ua-info"
+        "ua-inspect"
     ],
     "devDependencies": {
         "@types/node": "^18.19.130",

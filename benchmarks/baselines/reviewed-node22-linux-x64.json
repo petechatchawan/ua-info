@@ -3,7 +3,7 @@
   "policy": "report-only",
   "generatedAt": "2026-10-31T18:38:04.823Z",
   "package": {
-    "name": "user-agent-parser-ts",
+    "name": "ua-inspect",
     "version": "4.0.0"
   },
   "environment": {
