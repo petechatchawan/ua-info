@@ -68,8 +68,7 @@ export function createPlaygroundApp(
     },
   });
 
-  let manualPanel!: ReturnType<typeof createManualUserAgentPanel>;
-  manualPanel = createManualUserAgentPanel({
+  const manualPanel = createManualUserAgentPanel({
     onUserAgentChanged: manualEffect.changeUserAgent,
     onSampleSelected: manualEffect.selectSample,
     onParseNow: () => {

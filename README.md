@@ -180,18 +180,45 @@ The parser does not invent a family to fill a field. A Chromium fork that has no
 | Chromium | `chromium` |
 | Safari | `safari` |
 | Firefox | `firefox` |
-| Microsoft Edge (including Edge Legacy) | `edge` |
-| Opera (including Opera Mini) | `opera` |
+| Microsoft Edge | `edge` |
+| Microsoft Edge Legacy | `edge-legacy` |
+| Internet Explorer | `ie` |
+| Opera | `opera` |
+| Opera GX | `opera-gx` |
+| Opera Mini | `opera-mini` |
 | Samsung Internet | `samsung-internet` |
 | Brave | `brave` |
 | Vivaldi | `vivaldi` |
+| Arc | `arc` |
+| Whale | `whale` |
+| DuckDuckGo Browser | `duckduckgo` |
+| Ecosia | `ecosia` |
+| Pale Moon | `pale-moon` |
+| Puffin | `puffin` |
+| QQ Browser | `qq` |
+| 360 Browser | `360` |
+| Coc Coc | `coc-coc` |
 | Mi Browser | `mi-browser` |
 | Huawei Browser | `huawei-browser` |
 | UC Browser | `uc-browser` |
 | Yandex Browser | `yandex-browser` |
-| Arc | `arc` |
 
-Android WebView is `browser.mode === 'webview'`, not a separate browser. Operating systems, devices, clients and contexts are listed in `labels`.
+Android WebView is `browser.mode === 'webview'`, not a separate browser.
+
+### Supported dimensions
+
+| Dimension | Count | Ids |
+| --- | --- | --- |
+| Browser | 26 | the table above |
+| Rendering engine | 5 | `blink`, `edgehtml`, `gecko`, `presto`, `webkit` |
+| Operating system | 20 | `android`, `ios`, `ipados`, `windows`, `macos`, `linux`, `chromeos`, `harmonyos`, `openharmony`, `fuchsia`, `tizen`, `kaios`, `blackberry`, `symbian`, `webos`, `windows-phone`, `firefox-os`, `steamos`, `tvos`, `watchos` |
+| Device type | 8 | `desktop`, `mobile`, `tablet`, `smart-tv`, `console`, `wearable`, `xr`, `embedded` |
+| In-app context | 6 | `line`, `facebook`, `instagram`, `tiktok`, `messenger`, `wechat` |
+| Non-browser client | 31 | `labels.client` |
+| CPU architecture | 8 | `x86`, `x86_64`, `arm`, `arm64`, `mips`, `powerpc`, `sparc`, `riscv` |
+| Device vendor | 22 | `labels.vendor` |
+
+`labels` maps every id to display text.
 
 ## Queries
 
@@ -298,13 +325,89 @@ if (is(info, { browser: 'chrome', device: 'mobile' })) {
 }
 ```
 
+## Real-world usage
+
+### Block bots in an Express middleware
+
+```ts
+import express from 'express';
+import { parseRequest } from 'ua-inspect/server';
+import { isBot } from 'ua-inspect/check';
+
+const app = express();
+
+app.use((req, res, next) => {
+  const info = parseRequest(req.headers);
+  if (isBot(info)) return res.status(403).end();
+  next();
+});
+```
+
+### Group analytics with display names
+
+```ts
+import { parse } from 'ua-inspect';
+import { labels } from 'ua-inspect/labels';
+
+const info = parse(userAgent);
+
+const browser = info.browser.name ? labels.browser[info.browser.name] : 'Unknown';
+const os = info.os.name ? labels.os[info.os.name] : 'Unknown';
+const device = info.device.type ? labels.device[info.device.type] : 'Unknown';
+
+track('page_view', { browser, os, device });
+```
+
+`labels` is display text. Log the ids (`info.browser.name`), not the labels, when the value feeds a query.
+
+### Branch on LINE without a hard dependency
+
+```ts
+import { parse } from 'ua-inspect';
+import { is } from 'ua-inspect/check';
+
+const info = parse(userAgent);
+
+if (is(info, { context: ['line', 'liff'] })) {
+  // The page runs inside LINE, in the in-app browser or as a mini-app.
+}
+```
+
+### Parse a Request in a worker or edge runtime
+
+```ts
+import { parseRequest } from 'ua-inspect/server';
+
+export default {
+  async fetch(request: Request) {
+    const info = parseRequest(request);
+    return Response.json(info);
+  },
+};
+```
+
+`parseRequest()` also reads Client Hints headers when your platform forwards them.
+
+### Read high-entropy detail in the browser
+
+```ts
+import { detect } from 'ua-inspect/browser';
+
+const info = await detect({ highEntropy: true });
+
+info.cpu;    // { architecture: 'arm64', bitness: 64 }
+info.device; // { type: 'mobile', vendor: 'samsung', model: 'SM-S928B' }
+```
+
+High-entropy hints are an opt-in round trip to the browser, so request them only when you need the extra fields.
+
 ## Adding a browser, bot, vendor or app
 
 Detection data lives in `src/catalog/`, one file per dimension, and rows are data, not code. A row cannot hold a regular expression, and ESLint rejects one in `src`. The id type, the `is()` query type, the Client Hints maps and `labels` all come from the rows.
 
 1. Add the row to the catalog file, for example `whale: { label: 'Naver Whale', family: 'chromium', engine: 'blink', brands: [], match: ['Whale'] }` in `src/catalog/browsers.ts`.
-2. Add a real User-Agent for it: `npm run build && npm run corpus:add -- --topic browsers --id whale-desktop --src "observed:<where>@<date>" "<User-Agent>"`. See `test/corpus/README.md`.
-3. Run `npm test`. The row must be the result of at least one corpus entry, its `beats` references must exist, and every id needs a label.
+2. Add a **real** captured string to `test/data/user-agents.json`: `{ "id": "whale-desktop", "ua": "Mozilla/5.0 (...)", "src": "observed:<where>@<date>", "expect": { "browser": { "name": "whale" } } }`. Nothing composed belongs there.
+3. Run `npm test`. The row's `beats` references must exist, every id needs a label, and the new string must parse as its `expect` says.
 
 ## Trust boundary
 

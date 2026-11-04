@@ -2,6 +2,39 @@
 
 All notable changes to `ua-inspect` are documented in this file.
 
+## 1.0.1 — 2026-11-05
+
+Expands the catalog and tightens detection. Test data is now first-party only: every vector is a real captured string, with no material from another parser.
+
+### Added
+
+- Browsers: `360`, `coc-coc`, `duckduckgo`, `ecosia`, `edge-legacy`, `ie`, `opera-gx`, `opera-mini`, `pale-moon`, `puffin`, `qq`, `whale`.
+- Operating systems: `blackberry`, `firefox-os`, `fuchsia`, `openharmony`, `steamos`, `symbian`, `tvos`, `watchos`, `webos`, `windows-phone`.
+- Device vendors: `asus`, `honor`, `infinix`, `itel`, `lg`, `nokia`, `nothing`, `tecno`, `zte`.
+- Rendering engines: `edgehtml` and `presto`.
+- In-app context: `tiktok`.
+- Samsung model prefix `SCG`.
+
+### Fixed
+
+- `EdgWebView2` is reported as `mode: 'webview'`.
+- Internet Explorer reports a `null` engine instead of `trident`.
+- Edge Legacy is `edge-legacy` with the `edgehtml` engine; `Edg/` stays modern `edge`.
+- Opera Mini beats Opera, and the iOS `OPiOS` token is `webkit`.
+- QQ Browser is no longer swallowed by `MicroMessenger`.
+- TikTok prefers the explicit `app_version` token over the `musical_ly_<build>` build code.
+- Version-like tokens such as `312.0.0.34.111` are not treated as product names.
+- `touch` is not a device model, and `iphone*` models parse as `iPhone`.
+- Device mapping: Steam Deck is `console`, `appletv*` is `smart-tv`, `watchos*` is `wearable`, and `windows` with `windows-phone` is `mobile`.
+- BlackBerry and Firefox OS `Mobile` tokens report `mobile`.
+
+### Changed
+
+- Tests moved from `src/__tests__/` to `test/unit/`, and capture data to `test/data/`.
+- `scripts/` grouped by purpose: `build/`, `verify/`, `playground/`, `performance/`.
+- Development TypeScript updated to 5.x.
+- Removed all third-party test vectors and notices; the corpus is real captures only. `ua-inspect` does not derive from or embed another parser's data.
+
 ## 1.0.0 — 2026-11-04
 
 First release. Zero-dependency User-Agent parser for TypeScript, in Node.js and browsers.

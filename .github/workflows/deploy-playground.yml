@@ -8,9 +8,9 @@ on:
       - 'src/**'
       - 'package.json'
       - 'tsconfig.build*.json'
-      - 'scripts/finalize-build.mjs'
-      - 'scripts/install-playground-package.mjs'
-      - 'scripts/verify-playground-boundaries.mjs'
+      - 'scripts/build/finalize-build.mjs'
+      - 'scripts/playground/install-playground-package.mjs'
+      - 'scripts/playground/verify-playground-boundaries.mjs'
       - '.github/workflows/deploy-playground.yml'
   workflow_dispatch:
 

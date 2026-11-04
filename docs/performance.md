@@ -22,7 +22,7 @@ This keeps historical measurements stable while allowing release policy to evolv
 
 ## Package limits
 
-`scripts/verify-package.mjs` validates the packed tarball. It does not cap the file count: adding a source module adds files, and the file count measures build layout, not what users download.
+`scripts/verify/verify-package.mjs` validates the packed tarball. It does not cap the file count: adding a source module adds files, and the file count measures build layout, not what users download.
 
 It enforces these rules instead:
 
