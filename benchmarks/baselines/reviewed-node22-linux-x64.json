@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "policy": "report-only",
-  "generatedAt": "2026-11-04T20:37:51.416Z",
+  "generatedAt": "2026-11-04T20:59:16.126Z",
   "package": {
     "name": "ua-inspect",
     "version": "1.1.0"
@@ -16,19 +16,19 @@
   },
   "sizes": {
     "package": {
-      "tarballBytes": 36963,
-      "unpackedBytes": 218855,
+      "tarballBytes": 37636,
+      "unpackedBytes": 222185,
       "fileCount": 64
     },
     "distributions": [
       {
         "id": "esm",
-        "rawBytes": 124877,
+        "rawBytes": 126432,
         "fileCount": 41
       },
       {
         "id": "cjs",
-        "rawBytes": 71913,
+        "rawBytes": 73324,
         "fileCount": 20
       }
     ],
@@ -36,9 +36,9 @@
       {
         "id": "root-parse",
         "platform": "node",
-        "rawBytes": 27423,
-        "gzipBytes": 8818,
-        "brotliBytes": 8080
+        "rawBytes": 27624,
+        "gzipBytes": 8882,
+        "brotliBytes": 8149
       },
       {
         "id": "root-predicate",
@@ -50,16 +50,16 @@
       {
         "id": "server-parse-request",
         "platform": "node",
-        "rawBytes": 29207,
-        "gzipBytes": 9477,
-        "brotliBytes": 8635
+        "rawBytes": 29408,
+        "gzipBytes": 9540,
+        "brotliBytes": 8703
       },
       {
         "id": "browser-detect-current",
         "platform": "browser",
-        "rawBytes": 29535,
-        "gzipBytes": 9554,
-        "brotliBytes": 8698
+        "rawBytes": 29913,
+        "gzipBytes": 9693,
+        "brotliBytes": 8832
       }
     ]
   },
@@ -155,7 +155,7 @@
   },
   "baselineSource": {
     "runId": "budget-update",
-    "commit": "c72841208b15b99c168f839dd92257bdfa658eed",
+    "commit": "2710ef7e8e5e6ab1f673da27cc1ffbdcae708dd3",
     "runner": "darwin-arm64 Node.js v24.18.0 (static sizes only)"
   }
 }

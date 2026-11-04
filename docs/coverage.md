@@ -191,3 +191,6 @@ entry must be captured, not copied from another library.
 - The model inside an in-app parenthetical is not scanned. Instagram sends
   `... Android (37/17; ...; samsung; SM-S948B; ...)`, but model extraction reads only the comment
   group that carries the OS token, so `device.vendor` and `model` stay `null`.
+- An iPad in desktop mode sends a Macintosh User-Agent, so `parse()` follows the string and reports
+  a Mac. `detect()` recovers it from the runtime: a Mac-like platform that reports more than one
+  touch point is an iPad, and a real Mac reports zero.

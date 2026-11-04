@@ -89,6 +89,8 @@ const info = await detect({ highEntropy: true });
 
 The high-entropy opt-in requests exactly `architecture`, `bitness`, `fullVersionList`, `model` and `platformVersion`.
 
+`detect()` also reads `platform` and `maxTouchPoints`. Safari sends no Client Hints, so this is the only way to spot an iPad in desktop mode, which sends a Macintosh User-Agent. A Mac reports no touch points, so a desktop Mac is never turned into an iPad.
+
 `detect()` throws outside a browser window or worker. This includes Node.js 21 and later, which define `navigator`. Use `parse()` or `parseRequest()` during SSR or other non-browser execution.
 
 ## Result model
@@ -314,7 +316,7 @@ Applications remain responsible for Client Hints negotiation and cache behavior.
 These are limits of the string, not parser defects:
 
 - macOS reports the frozen version `10.15.7`, and Windows 11 reports `10`. Only Client Hints (`parseRequest`, or `detect({ highEntropy: true })`) give the real version.
-- An iPad in desktop mode sends a Macintosh User-Agent, so it is reported as a Mac.
+- An iPad in desktop mode sends a Macintosh User-Agent, so `parse()` and `parseRequest()` report a Mac. Only `detect()` recovers it: a Mac-like platform that reports touch points is an iPad.
 - Chrome reports a fixed Android version and no model in its reduced User-Agent.
 - The Blink engine version is `null`. It equals the Chrome version, so use `browser.version`.
 

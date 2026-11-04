@@ -248,20 +248,31 @@ function resolveClient(scanned: Scan): ClientInfo {
 export function resolve(ua: string, hints: ClientHints | null, runtime: RuntimeEvidence | null): UAInfo {
   const text = ua.length > MAX_UA_LENGTH ? ua.slice(0, MAX_UA_LENGTH) : ua;
   const scanned = scan(text);
-  const os = resolveOS(scanned, hints);
+  let os = resolveOS(scanned, hints);
   const uaOS = hints ? resolveOS(scanned, null) : os;
-  const { browser, engine } = resolveBrowser(scanned, uaOS.name, hints);
+  const resolvedBrowser = resolveBrowser(scanned, uaOS.name, hints);
+  let browser = resolvedBrowser.browser;
   const context = resolveContext(scanned, runtime);
 
   const embedded = context.type === 'in-app-browser' || context.type === 'mini-app';
   const mode = embedded ? (browser.mode === 'headless' ? 'headless' : 'webview') : browser.mode;
 
+  let device = resolveDevice(scanned, uaOS.name, hints);
+  // iPadOS 13+ Safari requests the desktop site and sends a Macintosh User-Agent. Safari has no
+  // Client Hints, so the runtime touch check is the only evidence left. The OS guard keeps a real
+  // Mac (no touch points) and any non-Mac string out of this branch.
+  if (runtime?.touchMac === true && uaOS.name === 'macos') {
+    os = { name: 'ipados', version: null };
+    device = { type: 'tablet', vendor: 'apple', model: 'iPad' };
+    if (browser.name === 'safari') browser = { ...browser, name: 'safari-mobile' };
+  }
+
   return {
     ua,
     browser: { ...browser, mode },
-    engine: resolveEngine(scanned, uaOS.name, engine),
+    engine: resolveEngine(scanned, uaOS.name, resolvedBrowser.engine),
     os,
-    device: resolveDevice(scanned, uaOS.name, hints),
+    device,
     cpu: resolveCPU(scanned, hints),
     client: resolveClient(scanned),
     context,

@@ -16,6 +16,8 @@ export interface ClientHints {
 export interface RuntimeEvidence {
   readonly standalonePWA: boolean | null;
   readonly liffInClient: boolean | null;
+  /** A Mac-like platform that reports touch points. An iPad in desktop mode is the only real case. */
+  readonly touchMac: boolean | null;
 }
 
 export interface DetectionInput {

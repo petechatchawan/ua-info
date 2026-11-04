@@ -7,6 +7,12 @@ const chromeUA =
 const lineUA =
   'Mozilla/5.0 (Linux; Android 16; Pixel 10 Pro; wv) AppleWebKit/537.36 ' +
   '(KHTML, like Gecko) Version/4.0 Chrome/150.0.0.0 Mobile Safari/537.36 Line/26.11.0';
+const ipadDesktopUA =
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 ' +
+  '(KHTML, like Gecko) Version/18.7 Safari/605.1.15';
+const windowsUA =
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 ' +
+  '(KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36';
 
 function installDocument(): void {
   Object.defineProperty(globalThis, 'document', { configurable: true, value: {} });
@@ -18,15 +24,20 @@ function installNavigator(
   brands: readonly { readonly brand: string; readonly version: string }[] = [
     { brand: 'Google Chrome', version: '150' },
   ],
+  platform: string | undefined = 'MacIntel',
+  maxTouchPoints: number | undefined = 0,
+  hintPlatform = 'macOS',
 ): void {
   Object.defineProperty(globalThis, 'navigator', {
     configurable: true,
     value: {
       userAgent,
+      platform,
+      maxTouchPoints,
       userAgentData: {
         brands,
         mobile: false,
-        platform: 'macOS',
+        platform: hintPlatform,
         getHighEntropyValues,
       },
     },
@@ -196,5 +207,43 @@ describe('detect', () => {
     const result = await detect();
     expect(result.browser.name).toBe('chrome');
     expect(result.context.type).toBeNull();
+  });
+
+  it('reports an iPad in desktop mode from the runtime touch check', async () => {
+    installNavigator(ipadDesktopUA, undefined, [], 'MacIntel', 5);
+    installStandalone(false);
+
+    const result = await detect();
+    expect(result.os).toEqual({ name: 'ipados', version: null });
+    expect(result.device).toEqual({ type: 'tablet', vendor: 'apple', model: 'iPad' });
+    expect(result.browser.name).toBe('safari-mobile');
+  });
+
+  it('keeps a Mac without touch points on macOS', async () => {
+    installNavigator(ipadDesktopUA, undefined, [], 'MacIntel', 0);
+    installStandalone(false);
+
+    const result = await detect();
+    expect(result.os.name).toBe('macos');
+    expect(result.device.type).toBe('desktop');
+    expect(result.browser.name).toBe('safari');
+  });
+
+  it('does not guess an iPad when the runtime has no platform or touch points', async () => {
+    installNavigator(ipadDesktopUA, undefined, [], undefined, undefined);
+    installStandalone(false);
+
+    const result = await detect();
+    expect(result.os.name).toBe('macos');
+    expect(result.device.model).toBeNull();
+  });
+
+  it('ignores touch points when the User-Agent is not macOS', async () => {
+    installNavigator(windowsUA, undefined, [{ brand: 'Google Chrome', version: '150' }], 'MacIntel', 5, 'Windows');
+    installStandalone(false);
+
+    const result = await detect();
+    expect(result.os.name).toBe('windows');
+    expect(result.device.type).toBe('desktop');
   });
 });

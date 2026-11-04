@@ -23,7 +23,11 @@ interface NavigatorLike {
   readonly userAgent?: string;
   readonly userAgentData?: UserAgentDataLike;
   readonly standalone?: boolean;
+  readonly platform?: string;
+  readonly maxTouchPoints?: number;
 }
+
+const TOUCH_MAC_PLATFORMS: ReadonlySet<string> = new Set(['MacIntel', 'MacARM', 'Macintosh']);
 
 const HIGH_ENTROPY_HINTS = [
   'architecture',
@@ -101,6 +105,16 @@ function readStandalonePWA(navigatorValue: NavigatorLike): boolean | null {
   }
 }
 
+// iPadOS 13+ Safari requests the desktop site, so the User-Agent is a Macintosh string. Safari
+// sends no Client Hints, so the only remaining evidence is the runtime: a Mac-like platform that
+// reports more than one touch point is an iPad. A real Mac reports zero. A missing value is null,
+// never a guess.
+function readTouchMac(navigatorValue: NavigatorLike): boolean | null {
+  const { platform, maxTouchPoints } = navigatorValue;
+  if (typeof platform !== 'string' || typeof maxTouchPoints !== 'number') return null;
+  return maxTouchPoints > 1 && TOUCH_MAC_PLATFORMS.has(platform);
+}
+
 interface BrowserGlobals {
   readonly navigator?: NavigatorLike;
   readonly document?: unknown;
@@ -125,6 +139,7 @@ export async function detect(options: DetectOptions = {}): Promise<UAInfo> {
   const runtime: RuntimeEvidence = {
     standalonePWA: readStandalonePWA(navigatorValue),
     liffInClient: readLiff(options),
+    touchMac: readTouchMac(navigatorValue),
   };
   return resolve(ua, clientHints, runtime);
 }
