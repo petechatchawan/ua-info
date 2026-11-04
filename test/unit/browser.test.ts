@@ -168,4 +168,32 @@ describe('browser detection', () => {
 
     expect(parse(ua).browser.name).toBeNull();
   });
+
+  it('reports HeadlessChrome as chrome in headless mode even without a version', () => {
+    const versioned =
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 ' +
+      '(KHTML, like Gecko) HeadlessChrome/60.0.3112.113 Safari/537.36';
+    const bare =
+      'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome Safari/537.36';
+
+    expect(parse(versioned).browser).toMatchObject({
+      name: 'chrome',
+      mode: 'headless',
+      version: { full: '60.0.3112.113' },
+    });
+    expect(parse(bare).browser).toMatchObject({ name: 'chrome', mode: 'headless', version: null });
+  });
+
+  it('reports the early Chrome for Android CrMo token as chrome-mobile', () => {
+    const ua =
+      'Mozilla/5.0 (Linux; U; Android-4.0.3; en-us; Galaxy Nexus Build/IML74K) AppleWebKit/535.7 ' +
+      '(KHTML, like Gecko) CrMo/16.0.912.75 Mobile Safari/535.7';
+
+    expect(parse(ua).browser).toMatchObject({
+      name: 'chrome-mobile',
+      version: { full: '16.0.912.75', major: 16 },
+    });
+    expect(parse(ua).os).toMatchObject({ name: 'android' });
+    expect(parse(ua).engine.name).toBe('webkit');
+  });
 });

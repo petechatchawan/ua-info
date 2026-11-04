@@ -53,6 +53,13 @@ describe('OS from the User-Agent', () => {
     expect(parse('Opera/9.80 (Android; Opera Mini/36.2.2254/119.132; U; id)').os).toEqual({ name: 'android', version: null });
   });
 
+  it('reads an Android version that carries a dash, as the early strings do', () => {
+    expect(parse('Mozilla/5.0 (Linux; U; Android-4.0.3; en-us; Galaxy Nexus Build/IML74K)').os).toMatchObject({
+      name: 'android',
+      version: { full: '4.0.3', major: 4, minor: 0, patch: 3 },
+    });
+  });
+
   it('reports HarmonyOS with or without a version', () => {
     expect(parse('Mozilla/5.0 (Linux; Android 10; HarmonyOS; ELS-AN00)').os.name).toBe('harmonyos');
     expect(parse('Mozilla/5.0 HarmonyOS/4.2').os).toMatchObject({ name: 'harmonyos', version: { full: '4.2' } });

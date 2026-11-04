@@ -39,6 +39,9 @@ iPadOS reports `safari-mobile`, and the desktop and tablet builds keep `chrome` 
 with no Chrome token. Android 4.4 rebuilt it on Chromium, so those builds carry `Chrome/` and stay
 `chrome-mobile`, which a modern in-app WebView also reports.
 
+The early Chrome for Android `CrMo/` token (2012) reports `chrome-mobile`, and `HeadlessChrome`
+reports `chrome` with `mode: 'headless'`, with or without a version.
+
 These cover roughly 99% of measured traffic. The tail below is where forks, in-app WebViews and
 old enterprise clients live.
 

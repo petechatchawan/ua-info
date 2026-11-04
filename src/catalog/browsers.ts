@@ -59,7 +59,7 @@ const rows = {
     match: [
       { product: 'Chrome', fallback: true },
       'CriOS',
-      { product: 'HeadlessChrome', mode: 'headless' },
+      { product: 'HeadlessChrome', mode: 'headless', versionOptional: true },
     ],
   },
   // A phone build carries the `Mobile` token; a desktop or tablet build does not. The row is a
@@ -70,7 +70,10 @@ const rows = {
     engine: 'blink',
     brands: [],
     beats: ['chrome'],
-    match: [{ product: 'Chrome', os: osIn('android', 'harmonyos'), with: ['mobile'], fallback: true }],
+    match: [
+      { product: 'Chrome', os: osIn('android', 'harmonyos'), with: ['mobile'], fallback: true },
+      { product: 'CrMo', os: osIn('android'), with: ['mobile'], fallback: true },
+    ],
   },
   chromium: { label: 'Chromium', family: 'chromium', engine: 'blink', brands: [], match: ['Chromium'] },
   'coc-coc': {

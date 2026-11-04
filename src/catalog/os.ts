@@ -22,7 +22,7 @@ const rows = {
   android: {
     label: 'Android',
     platforms: ['Android'],
-    match: [{ words: 'android', versionOptional: true }],
+    match: [{ words: 'android', versionOptional: true }, { words: 'android-*', versionOptional: true }],
   },
   blackberry: {
     label: 'BlackBerry OS',
