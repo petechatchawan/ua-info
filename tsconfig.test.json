@@ -1,11 +1,11 @@
 {
-  "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "noEmit": true,
-    "skipLibCheck": true,
-    "allowJs": true,
-    "checkJs": false,
-    "types": ["node", "vitest/globals"]
-  },
-  "include": ["src/**/*.ts", "test/**/*.ts", "vitest.config.ts"]
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "noEmit": true,
+        "skipLibCheck": true,
+        "allowJs": true,
+        "checkJs": false,
+        "types": ["node", "vitest/globals"]
+    },
+    "include": ["src/**/*.ts", "test/**/*.ts", "vitest.config.ts"]
 }
