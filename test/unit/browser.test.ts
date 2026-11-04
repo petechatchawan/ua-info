@@ -106,6 +106,31 @@ describe('browser detection', () => {
     expect(parse(ua).browser.name).toBe('safari');
   });
 
+  it('reports WebKit for Chrome and Chromium before version 28, Blink from 28', () => {
+    const chrome20 =
+      'Mozilla/5.0 (Windows NT 6.2) AppleWebKit/536.6 (KHTML, like Gecko) Chrome/20.0.1090.0 Safari/536.6';
+    const chrome28 =
+      'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.71 Safari/537.36';
+    const chromium16 =
+      'Mozilla/5.0 (X11; Linux i686) AppleWebKit/535.7 (KHTML, like Gecko) ' +
+      'Ubuntu/11.10 Chromium/16.0.912.21 Chrome/16.0.912.21 Safari/535.7';
+
+    expect(parse(chrome20).engine).toMatchObject({ name: 'webkit', version: { full: '536.6' } });
+    expect(parse(chrome28).engine).toEqual({ name: 'blink', version: null });
+    expect(parse(chromium16)).toMatchObject({
+      browser: { name: 'chromium', version: { full: '16.0.912.21' } },
+      engine: { name: 'webkit', version: { full: '535.7' } },
+    });
+  });
+
+  it('does not move a chromium fork whose version is not the Chrome version', () => {
+    const samsung =
+      'Mozilla/5.0 (Linux; Android 5.0.2; SAMSUNG SM-G925F Build/LRX22G) AppleWebKit/537.36 ' +
+      '(KHTML, like Gecko) SamsungBrowser/3.0 Chrome/38.0.2125.102 Mobile Safari/537.36';
+
+    expect(parse(samsung).engine.name).toBe('blink');
+  });
+
   it('reports the stock Android browser from the Version token', () => {
     const nexus =
       'Mozilla/5.0 (Linux; U; Android 4.0.2; en-us; Galaxy Nexus Build/ICL53F) AppleWebKit/534.30 ' +

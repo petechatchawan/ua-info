@@ -34,6 +34,9 @@ const ACCOUNTED_PRODUCTS: ReadonlySet<string> = new Set([
   ...NEUTRAL_PRODUCTS,
 ]);
 
+/** Chrome 28 is the first Blink release; earlier Chrome and Chromium builds render with WebKit. */
+const CHROME_BLINK_EPOCH = 28;
+
 const PLATFORM_TO_OS = new Map<string, OSId>();
 for (const id of Object.keys(OPERATING_SYSTEMS) as OSId[]) {
   for (const platform of OPERATING_SYSTEMS[id].platforms) PLATFORM_TO_OS.set(platform.toLowerCase(), id);
@@ -101,6 +104,17 @@ function resolveBrowser(scanned: Scan, os: OSId | null, hints: ClientHints | nul
 
   let version = id ? strongestVersion(candidates, id) : null;
   if (id === 'chromium' && chromiumBrand) version = readVersion(chromiumBrand.version) ?? version;
+
+  // Chrome and Chromium used WebKit until version 28, when Blink replaced it. These three rows
+  // report the Chrome version, so the boundary applies. Other chromium-family rows use their own
+  // version scale, so it does not.
+  if (
+    (id === 'chrome' || id === 'chrome-mobile' || id === 'chromium') &&
+    version !== null &&
+    version.major < CHROME_BLINK_EPOCH
+  ) {
+    engine = 'webkit';
+  }
 
   let mode: BrowserMode | null = null;
   if (signal?.mode) {

@@ -170,6 +170,10 @@ only IE needs it, and IE reports `null` instead of a version nobody branches on.
 `pale-moon` sends `Goanna/` (a Gecko fork) and reports `gecko`, because no consumer branches on
 Goanna. `puffin` reports `null` for engine and family because its rendering is server-side.
 
+Chrome, Chrome Mobile and Chromium before version 28 report `webkit`: version 28 is the first Blink
+release. Other chromium-family rows use their own version scale, so the boundary does not apply to
+them, and Samsung Internet 3.0 stays `blink`.
+
 ## 6. Fixture provenance
 
 `test/data/user-agents.json` holds this project's own captures and nothing else. Each entry has a `src`:

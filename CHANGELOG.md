@@ -20,6 +20,7 @@ This is a minor version by request, but it changes `browser.name` for phone buil
 - A phone build is a fallback: a specific product such as Samsung Internet, Edge or Brave still wins, and the desktop and tablet builds are unchanged.
 - `detect()` reads `platform` and `maxTouchPoints` to report an iPad in desktop mode as `ipados`, `tablet`, `apple` and `iPad`. `parse()` and `parseRequest()` cannot see this, because the User-Agent says Macintosh.
 - Browser id `android-browser` for the stock Android browser, the only client that sends a `Version/` token on Android with no Chrome token. Android 4.4 rebuilt it on Chromium, so those builds stay `chrome-mobile`.
+- Chrome, Chrome Mobile and Chromium before version 28 report the `webkit` engine, since version 28 is the first Blink release. Other chromium-family rows keep `blink`.
 
 ## 1.0.1 — 2026-11-05
 
