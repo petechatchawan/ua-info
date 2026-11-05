@@ -63,7 +63,6 @@
         "build:cjs": "tsc --project tsconfig.build.cjs.json",
         "build": "npm run clean && npm run build:esm && npm run build:cjs && node scripts/build/finalize-build.mjs",
         "test": "vitest run",
-        "fixture:check": "vitest run test/unit",
         "test:coverage": "vitest run --coverage test/unit",
         "detection:check": "npm run test:coverage",
         "identity:check": "node scripts/verify/verify-package-identity.mjs",
