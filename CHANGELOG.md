@@ -4,7 +4,7 @@ All notable changes to `ua-inspect` are documented in this file.
 
 ## 1.1.0 — 2026-11-05
 
-Splits the phone builds of Chrome, Firefox and Safari into their own browser ids, and completes the mobile, legacy and in-app rows from the reference pages.
+Splits the phone builds of Chrome, Firefox and Safari into their own browser ids, and completes the mobile, legacy and in-app rows.
 
 This is a minor version by request, but it changes `browser.name` for phone builds. Read the breaking list before upgrading.
 
@@ -32,7 +32,7 @@ This is a minor version by request, but it changes `browser.name` for phone buil
 - `PPC Mac OS X` reports macOS with no version.
 - TikTok reads `trill_*` and prefers `app_version/` over the build code.
 - Tokens that a catalog row already names are accounted for, so an in-app token no longer hides the underlying Chrome or Safari build.
-- Every User-Agent example on the reference browser pages is stored in `test/data/` with its source URL: 45 browser rows and 13 in-app context rows.
+- Stored User-Agent strings for 45 browser rows and 13 in-app context rows live in `test/data/<dimension>/`.
 
 ## 1.0.1 — 2026-11-05
 

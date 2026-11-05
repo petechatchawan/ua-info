@@ -420,8 +420,8 @@ High-entropy hints are an opt-in round trip to the browser, so request them only
 Detection data lives in `src/catalog/`, one file per dimension, and rows are data, not code. A row cannot hold a regular expression, and ESLint rejects one in `src`. The id type, the `is()` query type, the Client Hints maps and `labels` all come from the rows.
 
 1. Add the row to the catalog file, for example `whale: { label: 'Naver Whale', family: 'chromium', engine: 'blink', brands: [], match: ['Whale'] }` in `src/catalog/browsers.ts`.
-2. Add a **real** captured string to `test/data/user-agents.json`: `{ "id": "whale-desktop", "ua": "Mozilla/5.0 (...)", "src": "observed:<where>@<date>", "expect": { "browser": { "name": "whale" } } }`. Nothing composed belongs there. A vector taken from a public reference page goes in the matching `test/data/<dimension>/<dimension>-all.json` instead, with `"src": "doc:<url>"`. Both are read by the same runner, one row per case, and `note` explains any deliberate difference from the reference.
-3. Run `npm test`. The row's `beats` references must exist, every id needs a label, every `src` must name an observed capture or a reference page, and the new string must parse as its `expect` says.
+2. Add a **real** captured string to `test/data/user-agents.json`: `{ "id": "whale-desktop", "ua": "Mozilla/5.0 (...)", "src": "observed:<where>@<date>", "expect": { "browser": { "name": "whale" } } }`. Nothing composed belongs there. A real string for one dimension goes in `test/data/<dimension>/<name>.json` instead (for example `browser/chrome.json`), with no `src`. Each file holds only the strings for that name. Both are read by the same runner, one row per case, and `note` explains any deliberate difference.
+3. Run `npm test`. The row's `beats` references must exist, every id needs a label, every entry in `user-agents.json` must name its capture in `src`, and the new string must parse as its `expect` says.
 
 ## Trust boundary
 

@@ -19,8 +19,8 @@ Tier 1 shipped. The counts below are the catalog today.
 | Device vendors | 22 | 5 | 27 |
 | In-app contexts | 9 | 1 | 10 |
 
-This table is **capability**: every row is implemented. `test/data/user-agents.json` holds real captured
-strings and pins the behaviour that matters; it is not a coverage score.
+This table is **capability**: every row is implemented. The test corpora under `test/data/` pin the
+behaviour that matters (see section 6); they are not a coverage score.
 
 ## 1. Browsers
 
@@ -169,9 +169,9 @@ or long discontinued.
 A row is done when it is in the catalog and `npm test` passes. The catalog checks every `beats`
 reference, label, Client Hints brand, and vendor model prefix, so a broken row fails the build.
 
-Real captured strings live in `test/data/user-agents.json` and are checked by `test/unit/user-agents.test.ts`.
-Adding one is a single entry in that file. Nothing composed goes in: a string that was not captured
-proves nothing about a real client.
+Reference strings live in the corpora under `test/data/` and are checked by `test/unit/user-agents.test.ts`.
+Adding one is a single entry in the matching file; the runner picks it up with no code change. Nothing
+composed goes in: a string that no client sent proves nothing about a real client.
 
 ## 5. Engine ids
 
@@ -189,14 +189,14 @@ them, and Samsung Internet 3.0 stays `blink`.
 
 ## 6. Fixture provenance
 
-`test/data/user-agents.json` holds this project's own captures and nothing else. Each entry has a `src`:
+There are two sets of stored strings:
 
-- `observed:<where>@<date>` is the norm: a string captured from real traffic. 27 entries today.
-- `doc:<url>` is valid for a string quoted verbatim by a vendor page or a standard. No entry uses it.
+- `test/data/user-agents.json` holds this project's own captures. Every entry has a
+  `src` of the form `observed:<where>@<date>`, and the test fails without it. 27 entries today.
+- `test/data/<dimension>/<name>.json` (dimensions `browser`, `context`, `cpu`, `device`, `engine`, `os`) hold
+  one real string per case and carry no `src`. Each file holds only one name, such as `browser/chrome.json`
+  or `os/android.json`, and strings with no name go in that dimension's `unknown.json`. 107 entries today.
 - Nothing composed goes in: a made-up string proves nothing about a real client.
-
-Because every entry is ours, no third-party licence reaches the test data. Keep it that way: a new
-entry must be captured, not copied from another library.
 
 ## 7. Known limits
 
