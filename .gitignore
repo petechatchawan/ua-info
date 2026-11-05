@@ -29,10 +29,6 @@ Thumbs.db
 *.sublime-project
 *.sublime-workspace
 
-# npm package lock file (optional)
-package-lock.json
-!apps/playground/package-lock.json
-
 # Miscellaneous
 *.tgz
 # Generated package output

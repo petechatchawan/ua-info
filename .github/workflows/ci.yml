@@ -21,7 +21,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-      - run: npm install
+      - run: npm ci
       - run: npm run lint
       - run: npm test
       - run: npm run build
@@ -35,7 +35,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: npm install
+      - run: npm ci
       - run: npm run lint
       - run: npm run detection:check
       - name: Upload detector coverage
@@ -57,7 +57,7 @@ jobs:
           cache: npm
           cache-dependency-path: apps/playground/package-lock.json
       - name: Install root dependencies
-        run: npm install
+        run: npm ci
       - name: Prepare packed playground consumer
         run: npm run playground:setup
       - name: Verify boundaries
