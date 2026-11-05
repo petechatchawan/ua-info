@@ -1,0 +1,50 @@
+[
+    {
+        "id": "discord-linux-0-0-26",
+        "ua": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) discord/0.0.26 Chrome/108.0.5359.215 Electron/22.3.2 Safari/537.36",
+        "note": "The `discord/` token names the app, not a browser, so the app is reported as context.",
+        "expect": {
+            "browser": {
+                "name": null,
+                "version": null,
+                "family": "chromium",
+                "mode": "webview"
+            },
+            "context": {
+                "name": "discord",
+                "app": "discord",
+                "type": "in-app-browser",
+                "version": {
+                    "full": "0.0.26",
+                    "major": 0,
+                    "minor": 0,
+                    "patch": 26
+                }
+            }
+        }
+    },
+    {
+        "id": "discord-ipados-52",
+        "ua": "Discord/52.0 (iPad; iOS 14.4; Scale/2.00)",
+        "note": "The `Discord/` token names the app, not a browser, so the app is reported as context.",
+        "expect": {
+            "browser": {
+                "name": null,
+                "version": null,
+                "family": null,
+                "mode": "webview"
+            },
+            "context": {
+                "name": "discord",
+                "app": "discord",
+                "type": "in-app-browser",
+                "version": {
+                    "full": "52.0",
+                    "major": 52,
+                    "minor": 0,
+                    "patch": null
+                }
+            }
+        }
+    }
+]

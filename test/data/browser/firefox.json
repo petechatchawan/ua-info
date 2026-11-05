@@ -1,0 +1,54 @@
+[
+    {
+        "id": "firefox-windows-15-alpha",
+        "ua": "Mozilla/5.0 (Windows NT 6.1; rv:15.0) Gecko/20120716 Firefox/15.0a2",
+        "note": "The `a2` alpha suffix is not part of a release number, so the version is `15.0`.",
+        "expect": {
+            "browser": {
+                "name": "firefox",
+                "version": {
+                    "full": "15.0",
+                    "major": 15,
+                    "minor": 0,
+                    "patch": null
+                },
+                "family": "firefox",
+                "mode": "browser"
+            }
+        }
+    },
+    {
+        "id": "firefox-macos-100",
+        "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:100.0) Gecko/20100101 Firefox/100.0",
+        "expect": {
+            "browser": {
+                "name": "firefox",
+                "version": {
+                    "full": "100.0",
+                    "major": 100,
+                    "minor": 0,
+                    "patch": null
+                },
+                "family": "firefox",
+                "mode": "browser"
+            }
+        }
+    },
+    {
+        "id": "firefox-linux-80-appname",
+        "ua": "Mozilla/5.0 (X11; Linux x86_64; rv:80.0) Gecko/20100101 Firefox/80.0 AppName/1.0",
+        "expect": {
+            "browser": {
+                "name": "firefox",
+                "version": {
+                    "full": "80.0",
+                    "major": 80,
+                    "minor": 0,
+                    "patch": null
+                },
+                "family": "firefox",
+                "mode": "browser"
+            }
+        }
+    }
+]

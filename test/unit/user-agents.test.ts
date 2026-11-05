@@ -5,26 +5,28 @@ import { parse } from '../../src/parse';
 import { parseRequest } from '../../src/server';
 import type { UAInfo } from '../../src/types';
 
-// Real User-Agent strings only. `src` says where each one came from: a live capture (`observed`),
-// or a public reference page (`doc`). Nothing composed belongs in these files. Adding a vector
-// means adding a row, so the corpus grows without touching this runner.
+// Real User-Agent strings only. Nothing composed belongs in these files. `user-agents.json` holds
+// this project's own captures, and every entry there cites its capture in `src`. The per-dimension
+// files under `test/data/<dimension>/` carry no `src`. Adding a vector means adding a row, so the
+// corpus grows without touching this runner.
 type DeepPartial<T> = { [K in keyof T]?: T[K] extends object ? DeepPartial<T[K]> : T[K] };
 
 interface Vector {
   readonly id: string;
   readonly ua: string;
   readonly headers?: Readonly<Record<string, string>>;
-  readonly src: string;
+  readonly src?: string;
   readonly note?: string;
   readonly expect: DeepPartial<Omit<UAInfo, 'ua'>>;
 }
 
 const DATA = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'data');
 
-// `user-agents.json` holds first-party captures. Each subdirectory holds one dimension from the
-// public reference pages.
+const CAPTURES = path.join(DATA, 'user-agents.json');
+
+// `user-agents.json` holds first-party captures. Each subdirectory holds one dimension.
 function loadVectors(): Vector[] {
-  const files = [path.join(DATA, 'user-agents.json')];
+  const files = [CAPTURES];
   for (const entry of readdirSync(DATA, { withFileTypes: true })) {
     if (!entry.isDirectory()) continue;
     for (const file of readdirSync(path.join(DATA, entry.name))) {
@@ -35,6 +37,7 @@ function loadVectors(): Vector[] {
 }
 
 const VECTORS = loadVectors();
+const CAPTURED = JSON.parse(readFileSync(CAPTURES, 'utf8')) as Vector[];
 
 describe('stored User-Agent vectors', () => {
   it('has an entry', () => {
@@ -46,10 +49,8 @@ describe('stored User-Agent vectors', () => {
     expect(ids.filter((id, index) => ids.indexOf(id) !== index)).toEqual([]);
   });
 
-  it('cites where every string came from', () => {
-    const bad = VECTORS.filter(
-      (entry) => !/^(?:observed:\S.*@\d{4}-\d{2}-\d{2}|doc:https?:\/\/\S+)$/.test(entry.src),
-    );
+  it('cites the capture of every first-party string', () => {
+    const bad = CAPTURED.filter((entry) => !/^observed:\S.*@\d{4}-\d{2}-\d{2}$/.test(entry.src ?? ''));
     expect(bad.map((entry) => entry.id)).toEqual([]);
   });
 

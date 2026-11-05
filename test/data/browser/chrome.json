@@ -1,0 +1,120 @@
+[
+    {
+        "id": "chrome-20-windows-8",
+        "ua": "Mozilla/5.0 (Windows NT 6.2) AppleWebKit/536.6 (KHTML, like Gecko) Chrome/20.0.1090.0 Safari/536.6",
+        "expect": {
+            "browser": {
+                "name": "chrome",
+                "version": {
+                    "full": "20.0.1090.0",
+                    "major": 20
+                },
+                "family": "chromium",
+                "mode": "browser"
+            }
+        }
+    },
+    {
+        "id": "chrome-112-windows-10",
+        "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
+        "expect": {
+            "browser": {
+                "name": "chrome",
+                "version": {
+                    "full": "112.0.0.0",
+                    "major": 112
+                },
+                "family": "chromium",
+                "mode": "browser"
+            }
+        }
+    },
+    {
+        "id": "chrome-100-macos",
+        "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4758.102 Safari/537.36",
+        "expect": {
+            "browser": {
+                "name": "chrome",
+                "version": {
+                    "full": "100.0.4758.102",
+                    "major": 100
+                },
+                "family": "chromium",
+                "mode": "browser"
+            }
+        }
+    },
+    {
+        "id": "chrome-111-linux",
+        "ua": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
+        "expect": {
+            "browser": {
+                "name": "chrome",
+                "version": {
+                    "full": "111.0.0.0",
+                    "major": 111
+                },
+                "family": "chromium",
+                "mode": "browser"
+            }
+        }
+    },
+    {
+        "id": "chrome-111-chromeos",
+        "ua": "Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
+        "expect": {
+            "browser": {
+                "name": "chrome",
+                "version": {
+                    "full": "111.0.0.0",
+                    "major": 111
+                },
+                "family": "chromium",
+                "mode": "browser"
+            }
+        }
+    },
+    {
+        "id": "crios-19-ios-5-1-1",
+        "ua": "Mozilla/5.0 (iPhone; U; CPU iPhone OS 5_1_1 like Mac OS X; en) AppleWebKit/534.46.0 (KHTML, like Gecko) CriOS/19.0.1084.60 Mobile/9B206 Safari/7534.48.3",
+        "note": "The doc calls this Mobile Chrome. On iOS the engine is WebKit, so the id stays chrome.",
+        "expect": {
+            "browser": {
+                "name": "chrome",
+                "version": {
+                    "full": "19.0.1084.60",
+                    "major": 19
+                },
+                "family": "chromium",
+                "mode": "browser"
+            }
+        }
+    },
+    {
+        "id": "headless-chrome-60-macos",
+        "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/60.0.3112.113 Safari/537.36",
+        "expect": {
+            "browser": {
+                "name": "chrome",
+                "version": {
+                    "full": "60.0.3112.113",
+                    "major": 60
+                },
+                "family": "chromium",
+                "mode": "headless"
+            }
+        }
+    },
+    {
+        "id": "headless-chrome-no-version-linux",
+        "ua": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome Safari/537.36",
+        "expect": {
+            "browser": {
+                "name": "chrome",
+                "version": null,
+                "family": "chromium",
+                "mode": "headless"
+            }
+        }
+    }
+]

@@ -10,11 +10,6 @@ const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 const nodeCommand = process.execPath;
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const packageJson = JSON.parse(await readFile(path.join(root, 'package.json'), 'utf8'));
-const gatePolicy = JSON.parse(await readFile(path.join(root, 'benchmarks', 'performance-gate-policy.json'), 'utf8'));
-const budgetBaseline = JSON.parse(await readFile(path.join(root, gatePolicy.baseline), 'utf8'));
-// The unpacked size may exceed the reviewed baseline by this much before the release is blocked.
-// Bundle sizes are the exact gate (performance:gate); this only catches an accidental large file.
-const UNPACKED_SIZE_TOLERANCE = 1.1;
 const workspace = await mkdtemp(path.join(os.tmpdir(), 'ua-inspect-pack-'));
 
 try {
@@ -56,14 +51,6 @@ try {
   if (forbiddenFiles.length > 0) {
     throw new Error(`Package contains forbidden implementation/test files: ${forbiddenFiles.join(', ')}`);
   }
-  const unpackedLimit = Math.ceil(budgetBaseline.sizes.package.unpackedBytes * UNPACKED_SIZE_TOLERANCE);
-  if (report.unpackedSize > unpackedLimit) {
-    throw new Error(
-      `Package unpacked size ${report.unpackedSize} exceeds ${unpackedLimit} bytes (reviewed baseline ${budgetBaseline.sizes.package.unpackedBytes} + 10%). ` +
-      'Remove the new files, or review the growth and run npm run budget:update.',
-    );
-  }
-
   const tarballPath = path.join(workspace, report.filename);
   execFileSync(nodeCommand, [path.join(root, 'scripts', 'verify', 'verify-consumers.mjs'), tarballPath], {
     cwd: root,

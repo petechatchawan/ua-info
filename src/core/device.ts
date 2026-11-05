@@ -4,7 +4,7 @@ import type { ClientHints } from '../input';
 import type { DeviceInfo } from '../types';
 import type { DeviceType } from '../catalog/devices';
 import { compileMatcher, pick, type Candidate } from './match';
-import type { Scan } from './scan';
+import { isLetter, type Scan } from './scan';
 
 const MIN_MODEL_LENGTH = 2;
 const MAX_MODEL_LENGTH = 48;
@@ -33,10 +33,6 @@ for (const id of Object.keys(VENDORS) as VendorId[]) {
 const PREFIX_LENGTHS: readonly number[] = [...new Set([...MODEL_PREFIXES.keys()].map((prefix) => prefix.length))].sort(
   (a, b) => b - a,
 );
-
-function isLetter(code: number): boolean {
-  return code >= 97 && code <= 122;
-}
 
 function isLocale(lower: string): boolean {
   if (lower.length === 2) return isLetter(lower.charCodeAt(0)) && isLetter(lower.charCodeAt(1));

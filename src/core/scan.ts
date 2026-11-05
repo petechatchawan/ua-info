@@ -62,7 +62,7 @@ function isDigit(code: number): boolean {
   return code >= 48 && code <= 57;
 }
 
-function isLetter(code: number): boolean {
+export function isLetter(code: number): boolean {
   return code >= 97 && code <= 122;
 }
 

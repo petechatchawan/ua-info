@@ -1,0 +1,80 @@
+[
+    {
+        "id": "chrome-webview-43-android-5-1-1",
+        "ua": "Mozilla/5.0 (Linux; Android 5.1.1; Nexus 5 Build/LMY48B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/43.0.2357.65 Mobile Safari/537.36",
+        "note": "The doc gives Chrome WebView its own name. We keep the product id and mark mode.",
+        "expect": {
+            "browser": {
+                "name": "chrome-mobile",
+                "version": {
+                    "full": "43.0.2357.65",
+                    "major": 43
+                },
+                "family": "chromium",
+                "mode": "webview"
+            }
+        }
+    },
+    {
+        "id": "crmo-16-android-4-0-3",
+        "ua": "Mozilla/5.0 (Linux; U; Android-4.0.3; en-us; Galaxy Nexus Build/IML74K) AppleWebKit/535.7 (KHTML, like Gecko) CrMo/16.0.912.75 Mobile Safari/535.7",
+        "expect": {
+            "browser": {
+                "name": "chrome-mobile",
+                "version": {
+                    "full": "16.0.912.75",
+                    "major": 16
+                },
+                "family": "chromium",
+                "mode": "browser"
+            }
+        }
+    },
+    {
+        "id": "chrome-58-android-7-1-2",
+        "ua": "Mozilla/5.0 (Linux; Android 7.1.2; Nexus 5X Build/N2G47W) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.83 Mobile Safari/537.36",
+        "expect": {
+            "browser": {
+                "name": "chrome-mobile",
+                "version": {
+                    "full": "58.0.3029.83",
+                    "major": 58
+                },
+                "family": "chromium",
+                "mode": "browser"
+            }
+        }
+    },
+    {
+        "id": "android-browser-1-5-galaxy-s3",
+        "ua": "Mozilla/5.0 (Linux; Android 4.4.4; en-us; SAMSUNG GT-I9300I Build/KTU84P) AppleWebKit/537.36 (KHTML, like Gecko) Version/1.5 Chrome/28.0.1500.94 Mobile Safari/537.36",
+        "note": "The doc calls this Android Browser 1.5. The Version/ plus Chrome/ shape is a Chromium WebView, so it stays chrome-mobile.",
+        "expect": {
+            "browser": {
+                "name": "chrome-mobile",
+                "version": {
+                    "full": "28.0.1500.94",
+                    "major": 28
+                },
+                "family": "chromium",
+                "mode": "browser"
+            }
+        }
+    },
+    {
+        "id": "android-browser-4-huawei-h891l",
+        "ua": "Mozilla/5.0 (Linux; Android 4.4.4; HUAWEI H891L Build/HuaweiH891L) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/33.0.0.0 Mobile Safari/537.36",
+        "note": "Same Version/ plus Chrome/ shape as the Facebook in-app capture, so it stays chrome-mobile with mode webview.",
+        "expect": {
+            "browser": {
+                "name": "chrome-mobile",
+                "version": {
+                    "full": "33.0.0.0",
+                    "major": 33
+                },
+                "family": "chromium",
+                "mode": "webview"
+            }
+        }
+    }
+]

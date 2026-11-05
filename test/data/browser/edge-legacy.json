@@ -1,0 +1,74 @@
+[
+    {
+        "id": "edge-legacy-12",
+        "ua": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36 Edge/12.0",
+        "note": "The page calls this Edge; this package reports the EdgeHTML builds as `edge-legacy` and keeps `edge` for the Chromium builds.",
+        "expect": {
+            "browser": {
+                "name": "edge-legacy",
+                "version": {
+                    "full": "12.0",
+                    "major": 12,
+                    "minor": 0,
+                    "patch": null
+                },
+                "family": null,
+                "mode": "browser"
+            }
+        }
+    },
+    {
+        "id": "edge-legacy-17",
+        "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36 Edge/17.17134",
+        "note": "The page calls this Edge; this package reports the EdgeHTML builds as `edge-legacy` and keeps `edge` for the Chromium builds.",
+        "expect": {
+            "browser": {
+                "name": "edge-legacy",
+                "version": {
+                    "full": "17.17134",
+                    "major": 17,
+                    "minor": 17134,
+                    "patch": null
+                },
+                "family": null,
+                "mode": "browser"
+            }
+        }
+    },
+    {
+        "id": "edge-legacy-18",
+        "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36 Edge/18.17763",
+        "note": "The page calls this Edge; this package reports the EdgeHTML builds as `edge-legacy` and keeps `edge` for the Chromium builds.",
+        "expect": {
+            "browser": {
+                "name": "edge-legacy",
+                "version": {
+                    "full": "18.17763",
+                    "major": 18,
+                    "minor": 17763,
+                    "patch": null
+                },
+                "family": null,
+                "mode": "browser"
+            }
+        }
+    },
+    {
+        "id": "edge-windows-iot-10",
+        "ua": "Mozilla/5.0 (Windows IoT 10.0; Android 6.0.1; WebView/3.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Mobile Safari/537.36 Edge/18.17763",
+        "note": "The page calls this Edge; this package reports the EdgeHTML builds as `edge-legacy` and keeps `edge` for the Chromium builds.",
+        "expect": {
+            "browser": {
+                "name": "edge-legacy",
+                "version": {
+                    "full": "18.17763",
+                    "major": 18,
+                    "minor": 17763,
+                    "patch": null
+                },
+                "family": null,
+                "mode": "browser"
+            }
+        }
+    }
+]

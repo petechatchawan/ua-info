@@ -1,0 +1,64 @@
+[
+    {
+        "id": "engine-chrome-20-webkit",
+        "ua": "Mozilla/5.0 (Windows NT 6.2) AppleWebKit/536.6 (KHTML, like Gecko) Chrome/20.0.1090.0 Safari/536.6",
+        "note": "Blink shipped in Chrome 28, so earlier builds render with WebKit.",
+        "expect": {
+            "engine": {
+                "name": "webkit",
+                "version": {
+                    "full": "536.6"
+                }
+            }
+        }
+    },
+    {
+        "id": "engine-chromium-16-webkit",
+        "ua": "Mozilla/5.0 (X11; Linux i686) AppleWebKit/535.7 (KHTML, like Gecko) Ubuntu/11.10 Chromium/16.0.912.21 Chrome/16.0.912.21 Safari/535.7",
+        "expect": {
+            "engine": {
+                "name": "webkit",
+                "version": {
+                    "full": "535.7"
+                }
+            }
+        }
+    },
+    {
+        "id": "engine-crmo-16-webkit",
+        "ua": "Mozilla/5.0 (Linux; U; Android-4.0.3; en-us; Galaxy Nexus Build/IML74K) AppleWebKit/535.7 (KHTML, like Gecko) CrMo/16.0.912.75 Mobile Safari/535.7",
+        "expect": {
+            "engine": {
+                "name": "webkit",
+                "version": {
+                    "full": "535.7"
+                }
+            }
+        }
+    },
+    {
+        "id": "engine-android-browser-4-webkit",
+        "ua": "Mozilla/5.0 (Linux; U; Android 4.0.2; en-us; Galaxy Nexus Build/ICL53F) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30",
+        "expect": {
+            "engine": {
+                "name": "webkit",
+                "version": {
+                    "full": "534.30"
+                }
+            }
+        }
+    },
+    {
+        "id": "engine-crios-19-webkit",
+        "ua": "Mozilla/5.0 (iPhone; U; CPU iPhone OS 5_1_1 like Mac OS X; en) AppleWebKit/534.46.0 (KHTML, like Gecko) CriOS/19.0.1084.60 Mobile/9B206 Safari/7534.48.3",
+        "note": "On iOS every browser renders with WebKit, whatever its version.",
+        "expect": {
+            "engine": {
+                "name": "webkit",
+                "version": {
+                    "full": "534.46.0"
+                }
+            }
+        }
+    }
+]

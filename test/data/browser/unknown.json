@@ -1,0 +1,12 @@
+[
+    {
+        "id": "android-browser-4-huawei-u9508",
+        "ua": "Mozilla/5.0 (Linux; U; Android 4.0.4; ru-by; HUAWEI U9508 Build/HuaweiU9508) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30 ACHEETAHI/2100050044",
+        "note": "An unknown top-level product suppresses the generic row, so no browser is named.",
+        "expect": {
+            "browser": {
+                "name": null
+            }
+        }
+    }
+]

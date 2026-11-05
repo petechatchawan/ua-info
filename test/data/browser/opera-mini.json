@@ -1,0 +1,36 @@
+[
+    {
+        "id": "opera-mini-j2me-5",
+        "ua": "Opera/9.80 (J2ME/MIDP; Opera Mini/5.1.21214/19.916; U; en) Presto/2.5.25",
+        "expect": {
+            "browser": {
+                "name": "opera-mini",
+                "version": {
+                    "full": "5.1.21214",
+                    "major": 5,
+                    "minor": 1,
+                    "patch": 21214
+                },
+                "family": null,
+                "mode": "browser"
+            }
+        }
+    },
+    {
+        "id": "opera-mini-ios-12",
+        "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 9_2 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) OPiOS/12.1.1.98980 Mobile/13C75 Safari/9537.53",
+        "expect": {
+            "browser": {
+                "name": "opera-mini",
+                "version": {
+                    "full": "12.1.1.98980",
+                    "major": 12,
+                    "minor": 1,
+                    "patch": 1
+                },
+                "family": null,
+                "mode": "browser"
+            }
+        }
+    }
+]

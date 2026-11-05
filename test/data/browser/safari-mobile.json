@@ -1,0 +1,50 @@
+[
+    {
+        "id": "safari-mobile-ios-4-0-5",
+        "ua": "Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_0 like Mac OS X; en-us) AppleWebKit/532.9 (KHTML, like Gecko) Version/4.0.5 Mobile/8A293 Safari/6531.22.7",
+        "expect": {
+            "browser": {
+                "name": "safari-mobile",
+                "version": {
+                    "full": "4.0.5",
+                    "major": 4,
+                    "minor": 0,
+                    "patch": 5
+                },
+                "family": "safari",
+                "mode": "browser"
+            }
+        }
+    },
+    {
+        "id": "safari-mobile-ios-16-3-no-version",
+        "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko)  Mobile/15E148 Safari/604.1",
+        "note": "This string carries no `Version/` token, so no release is reported.",
+        "expect": {
+            "browser": {
+                "name": "safari-mobile",
+                "version": null,
+                "family": "safari",
+                "mode": "browser"
+            }
+        }
+    },
+    {
+        "id": "safari-mobile-ios-15-7-comma",
+        "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 15_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.6,2 Mobile/15E148 Safari/604.1",
+        "note": "The page leaves the comma in place; this package reads `15.6,2` as version `15.6.2`.",
+        "expect": {
+            "browser": {
+                "name": "safari-mobile",
+                "version": {
+                    "full": "15.6.2",
+                    "major": 15,
+                    "minor": 6,
+                    "patch": 2
+                },
+                "family": "safari",
+                "mode": "browser"
+            }
+        }
+    }
+]

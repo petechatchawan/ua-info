@@ -2,10 +2,7 @@
 node_modules/
 
 # Build output
-dist/lib
-lib/
 coverage/
-artifacts/performance/
 
 # Logs
 logs
@@ -24,10 +21,13 @@ Thumbs.db
 .env.local
 
 # IDE and editor settings
-.idea/                 # JetBrains IDEs (e.g., WebStorm)
-.vscode/               # Visual Studio Code settings
-*.sublime-project      # Sublime Text project files
-*.sublime-workspace    # Sublime Text workspace files
+# JetBrains IDEs (e.g., WebStorm)
+.idea/
+# Visual Studio Code settings
+.vscode/
+# Sublime Text project files
+*.sublime-project
+*.sublime-workspace
 
 # npm package lock file (optional)
 package-lock.json
