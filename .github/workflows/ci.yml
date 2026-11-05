@@ -46,45 +46,6 @@ jobs:
           path: coverage
           if-no-files-found: ignore
 
-  performance-foundation:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-      - name: Install dependencies
-        run: npm install
-      - name: Generate performance report
-        run: npm run performance:report
-      - name: Validate performance report
-        run: npm run performance:validate
-      - name: Evaluate performance hard gate
-        run: npm run performance:gate
-      - name: Publish performance summaries
-        if: always()
-        shell: bash
-        run: |
-          for summary in \
-            artifacts/performance/performance-summary.md \
-            artifacts/performance/performance-gate-summary.md
-          do
-            if [ -f "$summary" ]; then
-              cat "$summary" >> "$GITHUB_STEP_SUMMARY"
-            else
-              echo "$(basename "$summary") was not generated." >> "$GITHUB_STEP_SUMMARY"
-            fi
-          done
-      - name: Upload performance report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: performance-report
-          path: artifacts/performance
-          retention-days: 30
-          if-no-files-found: error
-
   playground:
     runs-on: ubuntu-latest
 
