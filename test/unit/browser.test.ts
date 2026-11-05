@@ -1,9 +1,22 @@
 import { parse } from '../../src/parse';
-import { BROWSER_FIXTURES } from './fixtures';
+
+const CHROME_DESKTOP =
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 ' +
+  '(KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36';
+const CHROME_ANDROID =
+  'Mozilla/5.0 (Linux; Android 16; Pixel 10 Pro) AppleWebKit/537.36 ' +
+  '(KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36';
 
 describe('browser detection', () => {
-  it.each(BROWSER_FIXTURES)('$id', (fixture) => {
-    expect(parse(fixture.userAgent).browser).toMatchObject(fixture.expected);
+  // Composed precedence cases: a Chrome-shaped string plus one vendor token. The stored corpora hold
+  // only real strings, so these composed cases stay here.
+  it.each([
+    ['vivaldi', `${CHROME_DESKTOP} Vivaldi/7.5.3735.66`],
+    ['uc-browser', `${CHROME_ANDROID} UCBrowser/15.0.0.0`],
+    ['yandex-browser', `${CHROME_DESKTOP} YaBrowser/25.8.3.106`],
+    ['arc', `${CHROME_DESKTOP} Arc/1.63.0`],
+  ])('detects %s before Chrome', (name, ua) => {
+    expect(parse(ua).browser).toMatchObject({ name, family: 'chromium', mode: 'browser' });
   });
 
   it('detects Mi Browser before Chrome', () => {
