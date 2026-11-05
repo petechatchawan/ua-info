@@ -1,0 +1,32 @@
+[
+    {
+        "id": "cpu-windows-x64",
+        "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
+        "expect": {
+            "cpu": {
+                "architecture": "x86_64",
+                "bitness": 64
+            }
+        }
+    },
+    {
+        "id": "cpu-linux-x86-64",
+        "ua": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
+        "expect": {
+            "cpu": {
+                "architecture": "x86_64",
+                "bitness": 64
+            }
+        }
+    },
+    {
+        "id": "cpu-chromeos-x86-64",
+        "ua": "Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
+        "expect": {
+            "cpu": {
+                "architecture": "x86_64",
+                "bitness": 64
+            }
+        }
+    }
+]

@@ -1,0 +1,35 @@
+[
+    {
+        "id": "engine-chrome-112-blink",
+        "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
+        "note": "The Blink version is null; it equals the Chrome version.",
+        "expect": {
+            "engine": {
+                "name": "blink",
+                "version": null
+            }
+        }
+    },
+    {
+        "id": "engine-chrome-28-blink",
+        "ua": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.71 Safari/537.36",
+        "note": "28 is the first Blink release, so the boundary itself reports Blink.",
+        "expect": {
+            "engine": {
+                "name": "blink",
+                "version": null
+            }
+        }
+    },
+    {
+        "id": "engine-samsung-internet-3-blink",
+        "ua": "Mozilla/5.0 (Linux; Android 5.0.2; SAMSUNG SM-G925F Build/LRX22G) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/3.0 Chrome/38.0.2125.102 Mobile Safari/537.36",
+        "note": "The Blink boundary follows the Chrome version only, so a fork below 28 keeps Blink.",
+        "expect": {
+            "engine": {
+                "name": "blink",
+                "version": null
+            }
+        }
+    }
+]

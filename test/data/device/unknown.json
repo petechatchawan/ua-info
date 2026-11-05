@@ -1,0 +1,36 @@
+[
+    {
+        "id": "device-windows-desktop",
+        "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
+        "expect": {
+            "device": {
+                "type": "desktop",
+                "vendor": null,
+                "model": null
+            }
+        }
+    },
+    {
+        "id": "device-galaxy-nexus",
+        "ua": "Mozilla/5.0 (Linux; U; Android 4.0.2; en-us; Galaxy Nexus Build/ICL53F) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30",
+        "expect": {
+            "device": {
+                "type": "mobile",
+                "vendor": null,
+                "model": "Galaxy Nexus"
+            }
+        }
+    },
+    {
+        "id": "device-htc-flyer-tablet",
+        "ua": "Mozilla/5.0 (Linux; U; Android 3.2.1; ru-ru; HTC Flyer P510e Build/HTK75C) AppleWebKit/534.13 (KHTML, like Gecko) Version/4.0 Safari/534.13",
+        "note": "Android without the Mobile token is the tablet shape, and a wide screen alone cannot prove it.",
+        "expect": {
+            "device": {
+                "type": "tablet",
+                "vendor": null,
+                "model": "HTC Flyer P510e"
+            }
+        }
+    }
+]
