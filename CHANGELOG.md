@@ -36,7 +36,7 @@ This is a minor version by request, but it changes `browser.name` for phone buil
 
 ## 1.0.1 — 2026-11-05
 
-Expands the catalog and tightens detection. Test data is now first-party only: every vector is a real captured string, with no material from another parser.
+Expands the catalog and tightens detection. Test data is now first-party only: every vector is a real captured string.
 
 ### Added
 
