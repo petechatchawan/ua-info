@@ -65,7 +65,7 @@ Expands the catalog and tightens detection. Test data is now first-party only: e
 - Tests moved from `src/__tests__/` to `test/unit/`, and capture data to `test/data/`.
 - `scripts/` grouped by purpose: `build/`, `verify/`, `playground/`, `performance/`.
 - Development TypeScript updated to 5.x.
-- Removed all third-party test vectors and notices; the corpus is real captures only. `ua-inspect` does not derive from or embed another parser's data.
+- Removed all third-party test vectors and notices; the corpus held real captures only.
 
 ## 1.0.0 — 2026-11-04
 
