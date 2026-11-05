@@ -40,7 +40,8 @@ export interface Candidate<K extends string, X = unknown> {
 export interface Matcher<K extends string, X> {
   find(scanned: Scan, os: string | null): Candidate<K, X>[];
   beats(a: K, b: K): boolean;
-  productNames(): readonly string[];
+  /** Whether a row already names this lowercased token, as a product, a word or a word prefix. */
+  accounts(name: string): boolean;
 }
 
 function normalize<X>(match: Match<X>): Signal<X> {
@@ -101,7 +102,10 @@ export function compileMatcher<K extends string, X = unknown>(
 
   return {
     beats,
-    productNames: () => [...index.keys()],
+    accounts: (name) =>
+      index.has(name) ||
+      wordIndex.has(name) ||
+      wordPrefixes.some((entry) => name.startsWith(entry.prefix)),
     find(scanned, os) {
       const found: Candidate<K, X>[] = [];
       const accept = (id: K, signal: Signal<X>, versionRaw: string | null): void => {

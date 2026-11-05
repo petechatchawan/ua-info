@@ -86,7 +86,9 @@ const rows = {
   macos: {
     label: 'macOS',
     platforms: ['macOS'],
-    match: [{ words: 'mac os x' }],
+    // `PPC Mac OS X` carries no release token, and an app string can put a non-version word next.
+    // An iOS string also names `Mac OS X`, so the phone tokens keep it out of this row.
+    match: [{ words: 'mac os x', versionOptional: true, without: ['iphone', 'ipad'] }],
   },
   openharmony: {
     label: 'OpenHarmony',

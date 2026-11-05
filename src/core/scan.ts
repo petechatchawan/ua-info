@@ -90,8 +90,8 @@ export function readVersion(raw: string | null): Version | null {
   let end = 0;
   while (end < limit) {
     const code = raw.charCodeAt(end);
-    if (!isDigit(code) && code !== DOT && code !== UNDERSCORE) break;
-    full += code === UNDERSCORE ? '.' : raw[end];
+    if (!isDigit(code) && code !== DOT && code !== UNDERSCORE && code !== COMMA) break;
+    full += code === UNDERSCORE || code === COMMA ? '.' : raw[end];
     end++;
   }
   while (full.endsWith('.')) full = full.slice(0, -1);

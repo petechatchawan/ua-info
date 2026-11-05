@@ -107,6 +107,7 @@ const rows = {
       { product: 'Edg', without: ['edgwebview2'] },
       'EdgA',
       'EdgiOS',
+      { product: 'EdgW', mode: 'webview' },
       { words: 'edgwebview2', mode: 'webview', versionFrom: 'Edg', versionOptional: true },
     ],
   },
@@ -117,8 +118,27 @@ const rows = {
     brands: [],
     match: ['Edge'],
   },
-  firefox: { label: 'Firefox', family: 'firefox', engine: 'gecko', brands: [], match: ['Firefox', 'FxiOS'] },
-  'huawei-browser': { label: 'Huawei Browser', family: 'chromium', engine: 'blink', brands: [], match: ['HuaweiBrowser'] },
+  firefox: { label: 'Firefox', family: 'firefox', engine: 'gecko', brands: [], match: ['Firefox'] },
+  // `FxiOS` is the iOS app token and also appears on Android, so it names the mobile build on its
+  // own. A plain `Firefox/` on a phone platform is the mobile build too.
+  'firefox-mobile': {
+    label: 'Firefox Mobile',
+    family: 'firefox',
+    engine: 'gecko',
+    brands: [],
+    beats: ['firefox'],
+    match: [
+      'FxiOS',
+      { product: 'Firefox', os: osIn('android', 'ios', 'ipados'), with: ['mobile'] },
+    ],
+  },
+  'huawei-browser': {
+    label: 'Huawei Browser',
+    family: 'chromium',
+    engine: 'blink',
+    brands: [],
+    match: ['HuaweiBrowser', 'HBPC'],
+  },
   ie: {
     label: 'Internet Explorer',
     family: null,
@@ -135,9 +155,24 @@ const rows = {
     family: 'chromium',
     engine: 'blink',
     brands: ['Opera'],
-    match: ['OPR', 'OPT'],
+    // The MSIE token in an old Opera string is a compatibility lie, so Opera outranks it.
+    beats: ['ie'],
+    // Before version 15 Opera ran on Presto and reported its release through `Version/`. The builds
+    // that predate that token predate `Version/` too, so the product version is the fallback.
+    match: [
+      { product: 'OPR' },
+      { product: 'OPT' },
+      { product: 'Opera', versionPrefer: 'Version', family: null, engine: 'presto' },
+    ],
   },
-  'opera-gx': { label: 'Opera GX', family: 'chromium', engine: 'blink', brands: [], match: ['OPX'] },
+  'opera-gx': {
+    label: 'Opera GX',
+    family: 'chromium',
+    engine: 'blink',
+    brands: [],
+    beats: ['opera'],
+    match: ['OPX', 'OPRGX'],
+  },
   'opera-mini': {
     label: 'Opera Mini',
     family: null,
@@ -145,6 +180,23 @@ const rows = {
     brands: [],
     beats: ['opera'],
     match: ['Opera Mini', { product: 'OPiOS', engine: 'webkit' }],
+  },
+  'opera-mobi': {
+    label: 'Opera Mobi',
+    family: null,
+    engine: 'presto',
+    brands: [],
+    beats: ['opera'],
+    // The token carries a build code, not a version; the release is in `Version/`.
+    match: [{ product: 'Opera Mobi', versionFrom: 'Version' }],
+  },
+  'opera-tablet': {
+    label: 'Opera Tablet',
+    family: null,
+    engine: 'presto',
+    brands: [],
+    beats: ['opera'],
+    match: [{ product: 'Opera Tablet', versionFrom: 'Version' }],
   },
   'pale-moon': { label: 'Pale Moon', family: 'firefox', engine: 'gecko', brands: [], beats: ['firefox'], match: ['PaleMoon'] },
   puffin: { label: 'Puffin', family: null, engine: null, brands: [], match: ['Puffin'] },
@@ -163,7 +215,12 @@ const rows = {
     family: 'safari',
     engine: 'webkit',
     brands: [],
-    match: [{ product: 'Version', with: ['Safari'], os: osIn('ios', 'ipados', 'macos'), fallback: true }],
+    // Safari on Windows keeps the `Version/` token. The builds that predate it send only
+    // `Safari/<build>`, which is a WebKit build number, so such a string has no reportable release.
+    match: [
+      { product: 'Version', with: ['Safari'], os: osIn('ios', 'ipados', 'macos', 'windows'), fallback: true },
+      { product: 'Safari', os: osIn('macos', 'windows'), without: ['chrome', 'chromium'], versionFrom: 'Version', versionOptional: true, fallback: true },
+    ],
   },
   // Safari on iOS and iPadOS is the mobile build; macOS stays `safari`. Both rows are fallbacks,
   // so a specific product such as Edge on iOS still wins.
@@ -173,11 +230,29 @@ const rows = {
     engine: 'webkit',
     brands: [],
     beats: ['safari'],
-    match: [{ product: 'Version', with: ['Safari'], os: osIn('ios', 'ipados'), fallback: true }],
+    match: [
+      { product: 'Version', with: ['Safari'], os: osIn('ios', 'ipados'), fallback: true },
+      {
+        product: 'Safari',
+        with: ['mobile'],
+        os: osIn('ios', 'ipados'),
+        without: ['chrome', 'chromium', 'crios'],
+        versionFrom: 'Version',
+        versionOptional: true,
+        fallback: true,
+      },
+    ],
   },
   'samsung-internet': { label: 'Samsung Internet', family: 'chromium', engine: 'blink', brands: [], match: ['SamsungBrowser'] },
   'uc-browser': { label: 'UC Browser', family: 'chromium', engine: 'blink', brands: [], match: ['UCBrowser'] },
   vivaldi: { label: 'Vivaldi', family: 'chromium', engine: 'blink', brands: [], match: ['Vivaldi'] },
+  'vivo-browser': {
+    label: 'Vivo Browser',
+    family: 'chromium',
+    engine: 'blink',
+    brands: [],
+    match: ['VivoBrowser'],
+  },
   whale: {
     label: 'Whale',
     family: 'chromium',
@@ -211,4 +286,6 @@ export const NEUTRAL_PRODUCTS: readonly string[] = [
   'mmwebid',
   'mmwebsdk',
   'fbnv',
+  // Instagram for iOS names its network stack; it is not a browser.
+  'nw',
 ];

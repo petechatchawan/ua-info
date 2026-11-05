@@ -28,12 +28,6 @@ const CLIENT_MATCHER = compileMatcher<ClientId>(CLIENTS);
 const OS_MATCHER = compileMatcher<OSId>(OPERATING_SYSTEMS);
 const CPU_MATCHER = compileMatcher<CPUArchitecture, CPUSignal>(CPUS);
 
-const ACCOUNTED_PRODUCTS: ReadonlySet<string> = new Set([
-  ...BROWSER_MATCHER.productNames(),
-  ...CONTEXT_MATCHER.productNames(),
-  ...NEUTRAL_PRODUCTS,
-]);
-
 /** Chrome 28 is the first Blink release; earlier Chrome and Chromium builds render with WebKit. */
 const CHROME_BLINK_EPOCH = 28;
 
@@ -48,7 +42,13 @@ for (const id of Object.keys(BROWSERS) as BrowserId[]) {
 }
 
 function hasUnaccountedProduct(scanned: Scan): boolean {
-  return scanned.products.some((product) => product.top && !ACCOUNTED_PRODUCTS.has(product.name));
+  return scanned.products.some(
+    (product) =>
+      product.top &&
+      !NEUTRAL_PRODUCTS.includes(product.name) &&
+      !BROWSER_MATCHER.accounts(product.name) &&
+      !CONTEXT_MATCHER.accounts(product.name),
+  );
 }
 
 function isWebViewUserAgent(scanned: Scan): boolean {

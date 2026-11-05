@@ -31,8 +31,19 @@ describe('matcher', () => {
     expect(matcher.find(scan('Gated'), null)).toEqual([]);
   });
 
-  it('lists every product name for the accounted-token set', () => {
-    expect([...matcher.productNames()].sort()).toEqual(['base', 'gated', 'other', 'special']);
+  it('accounts for every token a row names, including word prefixes', () => {
+    const withWords = compileMatcher<'a' | 'b' | 'c', unknown>({
+      a: { match: ['Alpha'] },
+      b: { match: [{ words: 'two words' }] },
+      c: { match: [{ words: 'pre*' }] },
+    });
+
+    expect(['alpha', 'two words', 'prefix_1.2', 'unlisted'].map((name) => withWords.accounts(name))).toEqual([
+      true,
+      true,
+      true,
+      false,
+    ]);
   });
 
   it('follows beats transitively and ignores cycles', () => {

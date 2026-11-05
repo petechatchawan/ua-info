@@ -5,9 +5,9 @@
         "src": "observed:user-supplied@2026-11-05",
         "expect": {
             "browser": {
-                "name": null,
+                "name": "safari-mobile",
                 "version": null,
-                "family": null,
+                "family": "safari",
                 "mode": "webview"
             },
             "engine": {
@@ -508,9 +508,9 @@
         "src": "observed:user-supplied@2026-11-05",
         "expect": {
             "browser": {
-                "name": null,
+                "name": "safari-mobile",
                 "version": null,
-                "family": null,
+                "family": "safari",
                 "mode": "webview"
             },
             "engine": {
@@ -1208,7 +1208,7 @@
         "src": "observed:user-supplied@2026-11-05",
         "expect": {
             "browser": {
-                "name": "firefox",
+                "name": "firefox-mobile",
                 "version": {
                     "full": "135.0",
                     "major": 135,
@@ -1265,7 +1265,7 @@
         "src": "observed:user-supplied@2026-11-05",
         "expect": {
             "browser": {
-                "name": "firefox",
+                "name": "firefox-mobile",
                 "version": {
                     "full": "135.0",
                     "major": 135,
@@ -1322,8 +1322,13 @@
         "src": "observed:user-supplied@2026-11-05",
         "expect": {
             "browser": {
-                "name": null,
-                "version": null,
+                "name": "chrome-mobile",
+                "version": {
+                    "full": "47.4.2",
+                    "major": 47,
+                    "minor": 4,
+                    "patch": 2
+                },
                 "family": "chromium",
                 "mode": "webview"
             },

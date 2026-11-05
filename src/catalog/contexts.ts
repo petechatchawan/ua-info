@@ -7,7 +7,16 @@ export interface ContextRow extends RowSpec<string> {
 }
 
 const rows = {
-  facebook: { label: 'Facebook', type: 'in-app-browser', match: [{ product: 'FBAV', fallback: true }] },
+  discord: { label: 'Discord', type: 'in-app-browser', match: ['discord'] },
+  facebook: {
+    label: 'Facebook',
+    type: 'in-app-browser',
+    // The iOS build always sends `FBAN/FBIOS`, but only some builds send a version (`FBAV`).
+    match: [
+      { product: 'FBAV', fallback: true },
+      { product: 'FBAN', valueIs: ['FBIOS'], versionOptional: true },
+    ],
+  },
   instagram: { label: 'Instagram', type: 'in-app-browser', match: ['Instagram'] },
   line: { label: 'LINE', type: 'in-app-browser', match: ['Line'] },
   messenger: {
@@ -24,7 +33,25 @@ const rows = {
     match: [
       { words: 'musical_ly*', versionPrefer: 'app_version' },
       { words: 'tiktok*', versionPrefer: 'app_version' },
-      'BytedanceWebview',
+      { words: 'trill*', versionPrefer: 'app_version' },
+      { product: 'BytedanceWebview', versionOptional: true },
+    ],
+  },
+  // The Lite build names itself through `AppName/ultralite` and reports the release in `app_version`.
+  'tiktok-lite': {
+    label: 'TikTok Lite',
+    type: 'in-app-browser',
+    beats: ['tiktok'],
+    match: [{ product: 'AppName', valueIs: ['ultralite'], versionFrom: 'app_version' }],
+  },
+  twitter: {
+    label: 'Twitter',
+    type: 'in-app-browser',
+    // Android sends a bare `TwitterAndroid`. iOS sends `Twitter for iPhone/10.34`, where the version
+    // sits two words after the brand.
+    match: [
+      { words: 'twitterandroid', versionOptional: true },
+      { words: 'twitter', skip: 2, versionOptional: true },
     ],
   },
   wechat: { label: 'WeChat', type: 'in-app-browser', match: ['MicroMessenger'] },
