@@ -185,12 +185,15 @@ The parser does not invent a family to fill a field. A Chromium fork that has no
 | Safari                | `safari`           |
 | Safari Mobile         | `safari-mobile`    |
 | Firefox               | `firefox`          |
+| Firefox Mobile        | `firefox-mobile`   |
 | Microsoft Edge        | `edge`             |
 | Microsoft Edge Legacy | `edge-legacy`      |
 | Internet Explorer     | `ie`               |
 | Opera                 | `opera`            |
 | Opera GX              | `opera-gx`         |
 | Opera Mini            | `opera-mini`       |
+| Opera Mobi            | `opera-mobi`       |
+| Opera Tablet          | `opera-tablet`     |
 | Samsung Internet      | `samsung-internet` |
 | Brave                 | `brave`            |
 | Vivaldi               | `vivaldi`          |
@@ -207,10 +210,11 @@ The parser does not invent a family to fill a field. A Chromium fork that has no
 | Huawei Browser        | `huawei-browser`   |
 | UC Browser            | `uc-browser`       |
 | Yandex Browser        | `yandex-browser`   |
+| Vivo Browser          | `vivo-browser`     |
 
 Android WebView is `browser.mode === 'webview'`, not a separate browser.
 
-Chrome on a phone is `chrome-mobile`, and Safari on iOS or iPadOS is `safari-mobile`. Desktop and tablet builds stay `chrome` and `safari`. A phone build carries the `Mobile` token; both new rows are fallbacks, so a specific product such as Samsung Internet or a specific fork still wins.
+Chrome on a phone is `chrome-mobile`, and Safari on iOS or iPadOS is `safari-mobile`. Desktop and tablet builds stay `chrome` and `safari`. A phone build carries the `Mobile` token; both rows are fallbacks, so a specific product such as Samsung Internet or a specific fork still wins. Firefox on Android, iOS or iPadOS is `firefox-mobile`.
 
 The stock Android browser is `android-browser`. It is the only client that sends a `Version/` token on Android with no Chrome token. Android 4.4 rebuilt it on Chromium, so those builds carry `Chrome/` and stay `chrome-mobile`, which a modern in-app WebView also reports.
 
@@ -218,11 +222,11 @@ The stock Android browser is `android-browser`. It is the only client that sends
 
 | Dimension          | Count | Ids                                                                                                                                                                                                                         |
 | ------------------ | ----- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Browser            | 29    | the table above                                                                                                                                                                                                             |
+| Browser            | 33    | the table above                                                                                                                                                                                                             |
 | Rendering engine   | 5     | `blink`, `edgehtml`, `gecko`, `presto`, `webkit`                                                                                                                                                                            |
 | Operating system   | 20    | `android`, `ios`, `ipados`, `windows`, `macos`, `linux`, `chromeos`, `harmonyos`, `openharmony`, `fuchsia`, `tizen`, `kaios`, `blackberry`, `symbian`, `webos`, `windows-phone`, `firefox-os`, `steamos`, `tvos`, `watchos` |
 | Device type        | 8     | `desktop`, `mobile`, `tablet`, `smart-tv`, `console`, `wearable`, `xr`, `embedded`                                                                                                                                          |
-| In-app context     | 6     | `line`, `facebook`, `instagram`, `tiktok`, `messenger`, `wechat`                                                                                                                                                            |
+| In-app context     | 9     | `line`, `facebook`, `instagram`, `tiktok`, `tiktok-lite`, `twitter`, `discord`, `messenger`, `wechat`                                                                                                                       |
 | Non-browser client | 31    | `labels.client`                                                                                                                                                                                                             |
 | CPU architecture   | 8     | `x86`, `x86_64`, `arm`, `arm64`, `mips`, `powerpc`, `sparc`, `riscv`                                                                                                                                                        |
 | Device vendor      | 22    | `labels.vendor`                                                                                                                                                                                                             |

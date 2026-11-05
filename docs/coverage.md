@@ -14,26 +14,32 @@ Tier 1 shipped. The counts below are the catalog today.
 
 | Dimension | Now | Tier 2 left | After tier 2 |
 |---|---|---|---|
-| Browsers | 29 | 8 | 37 |
+| Browsers | 33 | 8 | 41 |
 | Operating systems | 20 | 4 | 24 |
 | Device vendors | 22 | 5 | 27 |
-| In-app contexts | 6 | 1 | 7 |
+| In-app contexts | 9 | 1 | 10 |
 
 This table is **capability**: every row is implemented. `test/data/user-agents.json` holds real captured
 strings and pins the behaviour that matters; it is not a coverage score.
 
 ## 1. Browsers
 
-### Have (29)
+### Have (33)
 
 `360`, `android-browser`, `arc`, `brave`, `chrome`, `chrome-mobile`, `chromium`, `coc-coc`,
-`duckduckgo`, `ecosia`, `edge`, `edge-legacy`, `firefox`, `huawei-browser`, `ie`, `mi-browser`,
-`opera`, `opera-gx`, `opera-mini`, `pale-moon`, `puffin`, `qq`, `safari`, `safari-mobile`,
-`samsung-internet`, `uc-browser`, `vivaldi`, `whale`, `yandex-browser`
+`duckduckgo`, `ecosia`, `edge`, `edge-legacy`, `firefox`, `firefox-mobile`, `huawei-browser`, `ie`,
+`mi-browser`, `opera`, `opera-gx`, `opera-mini`, `opera-mobi`, `opera-tablet`, `pale-moon`, `puffin`,
+`qq`, `safari`, `safari-mobile`, `samsung-internet`, `uc-browser`, `vivaldi`, `vivo-browser`,
+`whale`, `yandex-browser`
 
-`chrome-mobile` and `safari-mobile` are form-factor variants, not separate products. A phone build
-carries the `Mobile` token: Chrome on Android or HarmonyOS reports `chrome-mobile`, Safari on iOS or
-iPadOS reports `safari-mobile`, and the desktop and tablet builds keep `chrome` and `safari`.
+`chrome-mobile`, `firefox-mobile` and `safari-mobile` are form-factor variants, not separate
+products. A phone build carries the `Mobile` token: Chrome on Android or HarmonyOS reports
+`chrome-mobile`, Safari on iOS or iPadOS reports `safari-mobile`, and the desktop and tablet builds
+keep `chrome` and `safari`. Firefox on Android, iOS or iPadOS reports `firefox-mobile`; the
+`FxiOS/` token names that build on its own.
+
+`opera-mobi` and `opera-tablet` are the Presto-era mobile and tablet builds, reported separately from
+`opera` because their token is a build code and the release sits in `Version/`.
 
 `android-browser` is the stock Android browser: the only client that sends `Version/` on Android
 with no Chrome token. Android 4.4 rebuilt it on Chromium, so those builds carry `Chrome/` and stay
@@ -52,7 +58,7 @@ old enterprise clients live.
 | `ie` | `MSIE ` / `Trident/` + `rv` | 0.02 | 0.01 | Engine is `null`; IE 11 has no `MSIE` token |
 | `edge-legacy` | `Edge/` | 0.02 | 0.01 | Engine `edgehtml`; family `null`, not `chromium` |
 | `opera-mini` | `Opera Mini` / `OPiOS` | — | — | `presto` for the classic token, `webkit` for `OPiOS` |
-| `opera-gx` | `OPX/` | — | — | Chromium fork |
+| `opera-gx` | `OPX/` / `OPRGX/` | — | — | Chromium fork |
 | `360` | `360SE` / `360EE` / `QHBrowser` / `QihooBrowser` | 0.37 | — | Version is the Chrome build it wraps |
 | `coc-coc` | `coc_coc_browser` | 0.11 | — | Vietnamese/Thai Chromium fork |
 | `qq` | `MQQBrowser` / `QQBrowser` | 0.15 | — | Suppressed when `MicroMessenger` is present |
@@ -84,11 +90,15 @@ Falkon, Epiphany, Midori. Either dead or below 0.01% on every cut, with no in-ap
 
 Context rows are not browsers. They describe the host app wrapping the WebView.
 
-Have (6): `facebook`, `instagram`, `line`, `messenger`, `tiktok`, `wechat`
+Have (9): `discord`, `facebook`, `instagram`, `line`, `messenger`, `tiktok`, `tiktok-lite`, `twitter`,
+`wechat`
 
 | id | UA token | Tier | Status |
 |---|---|---|---|
-| `tiktok` | `musical_ly_*` / `tiktok*` / `BytedanceWebview` | 1 | Shipped; `app_version/<semver>` wins, the token suffix is the fallback |
+| `tiktok` | `musical_ly_*` / `tiktok*` / `trill_*` / `BytedanceWebview` | 1 | Shipped; `app_version/<semver>` wins, the token suffix is the fallback |
+| `tiktok-lite` | `AppName/ultralite` | 1 | Shipped; the release comes from `app_version/` |
+| `twitter` | `TwitterAndroid` / `Twitter for iPhone/<release>` | 1 | Shipped |
+| `discord` | `discord/` / `Discord/` | 1 | Shipped |
 | `zalo` | `Zalo` | 2 | Needs a captured string; none in the public fixture suites |
 
 ## 2. Operating systems

@@ -4,25 +4,35 @@ All notable changes to `ua-inspect` are documented in this file.
 
 ## 1.1.0 — 2026-11-05
 
-Splits the phone builds of Chrome and Safari into their own browser ids.
+Splits the phone builds of Chrome, Firefox and Safari into their own browser ids, and completes the mobile, legacy and in-app rows from the reference pages.
 
 This is a minor version by request, but it changes `browser.name` for phone builds. Read the breaking list before upgrading.
 
 ### Breaking
 
 - Chrome on a phone is now `chrome-mobile`, and Safari on iOS or iPadOS is `safari-mobile`. Desktop and tablet builds keep `chrome` and `safari`.
+- Firefox on Android, iOS or iPadOS is now `firefox-mobile`, not `firefox`.
 - `is(info, { browser: 'chrome' })` no longer matches a phone build. Use `chrome-mobile`, or `{ family: 'chromium' }` for any Chromium product.
 - Chrome on Android or HarmonyOS WebView now reports `chrome-mobile` with `mode: 'webview'`, including LINE, Facebook and Instagram in-app browsers.
+- An iOS in-app browser with a `Safari/` token now reports `safari-mobile` instead of a `null` browser name.
 
 ### Added
 
-- Browser ids `chrome-mobile` and `safari-mobile`, with display names in `labels`.
-- A phone build is a fallback: a specific product such as Samsung Internet, Edge or Brave still wins, and the desktop and tablet builds are unchanged.
+- Browser ids `chrome-mobile`, `safari-mobile`, `firefox-mobile`, `opera-mobi`, `opera-tablet` and `vivo-browser`, with display names in `labels`.
+- In-app contexts `tiktok-lite` (`AppName/ultralite`), `twitter` (`TwitterAndroid` and `Twitter for iPhone/`) and `discord` (`discord/` and `Discord/`).
+- A form-factor build is a fallback: a specific product such as Samsung Internet, Edge or Brave still wins, and the desktop and tablet builds are unchanged.
 - `detect()` reads `platform` and `maxTouchPoints` to report an iPad in desktop mode as `ipados`, `tablet`, `apple` and `iPad`. `parse()` and `parseRequest()` cannot see this, because the User-Agent says Macintosh.
 - Browser id `android-browser` for the stock Android browser, the only client that sends a `Version/` token on Android with no Chrome token. Android 4.4 rebuilt it on Chromium, so those builds stay `chrome-mobile`.
 - Chrome, Chrome Mobile and Chromium before version 28 report the `webkit` engine, since version 28 is the first Blink release. Other chromium-family rows keep `blink`.
 - The early Chrome for Android `CrMo/` token reports `chrome-mobile`, and `HeadlessChrome` with no version still reports `chrome` with `mode: 'headless'`.
 - An Android version written with a dash (`Android-4.0.3`, the form the 2012 phone strings use) reads as `android`.
+- Opera before version 15 reports the `presto` engine and no browser family, and reads its release from `Version/` when the string has it. `OPRGX/` names Opera GX, `EdgW/` reports Edge with `mode: 'webview'`, and `HBPC/` names Huawei Browser on Windows.
+- Safari on Windows is detected, and a Safari build that predates `Version/` reports no release instead of its WebKit build number.
+- A version with a comma (`Version/15.6,2`) reads as `15.6.2`.
+- `PPC Mac OS X` reports macOS with no version.
+- TikTok reads `trill_*` and prefers `app_version/` over the build code.
+- Tokens that a catalog row already names are accounted for, so an in-app token no longer hides the underlying Chrome or Safari build.
+- Every User-Agent example on the reference browser pages is stored in `test/data/` with its source URL: 45 browser rows and 13 in-app context rows.
 
 ## 1.0.1 — 2026-11-05
 
