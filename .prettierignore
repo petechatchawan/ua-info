@@ -1,0 +1,17 @@
+# Build output (also in .gitignore; listed here because Prettier does not read .gitignore)
+dist/
+coverage/
+apps/playground/dist/
+apps/playground/playwright-report/
+apps/playground/test-results/
+
+# npm owns this file's formatting
+package-lock.json
+apps/playground/package-lock.json
+
+# Logs and archives
+*.log
+*.tgz
+
+# Prettier must not rewrite its own config (it would emit invalid single-quoted JSON)
+.prettierrc

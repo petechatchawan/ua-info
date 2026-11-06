@@ -29,13 +29,13 @@ Node.js 18 or newer is required for server-side usage. TypeScript declarations, 
 
 ## Entry points
 
-| Use case                          | Import               | Main API          |
-| --------------------------------- | -------------------- | ----------------- |
-| Pure User-Agent parsing           | `ua-inspect`         | `parse()`         |
+| Use case                          | Import               | Main API                                                                 |
+| --------------------------------- | -------------------- | ------------------------------------------------------------------------ |
+| Pure User-Agent parsing           | `ua-inspect`         | `parse()`                                                                |
 | Queries                           | `ua-inspect/check`   | `is()`, `isBot()`, `isMobile()`, `isTablet()`, `isDesktop()`, `isIPad()` |
-| HTTP request + Client Hints       | `ua-inspect/server`  | `parseRequest()`  |
-| Current browser + runtime signals | `ua-inspect/browser` | `detect()`        |
-| Display names                     | `ua-inspect/labels`  | `labels`          |
+| HTTP request + Client Hints       | `ua-inspect/server`  | `parseRequest()`                                                         |
+| Current browser + runtime signals | `ua-inspect/browser` | `detect()`                                                               |
+| Display names                     | `ua-inspect/labels`  | `labels`                                                                 |
 
 ### Pure parser
 
@@ -298,23 +298,23 @@ Predicate results describe parsed evidence. They do not authenticate a browser, 
 Every example below takes the same `info` from `parse()`, `parseRequest()` or `detect()`.
 Find the goal on the left, copy the query on the right:
 
-| Goal | Query |
-|---|---|
-| Phone | `isMobile(info)` |
-| Tablet | `isTablet(info)` |
-| Desktop | `isDesktop(info)` |
-| iPad the evidence names | `isIPad(info)` |
-| Handheld layout | `is(info, { device: ['mobile', 'tablet'] })` |
-| Any Chromium brand | `is(info, { family: 'chromium' })` |
-| Any Firefox, desktop or phone | `is(info, { family: 'firefox' })` |
-| Inside any app WebView | `is(info, { mode: 'webview' })` |
-| Inside a specific app | `is(info, { context: 'line' })` |
-| LINE or LIFF | `is(info, { app: 'line' })` |
-| Proven LIFF (needs `detect`) | `is(info, { context: 'liff' })` |
-| Apple touch device | `is(info, { os: ['ios', 'ipados'] })` |
-| Apple desktop only | `is(info, { os: 'macos', device: 'desktop' })` |
+| Goal                             | Query                                                        |
+| -------------------------------- | ------------------------------------------------------------ |
+| Phone                            | `isMobile(info)`                                             |
+| Tablet                           | `isTablet(info)`                                             |
+| Desktop                          | `isDesktop(info)`                                            |
+| iPad the evidence names          | `isIPad(info)`                                               |
+| Handheld layout                  | `is(info, { device: ['mobile', 'tablet'] })`                 |
+| Any Chromium brand               | `is(info, { family: 'chromium' })`                           |
+| Any Firefox, desktop or phone    | `is(info, { family: 'firefox' })`                            |
+| Inside any app WebView           | `is(info, { mode: 'webview' })`                              |
+| Inside a specific app            | `is(info, { context: 'line' })`                              |
+| LINE or LIFF                     | `is(info, { app: 'line' })`                                  |
+| Proven LIFF (needs `detect`)     | `is(info, { context: 'liff' })`                              |
+| Apple touch device               | `is(info, { os: ['ios', 'ipados'] })`                        |
+| Apple desktop only               | `is(info, { os: 'macos', device: 'desktop' })`               |
 | Block indexers, allow assistants | `is(info, { clientType: ['bot', 'crawler', 'ai-crawler'] })` |
-| Headless automation | `is(info, { mode: 'headless' })` |
+| Headless automation              | `is(info, { mode: 'headless' })`                             |
 
 ```ts
 // Gate a feature on a minimum browser version.

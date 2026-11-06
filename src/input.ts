@@ -1,27 +1,27 @@
 export interface BrandVersion {
-  readonly brand: string;
-  readonly version: string;
+    readonly brand: string;
+    readonly version: string;
 }
 
 export interface ClientHints {
-  readonly brands: readonly BrandVersion[];
-  readonly mobile: boolean | null;
-  readonly platform: string | null;
-  readonly platformVersion: string | null;
-  readonly architecture: string | null;
-  readonly bitness: 32 | 64 | null;
-  readonly model: string | null;
+    readonly brands: readonly BrandVersion[];
+    readonly mobile: boolean | null;
+    readonly platform: string | null;
+    readonly platformVersion: string | null;
+    readonly architecture: string | null;
+    readonly bitness: 32 | 64 | null;
+    readonly model: string | null;
 }
 
 export interface RuntimeEvidence {
-  readonly standalonePWA: boolean | null;
-  readonly liffInClient: boolean | null;
-  /** A Mac-like platform that reports touch points. An iPad in desktop mode is the only real case. */
-  readonly touchMac: boolean | null;
+    readonly standalonePWA: boolean | null;
+    readonly liffInClient: boolean | null;
+    /** A Mac-like platform that reports touch points. An iPad in desktop mode is the only real case. */
+    readonly touchMac: boolean | null;
 }
 
 export interface DetectionInput {
-  readonly ua: string;
-  readonly clientHints: ClientHints | null;
-  readonly runtime: RuntimeEvidence | null;
+    readonly ua: string;
+    readonly clientHints: ClientHints | null;
+    readonly runtime: RuntimeEvidence | null;
 }

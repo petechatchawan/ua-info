@@ -6,8 +6,8 @@ import { labels } from 'ua-inspect/labels';
 
 const result: UAInfo = parse('Mozilla/5.0 Chrome/150.0.0.0 Safari/537.36');
 if (is(result, { browser: 'chrome' })) {
-  const exact: 'chrome' = result.browser.name;
-  void exact;
+    const exact: 'chrome' = result.browser.name;
+    void exact;
 }
 const query: Query = { browser: ['chrome', 'edge'], os: 'android' };
 const id: BrowserId = 'samsung-internet';

@@ -7,23 +7,23 @@ export type { UAInfo };
 export type ClientHintHeaders = HeaderRecord;
 
 export interface UADetectionService {
-  detect(): Promise<UAInfo>;
-  parseUserAgent(userAgent: string): UAInfo;
-  parseRequest(input: {
-    readonly userAgent: string;
-    readonly headers: ClientHintHeaders;
-  }): Promise<UAInfo>;
+    detect(): Promise<UAInfo>;
+    parseUserAgent(userAgent: string): UAInfo;
+    parseRequest(input: {
+        readonly userAgent: string;
+        readonly headers: ClientHintHeaders;
+    }): Promise<UAInfo>;
 }
 
 const detectOptions: DetectOptions = { highEntropy: true };
 
 export function createUADetectionService(): UADetectionService {
-  return {
-    detect: () => detect(detectOptions),
-    parseUserAgent: (userAgent) => parse(userAgent),
-    async parseRequest(input) {
-      const { parseRequest } = await import('ua-inspect/server');
-      return parseRequest(input);
-    },
-  };
+    return {
+        detect: () => detect(detectOptions),
+        parseUserAgent: (userAgent) => parse(userAgent),
+        async parseRequest(input) {
+            const { parseRequest } = await import('ua-inspect/server');
+            return parseRequest(input);
+        },
+    };
 }

@@ -12,12 +12,12 @@ Rule for a row: one product id, one or more UA tokens, a tier.
 
 Tier 1 shipped. The counts below are the catalog today.
 
-| Dimension | Now | Tier 2 left | After tier 2 |
-|---|---|---|---|
-| Browsers | 33 | 8 | 41 |
-| Operating systems | 20 | 4 | 24 |
-| Device vendors | 22 | 5 | 27 |
-| In-app contexts | 9 | 1 | 10 |
+| Dimension         | Now | Tier 2 left | After tier 2 |
+| ----------------- | --- | ----------- | ------------ |
+| Browsers          | 33  | 8           | 41           |
+| Operating systems | 20  | 4           | 24           |
+| Device vendors    | 22  | 5           | 27           |
+| In-app contexts   | 9   | 1           | 10           |
 
 This table is **capability**: every row is implemented. The test corpora under `test/data/` pin the
 behaviour that matters (see section 6); they are not a coverage score.
@@ -53,33 +53,33 @@ old enterprise clients live.
 
 ### Tier 1 — shipped (12)
 
-| id | UA token | ww % | th % | Notes |
-|---|---|---|---|---|
-| `ie` | `MSIE ` / `Trident/` + `rv` | 0.02 | 0.01 | Engine is `null`; IE 11 has no `MSIE` token |
-| `edge-legacy` | `Edge/` | 0.02 | 0.01 | Engine `edgehtml`; family `null`, not `chromium` |
-| `opera-mini` | `Opera Mini` / `OPiOS` | — | — | `presto` for the classic token, `webkit` for `OPiOS` |
-| `opera-gx` | `OPX/` / `OPRGX/` | — | — | Chromium fork |
-| `360` | `360SE` / `360EE` / `QHBrowser` / `QihooBrowser` | 0.37 | — | Version is the Chrome build it wraps |
-| `coc-coc` | `coc_coc_browser` | 0.11 | — | Vietnamese/Thai Chromium fork |
-| `qq` | `MQQBrowser` / `QQBrowser` | 0.15 | — | Suppressed when `MicroMessenger` is present |
-| `pale-moon` | `PaleMoon/` | 0.05 | 2.54 | Goanna is a Gecko fork, reported as `gecko` |
-| `duckduckgo` | `Ddg/` / `DuckDuckGo/` | — | — | iOS sends `Macintosh`, so the platform it reports is macOS |
-| `whale` | `Whale/` | 0.06 | — | Naver; Chromium fork |
-| `ecosia` | `Ecosia/` / `(Ecosia android@…)` | 0.06 | — | Chromium fork with a distinct token |
-| `puffin` | `Puffin/` | 0.01 | — | Proxy browser; engine and family are `null` |
+| id            | UA token                                         | ww % | th % | Notes                                                      |
+| ------------- | ------------------------------------------------ | ---- | ---- | ---------------------------------------------------------- |
+| `ie`          | `MSIE ` / `Trident/` + `rv`                      | 0.02 | 0.01 | Engine is `null`; IE 11 has no `MSIE` token                |
+| `edge-legacy` | `Edge/`                                          | 0.02 | 0.01 | Engine `edgehtml`; family `null`, not `chromium`           |
+| `opera-mini`  | `Opera Mini` / `OPiOS`                           | —    | —    | `presto` for the classic token, `webkit` for `OPiOS`       |
+| `opera-gx`    | `OPX/` / `OPRGX/`                                | —    | —    | Chromium fork                                              |
+| `360`         | `360SE` / `360EE` / `QHBrowser` / `QihooBrowser` | 0.37 | —    | Version is the Chrome build it wraps                       |
+| `coc-coc`     | `coc_coc_browser`                                | 0.11 | —    | Vietnamese/Thai Chromium fork                              |
+| `qq`          | `MQQBrowser` / `QQBrowser`                       | 0.15 | —    | Suppressed when `MicroMessenger` is present                |
+| `pale-moon`   | `PaleMoon/`                                      | 0.05 | 2.54 | Goanna is a Gecko fork, reported as `gecko`                |
+| `duckduckgo`  | `Ddg/` / `DuckDuckGo/`                           | —    | —    | iOS sends `Macintosh`, so the platform it reports is macOS |
+| `whale`       | `Whale/`                                         | 0.06 | —    | Naver; Chromium fork                                       |
+| `ecosia`      | `Ecosia/` / `(Ecosia android@…)`                 | 0.06 | —    | Chromium fork with a distinct token                        |
+| `puffin`      | `Puffin/`                                        | 0.01 | —    | Proxy browser; engine and family are `null`                |
 
 ### Tier 2 — add (8)
 
-| id | UA token | Why later |
-|---|---|---|
-| `sogou` | `MetaSr` / `SE 2.X` | China-only, 0.05 |
-| `baidu` | `baidubrowser` / `BIDUBrowser` | China-only |
-| `maxthon` | `Maxthon` | Small but long-lived |
-| `silk` | `Silk/` | Fire tablets and Fire TV |
-| `aloha` | `AlohaBrowser/` | Privacy browsers on iOS |
-| `qwant` | `QwantMobile/` / `QwantiOS/` | EU privacy browser |
-| `heytap` | `HeyTapBrowser/` | ColorOS system browser |
-| `quark` | `Quark/` | Alibaba; mostly China |
+| id        | UA token                       | Why later                |
+| --------- | ------------------------------ | ------------------------ |
+| `sogou`   | `MetaSr` / `SE 2.X`            | China-only, 0.05         |
+| `baidu`   | `baidubrowser` / `BIDUBrowser` | China-only               |
+| `maxthon` | `Maxthon`                      | Small but long-lived     |
+| `silk`    | `Silk/`                        | Fire tablets and Fire TV |
+| `aloha`   | `AlohaBrowser/`                | Privacy browsers on iOS  |
+| `qwant`   | `QwantMobile/` / `QwantiOS/`   | EU privacy browser       |
+| `heytap`  | `HeyTapBrowser/`               | ColorOS system browser   |
+| `quark`   | `Quark/`                       | Alibaba; mostly China    |
 
 ### Skip
 
@@ -93,13 +93,13 @@ Context rows are not browsers. They describe the host app wrapping the WebView.
 Have (9): `discord`, `facebook`, `instagram`, `line`, `messenger`, `tiktok`, `tiktok-lite`, `twitter`,
 `wechat`
 
-| id | UA token | Tier | Status |
-|---|---|---|---|
-| `tiktok` | `musical_ly_*` / `tiktok*` / `trill_*` / `BytedanceWebview` | 1 | Shipped; `app_version/<semver>` wins, the token suffix is the fallback |
-| `tiktok-lite` | `AppName/ultralite` | 1 | Shipped; the release comes from `app_version/` |
-| `twitter` | `TwitterAndroid` / `Twitter for iPhone/<release>` | 1 | Shipped |
-| `discord` | `discord/` / `Discord/` | 1 | Shipped |
-| `zalo` | `Zalo` | 2 | Needs a captured string; none in the public fixture suites |
+| id            | UA token                                                    | Tier | Status                                                                 |
+| ------------- | ----------------------------------------------------------- | ---- | ---------------------------------------------------------------------- |
+| `tiktok`      | `musical_ly_*` / `tiktok*` / `trill_*` / `BytedanceWebview` | 1    | Shipped; `app_version/<semver>` wins, the token suffix is the fallback |
+| `tiktok-lite` | `AppName/ultralite`                                         | 1    | Shipped; the release comes from `app_version/`                         |
+| `twitter`     | `TwitterAndroid` / `Twitter for iPhone/<release>`           | 1    | Shipped                                                                |
+| `discord`     | `discord/` / `Discord/`                                     | 1    | Shipped                                                                |
+| `zalo`        | `Zalo`                                                      | 2    | Needs a captured string; none in the public fixture suites             |
 
 ## 2. Operating systems
 
@@ -111,18 +111,18 @@ Have (9): `discord`, `facebook`, `instagram`, `line`, `messenger`, `tiktok`, `ti
 
 ### Tier 1 — shipped (10)
 
-| id | UA token | Notes |
-|---|---|---|
-| `windows-phone` | `Windows Phone` / `XBLWP7` / `ZuneWP7` / `IEMobile` | Beats `windows`, `android` and `ios` |
-| `blackberry` | `BB10` / `BlackBerry` / `RIM Tablet OS` | — |
-| `symbian` | `SymbianOS` / `Symbian` / `Series60` | — |
-| `webos` | `webOS` / `hpwOS` / `web0S` | Beats `linux`; pairs with `smart-tv` |
-| `firefox-os` | `Firefox OS`, or mobile `rv:` + `Firefox` with no platform token | Excludes KaiOS |
-| `steamos` | `SteamDeck` / `Valve Steam` | Beats `linux`; device type `console` |
-| `fuchsia` | `Fuchsia` | Chromecast |
-| `openharmony` | `OpenHarmony` | Beats `windows`, `android` and `harmonyos` |
-| `watchos` | `watchOS/` | Device type `wearable` |
-| `tvos` | `AppleTV/` | Device type `smart-tv` |
+| id              | UA token                                                         | Notes                                      |
+| --------------- | ---------------------------------------------------------------- | ------------------------------------------ |
+| `windows-phone` | `Windows Phone` / `XBLWP7` / `ZuneWP7` / `IEMobile`              | Beats `windows`, `android` and `ios`       |
+| `blackberry`    | `BB10` / `BlackBerry` / `RIM Tablet OS`                          | —                                          |
+| `symbian`       | `SymbianOS` / `Symbian` / `Series60`                             | —                                          |
+| `webos`         | `webOS` / `hpwOS` / `web0S`                                      | Beats `linux`; pairs with `smart-tv`       |
+| `firefox-os`    | `Firefox OS`, or mobile `rv:` + `Firefox` with no platform token | Excludes KaiOS                             |
+| `steamos`       | `SteamDeck` / `Valve Steam`                                      | Beats `linux`; device type `console`       |
+| `fuchsia`       | `Fuchsia`                                                        | Chromecast                                 |
+| `openharmony`   | `OpenHarmony`                                                    | Beats `windows`, `android` and `harmonyos` |
+| `watchos`       | `watchOS/`                                                       | Device type `wearable`                     |
+| `tvos`          | `AppleTV/`                                                       | Device type `smart-tv`                     |
 
 ### Tier 2 — add (4)
 
@@ -143,17 +143,17 @@ real traffic.
 
 ### Tier 1 — shipped (9)
 
-| id | Model prefixes / tokens | ww % | th % |
-|---|---|---|---|
-| `infinix` | `Infinix `, `X68`, `X6`, `X5`, `X7`, `X3` | 2.10 | 2.86 |
-| `honor` | `HONOR `, `GDI-`, `JDN-`, `BKL-` | 2.06 | 1.17 |
-| `tecno` | `TECNO `, `KC` | 1.61 | 0.59 |
-| `nothing` | `A06`, `A05`, `A02`, `A14`, `A01` | 0.39 | 0.06 |
-| `zte` | `ZTE `, `BLADE` | 0.17 | 0.41 |
-| `asus` | `ASUS` | 0.04 | 0.06 |
-| `nokia` | `Nokia `, `Nokia-` | 0.10 | 0.04 |
-| `lg` | `LG-`, `LM-` | 0.07 | — |
-| `itel` | `itel `, `A6`, `A5`, `A7`, `A1`, `P5`, `L6` | 0.28 | 0.03 |
+| id        | Model prefixes / tokens                     | ww % | th % |
+| --------- | ------------------------------------------- | ---- | ---- |
+| `infinix` | `Infinix `, `X68`, `X6`, `X5`, `X7`, `X3`   | 2.10 | 2.86 |
+| `honor`   | `HONOR `, `GDI-`, `JDN-`, `BKL-`            | 2.06 | 1.17 |
+| `tecno`   | `TECNO `, `KC`                              | 1.61 | 0.59 |
+| `nothing` | `A06`, `A05`, `A02`, `A14`, `A01`           | 0.39 | 0.06 |
+| `zte`     | `ZTE `, `BLADE`                             | 0.17 | 0.41 |
+| `asus`    | `ASUS`                                      | 0.04 | 0.06 |
+| `nokia`   | `Nokia `, `Nokia-`                          | 0.10 | 0.04 |
+| `lg`      | `LG-`, `LM-`                                | 0.07 | —    |
+| `itel`    | `itel `, `A6`, `A5`, `A7`, `A1`, `P5`, `L6` | 0.28 | 0.03 |
 
 ### Tier 2 — add (5)
 

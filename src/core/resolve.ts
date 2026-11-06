@@ -1,4 +1,9 @@
-import { BROWSERS, NEUTRAL_PRODUCTS, type BrowserId, type BrowserSignal } from '../catalog/browsers';
+import {
+    BROWSERS,
+    NEUTRAL_PRODUCTS,
+    type BrowserId,
+    type BrowserSignal,
+} from '../catalog/browsers';
 import { CLIENTS, GENERIC_BOT_SUFFIXES, type ClientId } from '../catalog/clients';
 import { CONTEXTS, type AppId } from '../catalog/contexts';
 import { CPUS, type CPUArchitecture, type CPUSignal } from '../catalog/cpus';
@@ -6,17 +11,17 @@ import { OPERATING_SYSTEMS, type OSId } from '../catalog/os';
 import { normalizeArchitecture } from '../client-hints';
 import type { ClientHints, RuntimeEvidence } from '../input';
 import type {
-  BrowserFamily,
-  BrowserInfo,
-  BrowserMode,
-  ClientInfo,
-  ContextInfo,
-  CPUInfo,
-  EngineId,
-  EngineInfo,
-  OSInfo,
-  UAInfo,
-  Version,
+    BrowserFamily,
+    BrowserInfo,
+    BrowserMode,
+    ClientInfo,
+    ContextInfo,
+    CPUInfo,
+    EngineId,
+    EngineInfo,
+    OSInfo,
+    UAInfo,
+    Version,
 } from '../types';
 import { resolveDevice } from './device';
 import { compileMatcher, pick, strongestVersion, type Candidate } from './match';
@@ -33,276 +38,313 @@ const CHROME_BLINK_EPOCH = 28;
 
 const PLATFORM_TO_OS = new Map<string, OSId>();
 for (const id of Object.keys(OPERATING_SYSTEMS) as OSId[]) {
-  for (const platform of OPERATING_SYSTEMS[id].platforms) PLATFORM_TO_OS.set(platform.toLowerCase(), id);
+    for (const platform of OPERATING_SYSTEMS[id].platforms)
+        PLATFORM_TO_OS.set(platform.toLowerCase(), id);
 }
 
 const BRAND_TO_BROWSER = new Map<string, BrowserId>();
 for (const id of Object.keys(BROWSERS) as BrowserId[]) {
-  for (const brand of BROWSERS[id].brands) BRAND_TO_BROWSER.set(brand.toLowerCase(), id);
+    for (const brand of BROWSERS[id].brands) BRAND_TO_BROWSER.set(brand.toLowerCase(), id);
 }
 
 function hasUnaccountedProduct(scanned: Scan): boolean {
-  return scanned.products.some(
-    (product) =>
-      product.top &&
-      !NEUTRAL_PRODUCTS.includes(product.name) &&
-      !BROWSER_MATCHER.accounts(product.name) &&
-      !CONTEXT_MATCHER.accounts(product.name),
-  );
+    return scanned.products.some(
+        (product) =>
+            product.top &&
+            !NEUTRAL_PRODUCTS.includes(product.name) &&
+            !BROWSER_MATCHER.accounts(product.name) &&
+            !CONTEXT_MATCHER.accounts(product.name),
+    );
 }
 
 function isWebViewUserAgent(scanned: Scan): boolean {
-  if (scanned.parts.includes('wv')) return true;
-  const firstChrome = scanned.products.findIndex((product) => product.name === 'chrome');
-  if (firstChrome < 0) return false;
-  return scanned.products
-    .slice(0, firstChrome)
-    .some((product) => product.name === 'version' && (product.version ?? '').startsWith('4.0'));
+    if (scanned.parts.includes('wv')) return true;
+    const firstChrome = scanned.products.findIndex((product) => product.name === 'chrome');
+    if (firstChrome < 0) return false;
+    return scanned.products
+        .slice(0, firstChrome)
+        .some((product) => product.name === 'version' && (product.version ?? '').startsWith('4.0'));
 }
 
 function hintCandidates(hints: ClientHints | null): Candidate<BrowserId, BrowserSignal>[] {
-  const found: Candidate<BrowserId, BrowserSignal>[] = [];
-  for (const { brand, version } of hints?.brands ?? []) {
-    const id = BRAND_TO_BROWSER.get(brand.toLowerCase());
-    if (id === undefined) continue;
-    found.push({
-      id,
-      source: 'hints',
-      version: readVersion(version),
-      fallback: BROWSERS[id].brandIsFallback === true,
-      signal: null,
-    });
-  }
-  return found;
+    const found: Candidate<BrowserId, BrowserSignal>[] = [];
+    for (const { brand, version } of hints?.brands ?? []) {
+        const id = BRAND_TO_BROWSER.get(brand.toLowerCase());
+        if (id === undefined) continue;
+        found.push({
+            id,
+            source: 'hints',
+            version: readVersion(version),
+            fallback: BROWSERS[id].brandIsFallback === true,
+            signal: null,
+        });
+    }
+    return found;
 }
 
 interface BrowserResolution {
-  readonly browser: BrowserInfo;
-  readonly engine: EngineId | null | undefined;
+    readonly browser: BrowserInfo;
+    readonly engine: EngineId | null | undefined;
 }
 
-function resolveBrowser(scanned: Scan, os: OSId | null, hints: ClientHints | null): BrowserResolution {
-  const candidates = [...BROWSER_MATCHER.find(scanned, os), ...hintCandidates(hints)];
-  const chromiumBrand = hints?.brands.find((item) => item.brand.toLowerCase() === 'chromium') ?? null;
-  const { id: picked, survivors } = pick(candidates, BROWSER_MATCHER.beats);
+function resolveBrowser(
+    scanned: Scan,
+    os: OSId | null,
+    hints: ClientHints | null,
+): BrowserResolution {
+    const candidates = [...BROWSER_MATCHER.find(scanned, os), ...hintCandidates(hints)];
+    const chromiumBrand =
+        hints?.brands.find((item) => item.brand.toLowerCase() === 'chromium') ?? null;
+    const { id: picked, survivors } = pick(candidates, BROWSER_MATCHER.beats);
 
-  const row = picked ? BROWSERS[picked] : null;
-  const signal = survivors.find((candidate) => candidate.id === picked && candidate.signal)?.signal ?? null;
-  const dropped = picked !== null && survivors.every((c) => c.fallback) && hasUnaccountedProduct(scanned);
-  const id = dropped ? null : picked;
+    const row = picked ? BROWSERS[picked] : null;
+    const signal =
+        survivors.find((candidate) => candidate.id === picked && candidate.signal)?.signal ?? null;
+    const dropped =
+        picked !== null && survivors.every((c) => c.fallback) && hasUnaccountedProduct(scanned);
+    const id = dropped ? null : picked;
 
-  let family: BrowserFamily | null = null;
-  let engine: EngineId | null | undefined;
-  if (row) {
-    family = signal?.family !== undefined ? signal.family : row.family;
-    engine = signal?.engine !== undefined ? signal.engine : row.engine;
-  } else {
-    const families = new Set(survivors.map((candidate) => BROWSERS[candidate.id].family));
-    if (families.size === 1) family = [...families][0];
-  }
-  if (family === null && chromiumBrand) family = 'chromium';
+    let family: BrowserFamily | null = null;
+    let engine: EngineId | null | undefined;
+    if (row) {
+        family = signal?.family !== undefined ? signal.family : row.family;
+        engine = signal?.engine !== undefined ? signal.engine : row.engine;
+    } else {
+        const families = new Set(survivors.map((candidate) => BROWSERS[candidate.id].family));
+        if (families.size === 1) family = [...families][0];
+    }
+    if (family === null && chromiumBrand) family = 'chromium';
 
-  let version = id ? strongestVersion(candidates, id) : null;
-  if (id === 'chromium' && chromiumBrand) version = readVersion(chromiumBrand.version) ?? version;
+    let version = id ? strongestVersion(candidates, id) : null;
+    if (id === 'chromium' && chromiumBrand) version = readVersion(chromiumBrand.version) ?? version;
 
-  // Chrome and Chromium used WebKit until version 28, when Blink replaced it. These three rows
-  // report the Chrome version, so the boundary applies. Other chromium-family rows use their own
-  // version scale, so it does not.
-  if (
-    (id === 'chrome' || id === 'chrome-mobile' || id === 'chromium') &&
-    version !== null &&
-    version.major < CHROME_BLINK_EPOCH
-  ) {
-    engine = 'webkit';
-  }
+    // Chrome and Chromium used WebKit until version 28, when Blink replaced it. These three rows
+    // report the Chrome version, so the boundary applies. Other chromium-family rows use their own
+    // version scale, so it does not.
+    if (
+        (id === 'chrome' || id === 'chrome-mobile' || id === 'chromium') &&
+        version !== null &&
+        version.major < CHROME_BLINK_EPOCH
+    ) {
+        engine = 'webkit';
+    }
 
-  let mode: BrowserMode | null = null;
-  if (signal?.mode) {
-    mode = signal.mode;
-  } else if (id !== null || family !== null) {
-    const generic = id === null ? family === 'chromium' : id === 'chrome' || id === 'chrome-mobile' || id === 'chromium';
-    mode = generic && isWebViewUserAgent(scanned) ? 'webview' : 'browser';
-  }
-  return { browser: { name: id, version, family, mode }, engine };
+    let mode: BrowserMode | null = null;
+    if (signal?.mode) {
+        mode = signal.mode;
+    } else if (id !== null || family !== null) {
+        const generic =
+            id === null
+                ? family === 'chromium'
+                : id === 'chrome' || id === 'chrome-mobile' || id === 'chromium';
+        mode = generic && isWebViewUserAgent(scanned) ? 'webview' : 'browser';
+    }
+    return { browser: { name: id, version, family, mode }, engine };
 }
 
 function resolveEngine(
-  scanned: Scan,
-  os: OSId | null,
-  declared: EngineId | null | undefined,
+    scanned: Scan,
+    os: OSId | null,
+    declared: EngineId | null | undefined,
 ): EngineInfo {
-  const webKitVersion = (): EngineInfo => ({
-    name: 'webkit',
-    version: readVersion(scanned.products.find((product) => product.name === 'applewebkit')?.version ?? null),
-  });
-  const geckoVersion = (): EngineInfo => {
-    const rv = scanned.parts.find((part) => part.startsWith('rv:'));
-    return { name: 'gecko', version: readVersion(rv ? rv.slice(3) : null) };
-  };
+    const webKitVersion = (): EngineInfo => ({
+        name: 'webkit',
+        version: readVersion(
+            scanned.products.find((product) => product.name === 'applewebkit')?.version ?? null,
+        ),
+    });
+    const geckoVersion = (): EngineInfo => {
+        const rv = scanned.parts.find((part) => part.startsWith('rv:'));
+        return { name: 'gecko', version: readVersion(rv ? rv.slice(3) : null) };
+    };
 
-  if (os === 'ios' || os === 'ipados') return webKitVersion();
-  if (declared === 'blink') return { name: 'blink', version: null };
-  if (declared === 'gecko') return geckoVersion();
-  if (declared === 'webkit') return webKitVersion();
-  if (declared === 'edgehtml') {
-    const edge = scanned.products.find((product) => product.name === 'edge');
-    return { name: 'edgehtml', version: readVersion(edge?.version ?? null) };
-  }
-  if (declared === 'presto') {
-    const presto = scanned.products.find((product) => product.name === 'presto');
-    return { name: 'presto', version: readVersion(presto?.version ?? null) };
-  }
-  if (declared === null) return { name: null, version: null };
+    if (os === 'ios' || os === 'ipados') return webKitVersion();
+    if (declared === 'blink') return { name: 'blink', version: null };
+    if (declared === 'gecko') return geckoVersion();
+    if (declared === 'webkit') return webKitVersion();
+    if (declared === 'edgehtml') {
+        const edge = scanned.products.find((product) => product.name === 'edge');
+        return { name: 'edgehtml', version: readVersion(edge?.version ?? null) };
+    }
+    if (declared === 'presto') {
+        const presto = scanned.products.find((product) => product.name === 'presto');
+        return { name: 'presto', version: readVersion(presto?.version ?? null) };
+    }
+    if (declared === null) return { name: null, version: null };
 
-  const gecko = scanned.products.find((product) => product.name === 'gecko');
-  if (gecko && readVersion(gecko.version)) return geckoVersion();
-  if (readVersion(scanned.products.find((product) => product.name === 'applewebkit')?.version ?? null)) {
-    return webKitVersion();
-  }
-  return { name: null, version: null };
+    const gecko = scanned.products.find((product) => product.name === 'gecko');
+    if (gecko && readVersion(gecko.version)) return geckoVersion();
+    if (
+        readVersion(
+            scanned.products.find((product) => product.name === 'applewebkit')?.version ?? null,
+        )
+    ) {
+        return webKitVersion();
+    }
+    return { name: null, version: null };
 }
 
 const NO_CONTEXT: ContextInfo = { type: null, name: null, app: null, version: null };
 
 function resolveContext(scanned: Scan, runtime: RuntimeEvidence | null): ContextInfo {
-  const candidates = CONTEXT_MATCHER.find(scanned, null);
-  const { id } = pick(candidates, CONTEXT_MATCHER.beats);
-  let context: ContextInfo = NO_CONTEXT;
-  if (id !== null) {
-    context = { type: CONTEXTS[id].type, name: id, app: id, version: strongestVersion(candidates, id) };
-  }
+    const candidates = CONTEXT_MATCHER.find(scanned, null);
+    const { id } = pick(candidates, CONTEXT_MATCHER.beats);
+    let context: ContextInfo = NO_CONTEXT;
+    if (id !== null) {
+        context = {
+            type: CONTEXTS[id].type,
+            name: id,
+            app: id,
+            version: strongestVersion(candidates, id),
+        };
+    }
 
-  if (runtime?.liffInClient === true) {
-    return {
-      type: 'mini-app',
-      name: 'liff',
-      app: 'line',
-      version: context.app === 'line' ? context.version : null,
-    };
-  }
-  if (runtime?.standalonePWA === true && context.type === null) {
-    return { type: 'pwa', name: 'pwa', app: null, version: null };
-  }
-  return context;
+    if (runtime?.liffInClient === true) {
+        return {
+            type: 'mini-app',
+            name: 'liff',
+            app: 'line',
+            version: context.app === 'line' ? context.version : null,
+        };
+    }
+    if (runtime?.standalonePWA === true && context.type === null) {
+        return { type: 'pwa', name: 'pwa', app: null, version: null };
+    }
+    return context;
 }
 
 function scaleVersion(id: OSId, version: Version | null, source: 'ua' | 'hints'): Version | null {
-  if (version === null) return null;
-  const scale = OPERATING_SYSTEMS[id].scale;
-  if (source === 'hints') {
-    const mapped = scale?.hint?.(version);
-    return mapped === undefined ? version : readVersion(mapped);
-  }
-  const table = scale?.ua;
-  if (table && Object.prototype.hasOwnProperty.call(table, version.full)) return readVersion(table[version.full]);
-  return version;
+    if (version === null) return null;
+    const scale = OPERATING_SYSTEMS[id].scale;
+    if (source === 'hints') {
+        const mapped = scale?.hint?.(version);
+        return mapped === undefined ? version : readVersion(mapped);
+    }
+    const table = scale?.ua;
+    if (table && Object.prototype.hasOwnProperty.call(table, version.full))
+        return readVersion(table[version.full]);
+    return version;
 }
 
 // WebKit freezes the `CPU iPhone OS` token at 18.6 on iOS 26 and later, while the top-level
 // `Version/` token keeps reporting the release. A frozen 18/19 platform version therefore yields
 // to a `Version/` of 26 or more. Other browsers on iOS carry no such token, so they stay frozen.
 function unfrozenIOSVersion(os: OSInfo, scanned: Scan): Version | null {
-  if ((os.name !== 'ios' && os.name !== 'ipados') || os.version === null) return null;
-  if (os.version.major !== 18 && os.version.major !== 19) return null;
-  const token = scanned.products.find((product) => product.name === 'version' && product.top);
-  const real = readVersion(token?.version ?? null);
-  return real !== null && real.major >= 26 ? real : null;
+    if ((os.name !== 'ios' && os.name !== 'ipados') || os.version === null) return null;
+    if (os.version.major !== 18 && os.version.major !== 19) return null;
+    const token = scanned.products.find((product) => product.name === 'version' && product.top);
+    const real = readVersion(token?.version ?? null);
+    return real !== null && real.major >= 26 ? real : null;
 }
 
 function resolveOS(scanned: Scan, hints: ClientHints | null): OSInfo {
-  const candidates = OS_MATCHER.find(scanned, null).map((candidate) => ({
-    ...candidate,
-    version: scaleVersion(candidate.id, candidate.version, 'ua'),
-  }));
-  const hintOS = hints?.platform ? PLATFORM_TO_OS.get(hints.platform.trim().toLowerCase()) : undefined;
-  if (hintOS !== undefined) {
-    const platformVersion = hints?.platformVersion ? readVersion(hints.platformVersion) : null;
-    candidates.push({
-      id: hintOS,
-      source: 'hints',
-      version: scaleVersion(hintOS, platformVersion, 'hints'),
-      fallback: false,
-      signal: null,
-    });
-  }
-  const { id } = pick(candidates, OS_MATCHER.beats);
-  const version = id ? strongestVersion(candidates, id) : null;
-  const os: OSInfo = { name: id, version };
-  const real = unfrozenIOSVersion(os, scanned);
-  return real ? { name: id, version: real } : os;
+    const candidates = OS_MATCHER.find(scanned, null).map((candidate) => ({
+        ...candidate,
+        version: scaleVersion(candidate.id, candidate.version, 'ua'),
+    }));
+    const hintOS = hints?.platform
+        ? PLATFORM_TO_OS.get(hints.platform.trim().toLowerCase())
+        : undefined;
+    if (hintOS !== undefined) {
+        const platformVersion = hints?.platformVersion ? readVersion(hints.platformVersion) : null;
+        candidates.push({
+            id: hintOS,
+            source: 'hints',
+            version: scaleVersion(hintOS, platformVersion, 'hints'),
+            fallback: false,
+            signal: null,
+        });
+    }
+    const { id } = pick(candidates, OS_MATCHER.beats);
+    const version = id ? strongestVersion(candidates, id) : null;
+    const os: OSInfo = { name: id, version };
+    const real = unfrozenIOSVersion(os, scanned);
+    return real ? { name: id, version: real } : os;
 }
 
 function resolveCPU(scanned: Scan, hints: ClientHints | null): CPUInfo {
-  const candidates = CPU_MATCHER.find(scanned, null);
-  const { id, survivors } = pick(candidates, CPU_MATCHER.beats);
-  const base: CPUInfo =
-    id === null ? { architecture: null, bitness: null } : { architecture: id, bitness: survivors[0].signal?.bitness ?? null };
-  if (!hints) return base;
+    const candidates = CPU_MATCHER.find(scanned, null);
+    const { id, survivors } = pick(candidates, CPU_MATCHER.beats);
+    const base: CPUInfo =
+        id === null
+            ? { architecture: null, bitness: null }
+            : { architecture: id, bitness: survivors[0].signal?.bitness ?? null };
+    if (!hints) return base;
 
-  const hinted = normalizeArchitecture(hints.architecture, hints.bitness);
-  if (hinted) {
-    const weakerCompatible =
-      hinted.bitness === null &&
-      (hinted.architecture === base.architecture ||
-        (hinted.architecture === 'arm' && base.architecture === 'arm64') ||
-        (hinted.architecture === 'x86' && base.architecture === 'x86_64'));
-    return weakerCompatible ? base : hinted;
-  }
-  return hints.bitness !== null ? { ...base, bitness: hints.bitness } : base;
+    const hinted = normalizeArchitecture(hints.architecture, hints.bitness);
+    if (hinted) {
+        const weakerCompatible =
+            hinted.bitness === null &&
+            (hinted.architecture === base.architecture ||
+                (hinted.architecture === 'arm' && base.architecture === 'arm64') ||
+                (hinted.architecture === 'x86' && base.architecture === 'x86_64'));
+        return weakerCompatible ? base : hinted;
+    }
+    return hints.bitness !== null ? { ...base, bitness: hints.bitness } : base;
 }
 
 const NO_CLIENT: ClientInfo = { type: null, name: null, token: null, version: null };
 
 function resolveClient(scanned: Scan): ClientInfo {
-  const candidates = CLIENT_MATCHER.find(scanned, null);
-  const { id, survivors } = pick(candidates, CLIENT_MATCHER.beats);
-  if (id !== null) {
-    const signal = survivors.find((candidate) => candidate.id === id)?.signal;
-    return {
-      type: CLIENTS[id].type,
-      name: id,
-      token: (signal?.product ?? signal?.words ?? id).toLowerCase(),
-      version: strongestVersion(candidates, id),
-    };
-  }
+    const candidates = CLIENT_MATCHER.find(scanned, null);
+    const { id, survivors } = pick(candidates, CLIENT_MATCHER.beats);
+    if (id !== null) {
+        const signal = survivors.find((candidate) => candidate.id === id)?.signal;
+        return {
+            type: CLIENTS[id].type,
+            name: id,
+            token: (signal?.product ?? signal?.words ?? id).toLowerCase(),
+            version: strongestVersion(candidates, id),
+        };
+    }
 
-  const generic = scanned.products.find((product) =>
-    GENERIC_BOT_SUFFIXES.some((suffix) => product.name.endsWith(suffix)),
-  );
-  if (generic) return { type: 'bot', name: null, token: generic.name, version: readVersion(generic.version) };
-  return NO_CLIENT;
+    const generic = scanned.products.find((product) =>
+        GENERIC_BOT_SUFFIXES.some((suffix) => product.name.endsWith(suffix)),
+    );
+    if (generic)
+        return {
+            type: 'bot',
+            name: null,
+            token: generic.name,
+            version: readVersion(generic.version),
+        };
+    return NO_CLIENT;
 }
 
-export function resolve(ua: string, hints: ClientHints | null, runtime: RuntimeEvidence | null): UAInfo {
-  const text = ua.length > MAX_UA_LENGTH ? ua.slice(0, MAX_UA_LENGTH) : ua;
-  const scanned = scan(text);
-  let os = resolveOS(scanned, hints);
-  const uaOS = hints ? resolveOS(scanned, null) : os;
-  const resolvedBrowser = resolveBrowser(scanned, uaOS.name, hints);
-  let browser = resolvedBrowser.browser;
-  const context = resolveContext(scanned, runtime);
+export function resolve(
+    ua: string,
+    hints: ClientHints | null,
+    runtime: RuntimeEvidence | null,
+): UAInfo {
+    const text = ua.length > MAX_UA_LENGTH ? ua.slice(0, MAX_UA_LENGTH) : ua;
+    const scanned = scan(text);
+    let os = resolveOS(scanned, hints);
+    const uaOS = hints ? resolveOS(scanned, null) : os;
+    const resolvedBrowser = resolveBrowser(scanned, uaOS.name, hints);
+    let browser = resolvedBrowser.browser;
+    const context = resolveContext(scanned, runtime);
 
-  const embedded = context.type === 'in-app-browser' || context.type === 'mini-app';
-  const mode = embedded ? (browser.mode === 'headless' ? 'headless' : 'webview') : browser.mode;
+    const embedded = context.type === 'in-app-browser' || context.type === 'mini-app';
+    const mode = embedded ? (browser.mode === 'headless' ? 'headless' : 'webview') : browser.mode;
 
-  let device = resolveDevice(scanned, uaOS.name, hints);
-  // iPadOS 13+ Safari requests the desktop site and sends a Macintosh User-Agent. Safari has no
-  // Client Hints, so the runtime touch check is the only evidence left. The OS guard keeps a real
-  // Mac (no touch points) and any non-Mac string out of this branch.
-  if (runtime?.touchMac === true && uaOS.name === 'macos') {
-    os = { name: 'ipados', version: null };
-    device = { type: 'tablet', vendor: 'apple', model: 'iPad' };
-    if (browser.name === 'safari') browser = { ...browser, name: 'safari-mobile' };
-  }
+    let device = resolveDevice(scanned, uaOS.name, hints);
+    // iPadOS 13+ Safari requests the desktop site and sends a Macintosh User-Agent. Safari has no
+    // Client Hints, so the runtime touch check is the only evidence left. The OS guard keeps a real
+    // Mac (no touch points) and any non-Mac string out of this branch.
+    if (runtime?.touchMac === true && uaOS.name === 'macos') {
+        os = { name: 'ipados', version: null };
+        device = { type: 'tablet', vendor: 'apple', model: 'iPad' };
+        if (browser.name === 'safari') browser = { ...browser, name: 'safari-mobile' };
+    }
 
-  return {
-    ua,
-    browser: { ...browser, mode },
-    engine: resolveEngine(scanned, uaOS.name, resolvedBrowser.engine),
-    os,
-    device,
-    cpu: resolveCPU(scanned, hints),
-    client: resolveClient(scanned),
-    context,
-  };
+    return {
+        ua,
+        browser: { ...browser, mode },
+        engine: resolveEngine(scanned, uaOS.name, resolvedBrowser.engine),
+        os,
+        device,
+        cpu: resolveCPU(scanned, hints),
+        client: resolveClient(scanned),
+        context,
+    };
 }

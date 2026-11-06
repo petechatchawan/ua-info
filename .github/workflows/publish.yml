@@ -2,208 +2,208 @@
 name: Publish to npm
 
 on:
-  push:
-    branches: [master]
-    paths:
-      - package.json
-      - .github/workflows/publish.yml
-  workflow_dispatch:
+    push:
+        branches: [master]
+        paths:
+            - package.json
+            - .github/workflows/publish.yml
+    workflow_dispatch:
 
 permissions:
-  contents: read
-  id-token: write
-  issues: write
+    contents: read
+    id-token: write
+    issues: write
 
 concurrency:
-  group: npm-publish
-  cancel-in-progress: false
+    group: npm-publish
+    cancel-in-progress: false
 
 jobs:
-  release-context:
-    runs-on: ubuntu-latest
-    outputs:
-      can-publish: ${{ steps.context.outputs.can-publish }}
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
+    release-context:
+        runs-on: ubuntu-latest
+        outputs:
+            can-publish: ${{ steps.context.outputs.can-publish }}
+        steps:
+            - uses: actions/checkout@v6
+              with:
+                  fetch-depth: 0
 
-      - name: Require a release tag on HEAD
-        shell: bash
-        run: |
-          package_version=$(node -p "require('./package.json').version")
-          if ! git tag --points-at HEAD | grep -qx "v${package_version}"; then
-            echo "HEAD is not tagged v${package_version}." >&2
-            echo "Publish from a release tag: git push origin v${package_version} && git push origin master" >&2
-            echo "Tags on HEAD:" >&2
-            git tag --points-at HEAD >&2
-            exit 1
-          fi
+            - name: Require a release tag on HEAD
+              shell: bash
+              run: |
+                  package_version=$(node -p "require('./package.json').version")
+                  if ! git tag --points-at HEAD | grep -qx "v${package_version}"; then
+                    echo "HEAD is not tagged v${package_version}." >&2
+                    echo "Publish from a release tag: git push origin v${package_version} && git push origin master" >&2
+                    echo "Tags on HEAD:" >&2
+                    git tag --points-at HEAD >&2
+                    exit 1
+                  fi
 
-      - name: Check canonical release identity
-        id: context
-        shell: bash
-        run: |
-          package_name=$(node -p "require('./package.json').name")
-          package_version=$(node -p "require('./package.json').version")
-          expected_repository="petechatchawan/ua-inspect"
+            - name: Check canonical release identity
+              id: context
+              shell: bash
+              run: |
+                  package_name=$(node -p "require('./package.json').name")
+                  package_version=$(node -p "require('./package.json').version")
+                  expected_repository="petechatchawan/ua-inspect"
 
-          if [ "$package_name" != "ua-inspect" ]; then
-            echo "Unexpected package name: $package_name" >&2
-            exit 1
-          fi
+                  if [ "$package_name" != "ua-inspect" ]; then
+                    echo "Unexpected package name: $package_name" >&2
+                    exit 1
+                  fi
 
-          if [ "${GITHUB_REPOSITORY}" = "$expected_repository" ]; then
-            echo "can-publish=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "can-publish=false" >> "$GITHUB_OUTPUT"
-            {
-              echo "### npm publication paused"
-              echo "Package: ${package_name}@${package_version}"
-              echo "Current repository: ${GITHUB_REPOSITORY}"
-              echo "Expected repository: ${expected_repository}"
-              echo "Rename the repository to the canonical identity before publication."
-            } >> "$GITHUB_STEP_SUMMARY"
-          fi
+                  if [ "${GITHUB_REPOSITORY}" = "$expected_repository" ]; then
+                    echo "can-publish=true" >> "$GITHUB_OUTPUT"
+                  else
+                    echo "can-publish=false" >> "$GITHUB_OUTPUT"
+                    {
+                      echo "### npm publication paused"
+                      echo "Package: ${package_name}@${package_version}"
+                      echo "Current repository: ${GITHUB_REPOSITORY}"
+                      echo "Expected repository: ${expected_repository}"
+                      echo "Rename the repository to the canonical identity before publication."
+                    } >> "$GITHUB_STEP_SUMMARY"
+                  fi
 
-  publish:
-    needs: release-context
-    if: needs.release-context.outputs.can-publish == 'true'
-    runs-on: ubuntu-latest
+    publish:
+        needs: release-context
+        if: needs.release-context.outputs.can-publish == 'true'
+        runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v6
+        steps:
+            - uses: actions/checkout@v6
 
-      - uses: actions/setup-node@v6
-        with:
-          node-version: '22'
-          registry-url: 'https://registry.npmjs.org'
-          package-manager-cache: false
+            - uses: actions/setup-node@v6
+              with:
+                  node-version: '22'
+                  registry-url: 'https://registry.npmjs.org'
+                  package-manager-cache: false
 
-      - name: Install current npm 11 CLI
-        run: npm install --global npm@11.17.0
+            - name: Install current npm 11 CLI
+              run: npm install --global npm@11.17.0
 
-      - name: Install dependencies
-        run: npm ci
+            - name: Install dependencies
+              run: npm ci
 
-      - name: Read package identity
-        id: package
-        shell: bash
-        run: |
-          node -e "const p = require('./package.json'); console.log('name=' + p.name)" >> "$GITHUB_OUTPUT"
-          node -e "const p = require('./package.json'); console.log('version=' + p.version)" >> "$GITHUB_OUTPUT"
+            - name: Read package identity
+              id: package
+              shell: bash
+              run: |
+                  node -e "const p = require('./package.json'); console.log('name=' + p.name)" >> "$GITHUB_OUTPUT"
+                  node -e "const p = require('./package.json'); console.log('version=' + p.version)" >> "$GITHUB_OUTPUT"
 
-      - name: Validate package
-        id: validation
-        continue-on-error: true
-        shell: bash
-        run: |
-          set -o pipefail
-          npm run check 2>&1 | tee validation.log
+            - name: Validate package
+              id: validation
+              continue-on-error: true
+              shell: bash
+              run: |
+                  set -o pipefail
+                  npm run check 2>&1 | tee validation.log
 
-      - name: Upload validation log
-        if: always() && steps.validation.outcome != 'success'
-        uses: actions/upload-artifact@v4
-        with:
-          name: npm-release-validation-log
-          path: validation.log
+            - name: Upload validation log
+              if: always() && steps.validation.outcome != 'success'
+              uses: actions/upload-artifact@v4
+              with:
+                  name: npm-release-validation-log
+                  path: validation.log
 
-      - name: Check registry version
-        id: registry
-        if: always()
-        shell: bash
-        run: |
-          if npm view "${{ steps.package.outputs.name }}@${{ steps.package.outputs.version }}" version >/dev/null 2>&1; then
-            echo "exists=true" >> "$GITHUB_OUTPUT"
-            echo "${{ steps.package.outputs.name }}@${{ steps.package.outputs.version }} already exists; publication will be skipped."
-          else
-            echo "exists=false" >> "$GITHUB_OUTPUT"
-          fi
+            - name: Check registry version
+              id: registry
+              if: always()
+              shell: bash
+              run: |
+                  if npm view "${{ steps.package.outputs.name }}@${{ steps.package.outputs.version }}" version >/dev/null 2>&1; then
+                    echo "exists=true" >> "$GITHUB_OUTPUT"
+                    echo "${{ steps.package.outputs.name }}@${{ steps.package.outputs.version }} already exists; publication will be skipped."
+                  else
+                    echo "exists=false" >> "$GITHUB_OUTPUT"
+                  fi
 
-      - name: Publish package with npm Trusted Publishing
-        id: publish
-        if: steps.validation.outcome == 'success' && steps.registry.outputs.exists != 'true'
-        continue-on-error: true
-        shell: bash
-        run: |
-          set -o pipefail
-          npm publish --access public --provenance 2>&1 | tee publish.log
+            - name: Publish package with npm Trusted Publishing
+              id: publish
+              if: steps.validation.outcome == 'success' && steps.registry.outputs.exists != 'true'
+              continue-on-error: true
+              shell: bash
+              run: |
+                  set -o pipefail
+                  npm publish --access public --provenance 2>&1 | tee publish.log
 
-      - name: Upload publish log
-        if: always() && steps.publish.outcome == 'failure'
-        uses: actions/upload-artifact@v4
-        with:
-          name: npm-release-publish-log
-          path: publish.log
+            - name: Upload publish log
+              if: always() && steps.publish.outcome == 'failure'
+              uses: actions/upload-artifact@v4
+              with:
+                  name: npm-release-publish-log
+                  path: publish.log
 
-      - name: Verify npm registry
-        id: verify
-        if: always()
-        shell: bash
-        run: |
-          published=false
-          for attempt in $(seq 1 60); do
-            if npm view "${{ steps.package.outputs.name }}@${{ steps.package.outputs.version }}" version >/dev/null 2>&1; then
-              published=true
-              break
-            fi
-            sleep 5
-          done
-          echo "published=${published}" >> "$GITHUB_OUTPUT"
+            - name: Verify npm registry
+              id: verify
+              if: always()
+              shell: bash
+              run: |
+                  published=false
+                  for attempt in $(seq 1 60); do
+                    if npm view "${{ steps.package.outputs.name }}@${{ steps.package.outputs.version }}" version >/dev/null 2>&1; then
+                      published=true
+                      break
+                    fi
+                    sleep 5
+                  done
+                  echo "published=${published}" >> "$GITHUB_OUTPUT"
 
-      - name: Report publication status
-        if: always()
-        env:
-          GH_TOKEN: ${{ github.token }}
-        shell: bash
-        run: |
-          title="[release-report] ${{ steps.package.outputs.name }}@${{ steps.package.outputs.version }}"
-          if [ "${{ steps.verify.outputs.published }}" = "true" ]; then
-            status="published"
-          else
-            status="not-published"
-          fi
+            - name: Report publication status
+              if: always()
+              env:
+                  GH_TOKEN: ${{ github.token }}
+              shell: bash
+              run: |
+                  title="[release-report] ${{ steps.package.outputs.name }}@${{ steps.package.outputs.version }}"
+                  if [ "${{ steps.verify.outputs.published }}" = "true" ]; then
+                    status="published"
+                  else
+                    status="not-published"
+                  fi
 
-          body=$(cat <<EOF
-          Automated npm release verification.
+                  body=$(cat <<EOF
+                  Automated npm release verification.
 
-          - Package: ${{ steps.package.outputs.name }}@${{ steps.package.outputs.version }}
-          - npm CLI: 11.17.0
-          - Authentication: npm Trusted Publishing via GitHub Actions OIDC
-          - Validation outcome: ${{ steps.validation.outcome }}
-          - Registry status: **${status}**
-          - Version existed before this run: ${{ steps.registry.outputs.exists }}
-          - Publish step outcome: ${{ steps.publish.outcome }}
-          - Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+                  - Package: ${{ steps.package.outputs.name }}@${{ steps.package.outputs.version }}
+                  - npm CLI: 11.17.0
+                  - Authentication: npm Trusted Publishing via GitHub Actions OIDC
+                  - Validation outcome: ${{ steps.validation.outcome }}
+                  - Registry status: **${status}**
+                  - Version existed before this run: ${{ steps.registry.outputs.exists }}
+                  - Publish step outcome: ${{ steps.publish.outcome }}
+                  - Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
-          When validation passes but status is not-published, verify the npm Trusted Publisher configuration for repository petechatchawan/ua-inspect and workflow publish.yml, then run the workflow again.
-          EOF
-          )
+                  When validation passes but status is not-published, verify the npm Trusted Publisher configuration for repository petechatchawan/ua-inspect and workflow publish.yml, then run the workflow again.
+                  EOF
+                  )
 
-          issue_number=$(gh issue list --state all --search "${title} in:title" --json number,title --jq ".[] | select(.title == \"${title}\") | .number" | head -n 1)
-          if [ -z "$issue_number" ]; then
-            issue_url=$(gh issue create --title "$title" --body "$body")
-            issue_number="${issue_url##*/}"
-          else
-            gh issue edit "$issue_number" --body "$body"
-          fi
+                  issue_number=$(gh issue list --state all --search "${title} in:title" --json number,title --jq ".[] | select(.title == \"${title}\") | .number" | head -n 1)
+                  if [ -z "$issue_number" ]; then
+                    issue_url=$(gh issue create --title "$title" --body "$body")
+                    issue_number="${issue_url##*/}"
+                  else
+                    gh issue edit "$issue_number" --body "$body"
+                  fi
 
-          if [ "$status" = "published" ]; then
-            gh issue close "$issue_number" --reason completed || true
-          else
-            gh issue reopen "$issue_number" || true
-          fi
+                  if [ "$status" = "published" ]; then
+                    gh issue close "$issue_number" --reason completed || true
+                  else
+                    gh issue reopen "$issue_number" || true
+                  fi
 
-      - name: Publication summary
-        if: always()
-        shell: bash
-        run: |
-          echo "### npm publication" >> "$GITHUB_STEP_SUMMARY"
-          echo "Package: ${{ steps.package.outputs.name }}@${{ steps.package.outputs.version }}" >> "$GITHUB_STEP_SUMMARY"
-          echo "Authentication: npm Trusted Publishing via GitHub Actions OIDC" >> "$GITHUB_STEP_SUMMARY"
-          echo "Validation: ${{ steps.validation.outcome }}" >> "$GITHUB_STEP_SUMMARY"
-          echo "Published: ${{ steps.verify.outputs.published }}" >> "$GITHUB_STEP_SUMMARY"
+            - name: Publication summary
+              if: always()
+              shell: bash
+              run: |
+                  echo "### npm publication" >> "$GITHUB_STEP_SUMMARY"
+                  echo "Package: ${{ steps.package.outputs.name }}@${{ steps.package.outputs.version }}" >> "$GITHUB_STEP_SUMMARY"
+                  echo "Authentication: npm Trusted Publishing via GitHub Actions OIDC" >> "$GITHUB_STEP_SUMMARY"
+                  echo "Validation: ${{ steps.validation.outcome }}" >> "$GITHUB_STEP_SUMMARY"
+                  echo "Published: ${{ steps.verify.outputs.published }}" >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Fail when release is incomplete
-        if: always() && (steps.validation.outcome != 'success' || steps.verify.outputs.published != 'true')
-        run: exit 1
+            - name: Fail when release is incomplete
+              if: always() && (steps.validation.outcome != 'success' || steps.verify.outputs.published != 'true')
+              run: exit 1

@@ -5,7 +5,8 @@ const { parseRequest } = require('ua-inspect/server');
 const { detect } = require('ua-inspect/browser');
 const { labels } = require('ua-inspect/labels');
 
-const ua = 'Mozilla/5.0 (Linux; Android 16; Pixel 10 Pro) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36';
+const ua =
+    'Mozilla/5.0 (Linux; Android 16; Pixel 10 Pro) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36';
 const result = parse(ua);
 assert.equal(result.browser.name, 'chrome-mobile');
 assert.equal(is(result, { browser: 'chrome-mobile', os: 'android', device: 'mobile' }), true);
