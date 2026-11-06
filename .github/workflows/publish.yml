@@ -28,16 +28,20 @@ jobs:
               with:
                   fetch-depth: 0
 
-            - name: Require a release tag on HEAD
+            - name: Check release tag on HEAD
+              id: tag
               shell: bash
               run: |
                   package_version=$(node -p "require('./package.json').version")
-                  if ! git tag --points-at HEAD | grep -qx "v${package_version}"; then
-                    echo "HEAD is not tagged v${package_version}." >&2
-                    echo "Publish from a release tag: git push origin v${package_version} && git push origin master" >&2
-                    echo "Tags on HEAD:" >&2
-                    git tag --points-at HEAD >&2
-                    exit 1
+                  if git tag --points-at HEAD | grep -qx "v${package_version}"; then
+                    echo "tagged=true" >> "$GITHUB_OUTPUT"
+                  else
+                    echo "tagged=false" >> "$GITHUB_OUTPUT"
+                    {
+                      echo "### npm publication skipped"
+                      echo "HEAD is not tagged v${package_version}, so this push is not a release."
+                      echo "To release: git push origin v${package_version} && git push origin master"
+                    } >> "$GITHUB_STEP_SUMMARY"
                   fi
 
             - name: Check canonical release identity
@@ -53,7 +57,7 @@ jobs:
                     exit 1
                   fi
 
-                  if [ "${GITHUB_REPOSITORY}" = "$expected_repository" ]; then
+                  if [ "${GITHUB_REPOSITORY}" = "$expected_repository" ] && [ "${{ steps.tag.outputs.tagged }}" = "true" ]; then
                     echo "can-publish=true" >> "$GITHUB_OUTPUT"
                   else
                     echo "can-publish=false" >> "$GITHUB_OUTPUT"
