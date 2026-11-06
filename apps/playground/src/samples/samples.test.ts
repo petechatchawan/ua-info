@@ -3,7 +3,7 @@ import { findUserAgentSample, USER_AGENT_SAMPLES } from './index';
 
 const requiredIds = [
   'chrome-windows', 'edge-windows', 'firefox-linux', 'safari-macos',
-  'chrome-android', 'safari-iphone', 'android-webview', 'ios-wkwebview',
+  'chrome-android', 'safari-iphone', 'safari-iphone-26-frozen', 'safari-ipad', 'android-webview', 'ios-wkwebview',
   'line-liff', 'line-in-app', 'facebook-in-app', 'instagram-in-app',
   'tiktok-in-app', 'headless-chrome', 'googlebot', 'oai-searchbot',
   'googlebot-image', 'google-extended-control-token', 'curl', 'unknown-client',

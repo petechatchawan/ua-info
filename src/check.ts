@@ -84,3 +84,30 @@ const BOT_TYPES: readonly (ClientInfo['type'])[] = ['bot', 'crawler', 'ai-crawle
 export function isBot(info: UAInfo): boolean {
   return BOT_TYPES.includes(info.client.type);
 }
+
+type NarrowDevice<T extends DeviceType> = UAInfo & { readonly device: { readonly type: T } };
+
+/** True when the device is a phone. Narrows `device.type` to `'mobile'`. */
+export function isMobile(info: UAInfo): info is NarrowDevice<'mobile'> {
+  return info.device.type === 'mobile';
+}
+
+/** True when the device is a tablet. Narrows `device.type` to `'tablet'`. */
+export function isTablet(info: UAInfo): info is NarrowDevice<'tablet'> {
+  return info.device.type === 'tablet';
+}
+
+/** True when the device is a desktop. Narrows `device.type` to `'desktop'`. */
+export function isDesktop(info: UAInfo): info is NarrowDevice<'desktop'> {
+  return info.device.type === 'desktop';
+}
+
+/**
+ * True when the result names an iPad: `os` is `ipados`, or the device model is `iPad`.
+ * The model check matters because an app string can name `iPad` without the `CPU OS` token,
+ * in which case the OS reads as `ios`. An iPad in desktop mode sends a Macintosh User-Agent,
+ * so `parse()` cannot see it; only `detect()` recovers it through touch evidence.
+ */
+export function isIPad(info: UAInfo): boolean {
+  return info.os.name === 'ipados' || info.device.model === 'iPad';
+}

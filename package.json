@@ -1,6 +1,6 @@
 {
     "name": "ua-inspect",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "description": "Zero-dependency User-Agent parser for TypeScript with Client Hints, browser, OS, device, bot and WebView detection for Node.js and browsers",
     "author": "Chatchawan Koedsawas",
     "license": "MIT",

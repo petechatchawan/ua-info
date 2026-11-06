@@ -5,6 +5,7 @@ import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { verifyReadmeCatalog } from './catalog-coverage.mjs';
 
 const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 const nodeCommand = process.execPath;
@@ -28,10 +29,13 @@ try {
     }
   }
 
+  // The packed tarball is only as good as the tree it was built from, so compare the documentation
+  // with this build before packing it.
+  const advertisedIds = await verifyReadmeCatalog(root);
+
   const output = execFileSync(npmCommand, [
     'pack', '--ignore-scripts', '--json', '--pack-destination', workspace,
-  ], { cwd: root, encoding: 'utf8' });
-  const [report] = JSON.parse(output);
+  ], { cwd: root, encoding: 'utf8' });  const [report] = JSON.parse(output);
   if (report.name !== packageJson.name || report.version !== packageJson.version) {
     throw new Error(`Unexpected packed identity: ${report.name}@${report.version}`);
   }
@@ -57,6 +61,7 @@ try {
     stdio: 'inherit',
   });
   console.log(`Package contents verified: ${report.files.length} files, ${report.unpackedSize} unpacked bytes, ${report.name}@${report.version}.`);
+  console.log(`README ids verified against the build: ${advertisedIds}.`);
 } finally {
   await rm(workspace, { recursive: true, force: true });
 }

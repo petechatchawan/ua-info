@@ -32,7 +32,7 @@ Node.js 18 or newer is required for server-side usage. TypeScript declarations, 
 | Use case                          | Import               | Main API          |
 | --------------------------------- | -------------------- | ----------------- |
 | Pure User-Agent parsing           | `ua-inspect`         | `parse()`         |
-| Queries                           | `ua-inspect/check`   | `is()`, `isBot()` |
+| Queries                           | `ua-inspect/check`   | `is()`, `isBot()`, `isMobile()`, `isTablet()`, `isDesktop()`, `isIPad()` |
 | HTTP request + Client Hints       | `ua-inspect/server`  | `parseRequest()`  |
 | Current browser + runtime signals | `ua-inspect/browser` | `detect()`        |
 | Display names                     | `ua-inspect/labels`  | `labels`          |
@@ -263,6 +263,22 @@ is(info, { vendor: 'Samsung' });   // error: vendor ids are lowercase
 
 An unknown field never matches. `device: 'tablet'` is exact, so a tablet is not `mobile`.
 
+The device helpers read `device.type` directly and narrow it. `isMobile`, `isTablet` and
+`isDesktop` match one type each, and `isIPad` is true when `os` is `ipados` or the device
+model is `iPad`:
+
+```ts
+import { isIPad, isMobile } from 'ua-inspect/check';
+
+if (isMobile(info)) {
+  info.device.type; // narrowed to 'mobile'
+}
+if (isIPad(info)) { /* an iPad the evidence actually names */ }
+```
+
+`isIPad` only reports what the evidence names. An iPad in desktop mode sends a Macintosh
+User-Agent, so `parse()` cannot see it; only `detect()` recovers it through touch evidence.
+
 `isBot(info)` is true for the client types `bot`, `crawler` and `ai-crawler`. The types are:
 
 | Type                           | Meaning                                                  |
@@ -276,6 +292,81 @@ An unknown field never matches. `device: 'tablet'` is exact, so a tablet is not 
 | `email-client`, `media-player` | Desktop applications.                                    |
 
 Predicate results describe parsed evidence. They do not authenticate a browser, bot, application, or request origin.
+
+### Query cookbook
+
+Every example below takes the same `info` from `parse()`, `parseRequest()` or `detect()`.
+Find the goal on the left, copy the query on the right:
+
+| Goal | Query |
+|---|---|
+| Phone | `isMobile(info)` |
+| Tablet | `isTablet(info)` |
+| Desktop | `isDesktop(info)` |
+| iPad the evidence names | `isIPad(info)` |
+| Handheld layout | `is(info, { device: ['mobile', 'tablet'] })` |
+| Any Chromium brand | `is(info, { family: 'chromium' })` |
+| Any Firefox, desktop or phone | `is(info, { family: 'firefox' })` |
+| Inside any app WebView | `is(info, { mode: 'webview' })` |
+| Inside a specific app | `is(info, { context: 'line' })` |
+| LINE or LIFF | `is(info, { app: 'line' })` |
+| Proven LIFF (needs `detect`) | `is(info, { context: 'liff' })` |
+| Apple touch device | `is(info, { os: ['ios', 'ipados'] })` |
+| Apple desktop only | `is(info, { os: 'macos', device: 'desktop' })` |
+| Block indexers, allow assistants | `is(info, { clientType: ['bot', 'crawler', 'ai-crawler'] })` |
+| Headless automation | `is(info, { mode: 'headless' })` |
+
+```ts
+// Gate a feature on a minimum browser version.
+if (is(info, { browser: 'chrome' }) && (info.browser.version?.major ?? 0) >= 120) { /* ... */ }
+
+// One layout for phones and tablets, another for everything else.
+if (is(info, { device: ['mobile', 'tablet'] })) { /* handheld layout */ }
+
+// Anything Chromium, whatever the brand: Chrome, Edge, Samsung Internet, Brave, forks.
+if (is(info, { family: 'chromium' })) { /* ... */ }
+
+// Firefox anywhere, desktop or phone.
+if (is(info, { family: 'firefox' })) { /* ... */ }
+
+// Safari on Apple hardware, desktop or phone.
+if (is(info, { family: 'safari' })) { /* ... */ }
+
+// Running inside any app's WebView, whichever app it is.
+if (is(info, { mode: 'webview' })) { /* trimmed UI, no external navigation */ }
+
+// Running inside a specific app.
+if (is(info, { context: 'line' })) { /* LINE in-app browser */ }
+if (is(info, { app: 'line' })) { /* LINE in-app browser or LIFF */ }
+if (is(info, { context: 'tiktok' })) { /* TikTok in-app browser */ }
+
+// iOS or iPadOS, whichever browser or WebView hosts the page.
+if (is(info, { os: ['ios', 'ipados'] })) { /* Apple touch device */ }
+
+// Apple desktop only: macOS, not an iPhone, not an iPad.
+if (is(info, { os: 'macos', device: 'desktop' })) { /* ... */ }
+
+// Samsung phones on Samsung Internet.
+if (is(info, { browser: 'samsung-internet', vendor: 'samsung' })) { /* ... */ }
+
+// Block indexers but let a person's assistant through.
+if (is(info, { clientType: ['bot', 'crawler', 'ai-crawler'] })) {
+  return new Response(null, { status: 403 });
+}
+
+// Headless automation (tests, scrapers driving a real browser).
+if (is(info, { mode: 'headless' })) { /* ... */ }
+
+// Narrowing works on every key: inside the branch the field has the queried type.
+if (is(info, { browser: ['chrome', 'edge'], os: 'windows' })) {
+  info.browser.name; // 'chrome' | 'edge'
+  info.os.name;      // 'windows'
+}
+```
+
+Two things `is()` cannot do by itself: compare full versions (read `info.*.version`, or
+add a small compare helper in your app) and prove LIFF (pair it with `detect({ liff })`,
+as below).
 
 ## LINE and LIFF
 
@@ -323,6 +414,7 @@ Applications remain responsible for Client Hints negotiation and cache behavior.
 These are limits of the string, not parser defects:
 
 - macOS reports the frozen version `10.15.7`, and Windows 11 reports `10`. Only Client Hints (`parseRequest`, or `detect({ highEntropy: true })`) give the real version.
+- iOS 26 and later freeze the platform token at `18.6`, so the release is read from the top-level `Version/` token instead. Other browsers on iOS carry no such token, so a frozen non-Safari string still reports the frozen version; Client Hints give the real one where the platform sends them.
 - An iPad in desktop mode sends a Macintosh User-Agent, so `parse()` and `parseRequest()` report a Mac. Only `detect()` recovers it: a Mac-like platform that reports touch points is an iPad.
 - Chrome reports a fixed Android version and no model in its reduced User-Agent.
 - Chrome, Chrome Mobile and Chromium before version 28 report the `webkit` engine; version 28 is the first Blink release. The Blink engine version is `null`. It equals the Chrome version, so use `browser.version`.

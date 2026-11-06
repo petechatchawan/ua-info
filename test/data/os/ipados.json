@@ -1,0 +1,15 @@
+[
+    {
+        "id": "os-ipados-26-frozen",
+        "ua": "Mozilla/5.0 (iPad; CPU OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Mobile/15E148 Safari/604.1",
+        "note": "The platform token freezes at 18.6 on iPadOS 26 and later; the release is read from the top-level `Version/` token.",
+        "expect": {
+            "os": {
+                "name": "ipados",
+                "version": {
+                    "full": "26.0"
+                }
+            }
+        }
+    }
+]

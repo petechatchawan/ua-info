@@ -22,8 +22,8 @@ describe('ua-inspect package root', () => {
     expect(Object.keys(root)).toEqual(['parse']);
   });
 
-  it('exports exactly is and isBot from check', () => {
-    expect(Object.keys(check).sort()).toEqual(['is', 'isBot']);
+  it('exports the query and device predicates from check', () => {
+    expect(Object.keys(check).sort()).toEqual(['is', 'isBot', 'isDesktop', 'isIPad', 'isMobile', 'isTablet']);
   });
 
   it('exports check, server, browser and labels as dedicated package subpaths', () => {

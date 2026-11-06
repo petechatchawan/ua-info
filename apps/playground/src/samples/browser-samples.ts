@@ -48,4 +48,20 @@ export const BROWSER_SAMPLES: readonly UserAgentSample[] = Object.freeze([
       'Mozilla/5.0 (iPhone; CPU iPhone OS 19_0 like Mac OS X) AppleWebKit/605.1.15 ' +
       '(KHTML, like Gecko) Version/19.0 Mobile/15E148 Safari/604.1',
   },
+  {
+    id: 'safari-iphone-26-frozen',
+    label: 'Safari on iPhone (iOS 26, frozen platform token)',
+    category: 'Mobile browsers',
+    userAgent:
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 ' +
+      '(KHTML, like Gecko) Version/26.0 Mobile/15E148 Safari/604.1',
+  },
+  {
+    id: 'safari-ipad',
+    label: 'Safari on iPad',
+    category: 'Mobile browsers',
+    userAgent:
+      'Mozilla/5.0 (iPad; CPU OS 18_7 like Mac OS X) AppleWebKit/605.1.15 ' +
+      '(KHTML, like Gecko) Version/18.7 Mobile/15E148 Safari/604.1',
+  },
 ]);

@@ -2,6 +2,21 @@
 
 All notable changes to `ua-inspect` are documented in this file.
 
+## 1.1.1 — 2026-11-06
+
+Ships the browser and in-app ids that 1.1.0 announced but did not include, and fixes the iOS 26 platform freeze.
+
+### Fixed
+
+- The 1.1.0 tarball was built before `android-browser`, `firefox-mobile`, `opera-mobi`, `opera-tablet`, `vivo-browser`, `twitter`, `discord` and `tiktok-lite` landed, so installing 1.1.0 gave a catalog without them. The ids, the Safari and Opera token handling, and the version fixes from the 1.1.0 notes are all present from 1.1.1.
+- iOS 26 and later freeze the platform token at `18.6`. The OS version is now read from the top-level `Version/` token when the platform version is a frozen 18/19 and `Version/` reports 26 or more. Non-Safari iOS strings carry no such token and keep reporting the frozen version.
+
+### Added
+
+- Device predicates in `ua-inspect/check`: `isMobile`, `isTablet`, `isDesktop` and `isIPad` (`ipados` or the `iPad` model). The first three narrow `device.type`; `isIPad` only reports what the evidence names.
+- `npm run check` now compares the ids the README advertises with the built catalog and fails when one is missing, so a tree that predates its own documentation cannot be packed.
+- The publish workflow refuses to run unless `HEAD` carries the `v<version>` tag, so a stale branch head cannot be released.
+
 ## 1.1.0 — 2026-11-05
 
 Splits the phone builds of Chrome, Firefox and Safari into their own browser ids, and completes the mobile, legacy and in-app rows.

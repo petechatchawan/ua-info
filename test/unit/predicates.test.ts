@@ -1,4 +1,4 @@
-import { is, isBot } from '../../src/check';
+import { is, isBot, isDesktop, isIPad, isMobile, isTablet } from '../../src/check';
 import { parse } from '../../src/parse';
 import type { UAInfo } from '../../src/types';
 
@@ -84,6 +84,44 @@ describe('is', () => {
   it('keeps a tablet distinct from mobile', () => {
     expect(is(ipad, { device: 'tablet', os: 'ipados', vendor: 'apple' })).toBe(true);
     expect(is(ipad, { device: 'mobile' })).toBe(false);
+  });
+});
+
+describe('device helpers', () => {
+  it('reads the device type directly', () => {
+    expect(isMobile(chromeAndroid)).toBe(true);
+    expect(isMobile(ipad)).toBe(false);
+    expect(isTablet(ipad)).toBe(true);
+    expect(isTablet(chromeAndroid)).toBe(false);
+    expect(isDesktop(edgeWindows)).toBe(true);
+    expect(isDesktop(chromeAndroid)).toBe(false);
+  });
+
+  it('names an iPad by OS or by model', () => {
+    expect(isIPad(ipad)).toBe(true);
+    expect(isIPad(chromeAndroid)).toBe(false);
+    // An app string can name `iPad` without the `CPU OS` token, so the OS reads as `ios`.
+    const discordIPad = parse('Discord/52.0 (iPad; iOS 14.4; Scale/2.00)');
+    expect(discordIPad.os.name).toBe('ios');
+    expect(isIPad(discordIPad)).toBe(true);
+  });
+
+  it('narrows the device type', () => {
+    if (isMobile(chromeAndroid)) {
+      const type: 'mobile' = chromeAndroid.device.type;
+      void type;
+    }
+    if (isTablet(ipad)) {
+      const type: 'tablet' = ipad.device.type;
+      void type;
+    }
+    if (isDesktop(edgeWindows)) {
+      const type: 'desktop' = edgeWindows.device.type;
+      void type;
+      // @ts-expect-error a desktop is not a phone
+      const wrong: 'mobile' = edgeWindows.device.type;
+      void wrong;
+    }
   });
 });
 

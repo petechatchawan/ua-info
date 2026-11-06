@@ -198,6 +198,17 @@ function scaleVersion(id: OSId, version: Version | null, source: 'ua' | 'hints')
   return version;
 }
 
+// WebKit freezes the `CPU iPhone OS` token at 18.6 on iOS 26 and later, while the top-level
+// `Version/` token keeps reporting the release. A frozen 18/19 platform version therefore yields
+// to a `Version/` of 26 or more. Other browsers on iOS carry no such token, so they stay frozen.
+function unfrozenIOSVersion(os: OSInfo, scanned: Scan): Version | null {
+  if ((os.name !== 'ios' && os.name !== 'ipados') || os.version === null) return null;
+  if (os.version.major !== 18 && os.version.major !== 19) return null;
+  const token = scanned.products.find((product) => product.name === 'version' && product.top);
+  const real = readVersion(token?.version ?? null);
+  return real !== null && real.major >= 26 ? real : null;
+}
+
 function resolveOS(scanned: Scan, hints: ClientHints | null): OSInfo {
   const candidates = OS_MATCHER.find(scanned, null).map((candidate) => ({
     ...candidate,
@@ -215,7 +226,10 @@ function resolveOS(scanned: Scan, hints: ClientHints | null): OSInfo {
     });
   }
   const { id } = pick(candidates, OS_MATCHER.beats);
-  return { name: id, version: id ? strongestVersion(candidates, id) : null };
+  const version = id ? strongestVersion(candidates, id) : null;
+  const os: OSInfo = { name: id, version };
+  const real = unfrozenIOSVersion(os, scanned);
+  return real ? { name: id, version: real } : os;
 }
 
 function resolveCPU(scanned: Scan, hints: ClientHints | null): CPUInfo {
