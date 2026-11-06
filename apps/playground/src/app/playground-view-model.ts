@@ -1,7 +1,7 @@
 import { labels, type UAInfo } from '../services/ua-detection-service';
 import type { PlaygroundMode } from './playground-state';
 
-const NOT_DETECTED = 'Not detected';
+export const NOT_DETECTED = 'Not detected';
 
 function humanize(value: string | null | undefined): string {
     if (!value) return NOT_DETECTED;

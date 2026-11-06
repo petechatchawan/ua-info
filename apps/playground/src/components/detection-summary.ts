@@ -1,11 +1,12 @@
 import type { DetectionSummaryViewModel } from '../app/playground-view-model';
+import { NOT_DETECTED } from '../app/playground-view-model';
 import { type Component } from './component';
 
 const fields: ReadonlyArray<readonly [keyof DetectionSummaryViewModel, string]> = [
     ['browser', 'Browser'],
     ['mode', 'Mode'],
-    ['contextHost', 'Context Host'],
-    ['contextSurface', 'Context Surface'],
+    ['contextHost', 'Host app'],
+    ['contextSurface', 'Runs as'],
     ['os', 'Operating System'],
     ['device', 'Device'],
 ];
@@ -31,7 +32,11 @@ export function createDetectionSummary(): Component<DetectionSummaryViewModel> {
     return {
         element,
         update(model) {
-            for (const [key] of fields) values.get(key)!.textContent = model[key];
+            for (const [key] of fields) {
+                const value = values.get(key)!;
+                value.textContent = model[key];
+                value.dataset.detected = String(model[key] !== NOT_DETECTED);
+            }
         },
         destroy: () => undefined,
     };
