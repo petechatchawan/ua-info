@@ -74,8 +74,39 @@
     display: grid;
     gap: var(--space-2);
 }
-.ua-playground-field label {
+.ua-playground-field label,
+.ua-playground-sample-label {
     font-weight: 650;
+}
+.ua-playground-sample-groups {
+    display: grid;
+    gap: var(--space-3);
+}
+.ua-playground-sample-group h3 {
+    font-size: 0.8125rem;
+    font-weight: 650;
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-2);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.ua-playground-sample-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+}
+.ua-playground-sample-chips button {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--color-text);
+    padding: var(--space-1) var(--space-3);
+    min-height: 2.5rem;
+}
+.ua-playground-sample-chips button[aria-pressed='true'] {
+    background: var(--color-accent);
+    border-color: transparent;
+    color: var(--color-accent-contrast);
 }
 .ua-playground-field textarea,
 .ua-playground-field select {

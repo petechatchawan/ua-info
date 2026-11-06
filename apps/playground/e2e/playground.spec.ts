@@ -20,7 +20,7 @@ test('keeps pure LINE parsing distinct from runtime LIFF', async ({ page }) => {
     await page.getByRole('tab', { name: 'Manual User-Agent' }).click();
     await expect(page.locator('#current-browser-panel')).toBeHidden();
     await expect(page.locator('#manual-user-agent-panel')).toBeVisible();
-    await page.getByTestId('sample-selector').selectOption('line-liff');
+    await page.getByTestId('sample-selector').locator('[data-sample-id="line-liff"]').click();
     const summary = page.getByTestId('detection-summary');
     await expect(summary).toBeVisible();
     await expect(summary.locator('[data-field="mode"]')).toHaveText('WebView');
