@@ -8,7 +8,7 @@ export function createAppHeader(): Component<void> {
     identity.className = 'ua-playground-header__identity';
 
     const title = document.createElement('h1');
-    title.textContent = 'UA Info';
+    title.textContent = 'ua-inspect';
     const version = document.createElement('span');
     version.className = 'ua-playground-version';
     version.textContent = `v${__UA_INFO_VERSION__}`;

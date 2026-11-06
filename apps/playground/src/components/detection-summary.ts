@@ -16,7 +16,11 @@ export function createDetectionSummary(): Component<DetectionSummaryViewModel> {
     element.className = 'ua-playground-summary';
     element.dataset.testid = 'detection-summary';
     const heading = document.createElement('h2');
-    heading.textContent = 'Identity Summary';
+    heading.textContent = 'Result';
+    const verdict = document.createElement('p');
+    verdict.className = 'ua-playground-verdict';
+    const subline = document.createElement('p');
+    subline.className = 'ua-playground-verdict-sub';
     const list = document.createElement('dl');
     const values = new Map<keyof DetectionSummaryViewModel, HTMLElement>();
     for (const [key, label] of fields) {
@@ -27,11 +31,16 @@ export function createDetectionSummary(): Component<DetectionSummaryViewModel> {
         list.append(term, value);
         values.set(key, value);
     }
-    element.append(heading, list);
+    element.append(heading, verdict, subline, list);
 
     return {
         element,
         update(model) {
+            verdict.textContent = model.browser;
+            verdict.dataset.detected = String(model.browser !== NOT_DETECTED);
+            const context =
+                model.contextSurface !== NOT_DETECTED ? ` · ${model.contextSurface}` : '';
+            subline.textContent = `${model.os} · ${model.device}${context}`;
             for (const [key] of fields) {
                 const value = values.get(key)!;
                 value.textContent = model[key];

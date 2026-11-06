@@ -1,11 +1,11 @@
 .ua-playground-shell {
-    width: min(100% - 2rem, 90rem);
+    width: min(100% - 2rem, 76rem);
     margin-inline: auto;
     padding-block: var(--space-5) var(--space-8);
 }
 .ua-playground-workspace {
     display: grid;
-    grid-template-columns: minmax(18rem, 2fr) minmax(0, 3fr);
+    grid-template-columns: minmax(20rem, 2fr) minmax(0, 3fr);
     gap: var(--space-6);
     align-items: start;
 }
@@ -21,6 +21,12 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
     gap: var(--space-4);
+}
+@media (min-width: 56rem) {
+    .ua-playground-input-column {
+        position: sticky;
+        top: var(--space-5);
+    }
 }
 @media (max-width: 56rem) {
     .ua-playground-workspace {

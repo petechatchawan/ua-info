@@ -23,6 +23,24 @@ describe('result components', () => {
         );
     });
 
+    it('leads the summary with a verdict drawn from the same model', () => {
+        const summary = createDetectionSummary();
+        summary.update({
+            browser: 'Chrome 150',
+            mode: 'Browser',
+            contextHost: 'Not detected',
+            contextSurface: 'Not detected',
+            os: 'Android 16',
+            device: 'Mobile',
+        });
+        expect(summary.element.querySelector('.ua-playground-verdict')?.textContent).toBe(
+            'Chrome 150',
+        );
+        expect(summary.element.querySelector('.ua-playground-verdict-sub')?.textContent).toBe(
+            'Android 16 · Mobile',
+        );
+    });
+
     it('renders hostile JSON as text and copies exact values', () => {
         const copied = vi.fn();
         const viewer = createJsonViewer({ onCopy: copied });

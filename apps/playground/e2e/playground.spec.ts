@@ -37,7 +37,7 @@ test('fits a 320px viewport and makes no third-party request', async ({ page }) 
     const origins = new Set<string>();
     page.on('request', (request) => origins.add(new URL(request.url()).origin));
     await page.goto('./');
-    await expect(page.getByRole('heading', { name: 'UA Info', exact: false })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'ua-inspect', exact: false })).toBeVisible();
     const fits = await page.evaluate(
         () => document.documentElement.scrollWidth <= window.innerWidth,
     );
